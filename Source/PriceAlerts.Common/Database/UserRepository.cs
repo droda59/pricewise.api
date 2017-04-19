@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using MongoDB.Driver;
@@ -8,6 +9,11 @@ namespace PriceAlerts.Common.Database
 {
     internal class UserRepository : EntityRepository<User>, IUserRepository
     {
+        public async Task<IEnumerable<User>> GetAllAsync()
+        {
+            return await this.Collection.Find(FilterDefinition<User>.Empty).ToListAsync();
+        }
+
         public async Task<User> GetAsync(string id)
         {
             return await this.Collection.Find(x => x.Id == id).FirstOrDefaultAsync();

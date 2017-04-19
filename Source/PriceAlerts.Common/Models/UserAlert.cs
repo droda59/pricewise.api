@@ -17,6 +17,8 @@ namespace PriceAlerts.Common.Models
 
         public bool IsDeleted { get; set; }
 
+        public PriceChange BestCurrentDeal { get; set; }
+
         public IList<UserAlertEntry> Entries { get; set; }
     }
 }

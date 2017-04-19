@@ -14,6 +14,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PriceAlerts.Common\price-alerts.common.csproj" />
+    <ProjectReference Include="..\PriceAlerts.Common\PriceAlerts.Common.csproj" />
   </ItemGroup>
 </Project>

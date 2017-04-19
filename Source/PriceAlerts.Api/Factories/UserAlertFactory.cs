@@ -16,12 +16,20 @@ namespace PriceAlerts.Api.Factories
 
         public async Task<Models.UserAlert> CreateUserAlert(Common.Models.UserAlert repoAlert)
         {
-            var userAlert = new PriceAlerts.Api.Models.UserAlert
+            var bestDealProduct = await this._productRepository.GetAsync(repoAlert.BestCurrentDeal.ProductId);
+
+            var userAlert = new Api.Models.UserAlert
             {
                 Id = repoAlert.Id,
                 Title = repoAlert.Title,
                 ImageUrl = repoAlert.ImageUrl,
-                IsActive = repoAlert.IsActive
+                IsActive = repoAlert.IsActive,
+                BestCurrentDeal = new Api.Models.Deal 
+                {
+                    Price = repoAlert.BestCurrentDeal.Price,
+                    ModifiedAt = repoAlert.BestCurrentDeal.ModifiedAt,
+                    ProductUrl = bestDealProduct.Uri
+                }
             };
 
             var notDeletedEntries = repoAlert.Entries.Where(x => !x.IsDeleted).ToList();
@@ -30,7 +38,7 @@ namespace PriceAlerts.Api.Factories
                 var entryProduct = await this._productRepository.GetAsync(entry.MonitoredProductId);
                 var lastUpdate = entryProduct.PriceHistory.OrderByDescending(x => x.ModifiedAt).First();
 
-                var userAlertEntry = new PriceAlerts.Api.Models.UserAlertEntry
+                var userAlertEntry = new Api.Models.UserAlertEntry
                 {
                     Uri = entryProduct.Uri,
                     LastPrice = lastUpdate.Price,
@@ -39,9 +47,6 @@ namespace PriceAlerts.Api.Factories
 
                 userAlert.Entries.Add(userAlertEntry);
             }));
-
-            userAlert.LastUpdate = userAlert.Entries.Where(x => !x.IsDeleted).Max(x => x.LastUpdate);
-            userAlert.BestCurrentPrice = userAlert.Entries.Where(x => !x.IsDeleted).Min(x => x.LastPrice);
 
             return userAlert;
         }

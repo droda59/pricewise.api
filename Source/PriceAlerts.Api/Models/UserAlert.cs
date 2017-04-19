@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace PriceAlerts.Api.Models
@@ -18,9 +17,7 @@ namespace PriceAlerts.Api.Models
 
         public bool IsActive { get; set; }
 
-        public DateTime LastUpdate { get; set; }
-
-        public decimal BestCurrentPrice { get; set; }
+        public Deal BestCurrentDeal { get; set; }
 
         public IList<UserAlertEntry> Entries { get; set; }
     }

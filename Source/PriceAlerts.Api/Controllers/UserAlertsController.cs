@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -47,7 +48,8 @@ namespace PriceAlerts.Api.Controllers
                 Id = ObjectId.GenerateNewId().ToString(), 
                 Title = existingProduct.Title, 
                 ImageUrl = existingProduct.ImageUrl,
-                IsActive = true 
+                IsActive = true,
+                BestCurrentDeal = existingProduct.PriceHistory.OrderBy(x => x.ModifiedAt).Last()
             };
 
             newAlert.Entries.Add(new PriceAlerts.Common.Models.UserAlertEntry { MonitoredProductId = existingProduct.Id });
@@ -72,9 +74,15 @@ namespace PriceAlerts.Api.Controllers
             repoUserAlert.Title = alert.Title;
             repoUserAlert.Entries.Clear();
 
+            var alertProducts = new List<Common.Models.MonitoredProduct>();
             await Task.WhenAll(alert.Entries.Select(async entry => 
             {
                 var existingProduct = await ForceGetProduct(entry.Uri);
+
+                if (!entry.IsDeleted) 
+                {
+                    alertProducts.Add(existingProduct);
+                }
 
                 repoUserAlert.Entries.Add(
                     new PriceAlerts.Common.Models.UserAlertEntry 
@@ -83,6 +91,15 @@ namespace PriceAlerts.Api.Controllers
                         IsDeleted = entry.IsDeleted
                     });
             }));
+
+            foreach(var product in alertProducts)
+            {
+                var lastPrice = product.PriceHistory.OrderBy(y => y.ModifiedAt).Last();
+                if (lastPrice.Price < repoUserAlert.BestCurrentDeal.Price)
+                {
+                    repoUserAlert.BestCurrentDeal = lastPrice;
+                }
+            }
 
             await this._userRepository.UpdateAsync(userId, repoUser);
 
@@ -103,26 +120,12 @@ namespace PriceAlerts.Api.Controllers
             return await this._userRepository.UpdateAsync(userId, repoUser);
         }
 
-        [HttpPut("{userId}/{alertId}/deactivate")]
-        public async Task<bool> DeactivateAlert(string userId, string alertId)
-        {
-            var repoUser = await this._userRepository.GetAsync(userId);
-            
-            var repoUserAlert = repoUser.Alerts.First(x => x.Id == alertId);
-            repoUserAlert.IsActive = false;
-
-            return await this._userRepository.UpdateAsync(userId, repoUser);
-        }
-
         private async Task<Common.Models.MonitoredProduct> ForceGetProduct(string uri)
         {
             var existingProduct = await this._productRepository.GetByUrlAsync(uri);
             if (existingProduct == null)
             {
-                var newProduct = await this._productFactory.CreateProduct(uri);
-                await this._productRepository.InsertAsync(newProduct);
-
-                existingProduct = await this._productRepository.GetByUrlAsync(uri);
+                existingProduct = await this._productFactory.CreateProduct(uri);
             }
 
             return existingProduct;
