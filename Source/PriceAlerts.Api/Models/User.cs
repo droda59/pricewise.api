@@ -9,7 +9,7 @@ namespace PriceAlerts.Api.Models
             this.Alerts = new List<UserAlert>();
         }
 
-        public string Id { get; set; }
+        public string UserId { get; set; }
 
         public string FirstName { get; set; }
 

@@ -14,14 +14,14 @@ namespace PriceAlerts.Common.Database
             return await this.Collection.Find(FilterDefinition<User>.Empty).ToListAsync();
         }
 
-        public async Task<User> GetAsync(string id)
+        public async Task<User> GetAsync(string userId)
         {
-            return await this.Collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+            return await this.Collection.Find(x => x.UserId == userId).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> UpdateAsync(string id, User data)
+        public async Task<bool> UpdateAsync(string userId, User data)
         {
-            var result = await this.Collection.FindOneAndReplaceAsync(x => x.Id == id, data);
+            var result = await this.Collection.FindOneAndReplaceAsync(x => x.UserId == userId, data);
 
             return result != null;
         }

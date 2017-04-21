@@ -1,5 +1,3 @@
-using System;
-
 using Newtonsoft.Json;
 
 namespace PriceAlerts.Common.Models

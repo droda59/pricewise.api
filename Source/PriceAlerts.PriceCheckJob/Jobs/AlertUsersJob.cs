@@ -32,7 +32,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
 
             await Task.WhenAll(allUsers.Select(async user => 
             {
-                Console.WriteLine("Starting user " + user.Id);
+                Console.WriteLine("Starting user " + user.UserId);
 
                 var alertsInUse = user.Alerts.Where(x => !x.IsDeleted && x.IsActive).ToList();
                 foreach (var alert in alertsInUse)
@@ -56,11 +56,11 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                         Console.WriteLine("Price dropped for alert " + alert.Id + " from " + alert.BestCurrentDeal.Price + " to " + bestCurrentDeal.Price);
 
                         alert.BestCurrentDeal = bestCurrentDeal;
-                        await this._userRepository.UpdateAsync(user.Id, user);
+                        await this._userRepository.UpdateAsync(user.UserId, user);
                     }
                 }
 
-                Console.WriteLine("Finished user " + user.Id);
+                Console.WriteLine("Finished user " + user.UserId);
             }));
         }
     }

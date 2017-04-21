@@ -9,9 +9,9 @@ namespace PriceAlerts.Common.Database
     {
         Task<IEnumerable<User>> GetAllAsync();
         
-        Task<User> GetAsync(string id);
+        Task<User> GetAsync(string userId);
 
-        Task<bool> UpdateAsync(string id, User data);
+        Task<bool> UpdateAsync(string userId, User data);
 
         Task<bool> InsertAsync(User data);
     }

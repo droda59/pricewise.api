@@ -20,13 +20,17 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpGet("{userId}")]
-        public async Task<PriceAlerts.Api.Models.User> Get(string userId)
+        public async Task<IActionResult> Get(string userId)
         {
             var repoUser = await this._userRepository.GetAsync(userId);
-
-            var user = new PriceAlerts.Api.Models.User()
+            if (repoUser == null)
             {
-                Id = repoUser.Id,
+                return this.NotFound();
+            }
+
+            var user = new Api.Models.User()
+            {
+                UserId = repoUser.UserId,
                 FirstName = repoUser.FirstName,
                 LastName = repoUser.LastName,
                 Email = repoUser.Email
@@ -40,18 +44,49 @@ namespace PriceAlerts.Api.Controllers
                 user.Alerts.Add(alert);
             }));
 
-            return user;
+            return this.Ok(user);
+        }
+
+        [HttpPost("{userId}")]
+        public async Task<IActionResult> Create([FromBody]Api.Models.User user)
+        {
+            var repoUser = new Common.Models.User()
+            {
+                UserId = user.UserId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email
+            };
+
+            var insertResult = await this._userRepository.InsertAsync(repoUser);
+            if (insertResult)
+            {
+                var newUser = await this.Get(user.UserId);
+
+                return this.Ok(newUser);
+            }
+            
+            return this.BadRequest();
         }
 
         [HttpPut("{userId}")]
-        public async Task<bool> Update(string userId, [FromBody]PriceAlerts.Api.Models.User user)
+        public async Task<IActionResult> Update(string userId, [FromBody]Api.Models.User user)
         {
             var repoUser = await this._userRepository.GetAsync(userId);
             repoUser.FirstName = user.FirstName;
             repoUser.LastName = user.LastName;
             repoUser.Email = user.Email;
 
-            return await this._userRepository.UpdateAsync(userId, repoUser);
+            var updateResult = await this._userRepository.UpdateAsync(userId, repoUser);
+            if (updateResult)
+            {
+                var newUser = await this.Get(user.UserId);
+
+                return this.Ok(newUser);
+            }
+            
+            return this.BadRequest();
+
         }
     }
 }
