@@ -5,6 +5,8 @@ namespace PriceAlerts.Api.Models
     public class UserAlertEntry
     {
         public string Uri { get; set; }
+
+        public string Title { get; set; }
         
         public decimal LastPrice { get; set; }
 

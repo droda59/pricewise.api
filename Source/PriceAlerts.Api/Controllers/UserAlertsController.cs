@@ -68,6 +68,41 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [Authorize]
+        [HttpPost("{userId}/{alertId}/entry")]
+        public async Task<PriceAlerts.Api.Models.UserAlert> CreateAlertEntry(string userId, string alertId, [FromBody]Uri uri)
+        {
+            var existingProduct = await ForceGetProduct(uri.AbsoluteUri);
+            var repoUser = await this._userRepository.GetAsync(userId);
+
+            var repoUserAlert = repoUser.Alerts.Single(x => x.Id == alertId);
+            repoUserAlert.Entries.Add(new Common.Models.UserAlertEntry { MonitoredProductId = existingProduct.Id });
+
+            var alertProducts = new List<Common.Models.MonitoredProduct>();
+            await Task.WhenAll(repoUserAlert.Entries.Select(async entry => 
+            {
+                if (!entry.IsDeleted) 
+                {
+                    var entryProduct = await this._productRepository.GetAsync(entry.MonitoredProductId);
+                    alertProducts.Add(existingProduct);
+                }
+            }));
+
+            var bestDeal = alertProducts
+                .Select(x => x.PriceHistory.OrderBy(y => y.ModifiedAt).Last())
+                .Select(x => Tuple.Create(x.Price, x))
+                .OrderBy(x => x.Item1)
+                .First();
+
+            repoUserAlert.BestCurrentDeal = bestDeal.Item2;
+
+            await this._userRepository.UpdateAsync(userId, repoUser);
+
+            var userAlert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
+
+            return userAlert;
+        }
+
+        [Authorize]
         [HttpPut("{userId}")]
         public async Task<PriceAlerts.Api.Models.UserAlert> UpdateAlert(string userId, [FromBody]PriceAlerts.Api.Models.UserAlert alert)
         {
@@ -96,14 +131,13 @@ namespace PriceAlerts.Api.Controllers
                     });
             }));
 
-            foreach(var product in alertProducts)
-            {
-                var lastPrice = product.PriceHistory.OrderBy(y => y.ModifiedAt).Last();
-                if (lastPrice.Price < repoUserAlert.BestCurrentDeal.Price)
-                {
-                    repoUserAlert.BestCurrentDeal = lastPrice;
-                }
-            }
+            var bestDeal = alertProducts
+                .Select(x => x.PriceHistory.OrderBy(y => y.ModifiedAt).Last())
+                .Select(x => Tuple.Create(x.Price, x))
+                .OrderBy(x => x.Item1)
+                .First();
+
+            repoUserAlert.BestCurrentDeal = bestDeal.Item2;
 
             await this._userRepository.UpdateAsync(userId, repoUser);
 

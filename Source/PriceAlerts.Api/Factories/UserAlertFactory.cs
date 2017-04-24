@@ -42,7 +42,8 @@ namespace PriceAlerts.Api.Factories
                 {
                     Uri = entryProduct.Uri,
                     LastPrice = lastUpdate.Price,
-                    LastUpdate = lastUpdate.ModifiedAt
+                    LastUpdate = lastUpdate.ModifiedAt,
+                    Title = entryProduct.Title
                 };
 
                 userAlert.Entries.Add(userAlertEntry);
