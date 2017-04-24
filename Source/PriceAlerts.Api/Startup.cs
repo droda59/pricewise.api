@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
+using PriceAlerts.Api.Infrastructure;
 using PriceAlerts.Common.Database;
 
 namespace PriceAlerts.Api
@@ -49,6 +50,11 @@ namespace PriceAlerts.Api
                     settings.NullValueHandling = NullValueHandling.Ignore;
                     settings.Formatting = Formatting.Indented;
                 });
+
+            services.AddAuthorization(options => 
+            {
+                options.AddPolicy("LocalOnly", policy => policy.Requirements.Add(new LocalAuthorizationOnlyRequirement()));
+            });
 
             MongoDBConfig.RegisterClassMaps();
             

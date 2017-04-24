@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using HtmlAgilityPack;
@@ -10,16 +11,20 @@ namespace PriceAlerts.Common.Parsers
     internal abstract class BaseParser : IDisposable
     {
         private readonly IHtmlLoader _htmlLoader;
+        private readonly Uri _baseUri;
 
-        protected BaseParser(IHtmlLoader htmlLoader)
+        protected BaseParser(IHtmlLoader htmlLoader, Uri baseUri)
         {
             this._htmlLoader = htmlLoader;
+            this._baseUri = baseUri;
 
             if (this._htmlLoader != null)
             {
                 this._htmlLoader.Initialize();
             }
         }
+
+        public Uri Domain => this._baseUri;
 
         public void Dispose()
         {
@@ -51,6 +56,11 @@ namespace PriceAlerts.Common.Parsers
         protected abstract string GetImageUrl(HtmlDocument doc);
 
         protected abstract decimal GetPrice(HtmlDocument doc);
+
+        protected string ExtractNumber(string original)
+        {
+            return new string(original.Where(c => Char.IsDigit(c) || Char.IsPunctuation(c)).ToArray());
+        }
 
         private async Task<HtmlDocument> LoadDocument(Uri uri)
         {

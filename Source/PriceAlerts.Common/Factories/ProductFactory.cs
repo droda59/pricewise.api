@@ -9,18 +9,18 @@ namespace PriceAlerts.Common.Factories
 {
     internal class ProductFactory : IProductFactory
     {
-        private readonly IParser _parser;
+        private readonly IParserFactory _parserFactory;
         private readonly IProductRepository _productRepository;
 
-        public ProductFactory(IParser parser, IProductRepository productRepository)
+        public ProductFactory(IParserFactory parserFactory, IProductRepository productRepository)
         {
-            this._parser = parser;
+            this._parserFactory = parserFactory;
             this._productRepository = productRepository;
         }
 
         public async Task<MonitoredProduct> CreateProduct(string uri)
         {
-            var siteInfo = await this._parser.GetSiteInfo(uri);
+            var siteInfo = await this._parserFactory.CreateParser(uri).GetSiteInfo(uri);
 
             var monitoredProduct = new MonitoredProduct
             {

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using PriceAlerts.Common.Database;
-using PriceAlerts.Common.Parsers;
 
 namespace PriceAlerts.PriceCheckJob.Jobs
 {
@@ -11,13 +10,11 @@ namespace PriceAlerts.PriceCheckJob.Jobs
     {
         private readonly IProductRepository _productRepository;
         private readonly IUserRepository _userRepository;
-        private readonly IParser _parser;
 
-        public AlertUsersJob(IProductRepository productRepository, IUserRepository userRepository, IParser parser)
+        public AlertUsersJob(IProductRepository productRepository, IUserRepository userRepository)
         {
             this._productRepository = productRepository;
             this._userRepository = userRepository;
-            this._parser = parser;
         }
         
         public async Task SendAlerts()

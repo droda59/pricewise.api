@@ -11,7 +11,9 @@ namespace PriceAlerts.Common
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<HtmlLoader>().As<IHtmlLoader>().SingleInstance();
+            builder.RegisterType<ParserFactory>().As<IParserFactory>().SingleInstance();
             builder.RegisterType<AmazonParser>().As<IParser>().SingleInstance();
+            builder.RegisterType<BestBuyParser>().As<IParser>().SingleInstance();
 
             builder.RegisterType<ProductFactory>().As<IProductFactory>().SingleInstance();
             

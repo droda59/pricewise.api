@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 
 using HtmlAgilityPack;
 
@@ -8,7 +7,7 @@ namespace PriceAlerts.Common.Parsers
     internal class AmazonParser : BaseParser, IParser
     {
         public AmazonParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader)
+            : base(htmlLoader, new Uri("https://www.amazon.ca/"))
         {
         }
         
@@ -41,11 +40,6 @@ namespace PriceAlerts.Common.Parsers
             var decimalValue = Convert.ToDecimal(extractedValue);
 
             return decimalValue;
-        }
-
-        private string ExtractNumber(string original)
-        {
-            return new string(original.Where(c => Char.IsDigit(c) || Char.IsPunctuation(c)).ToArray());
         }
     }
 }

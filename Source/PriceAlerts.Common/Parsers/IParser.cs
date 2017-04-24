@@ -7,6 +7,8 @@ namespace PriceAlerts.Common.Parsers
 {
     public interface IParser
     {
+        Uri Domain { get; }
+
         Task<SitePriceInfo> GetSiteInfo(Uri uri);
 
         Task<SitePriceInfo> GetSiteInfo(string uri);

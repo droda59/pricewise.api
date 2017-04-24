@@ -11,12 +11,12 @@ namespace PriceAlerts.PriceCheckJob.Jobs
     internal class UpdatePricesJob
     {
         private readonly IProductRepository _productRepository;
-        private readonly IParser _parser;
+        private readonly IParserFactory _parserFactory;
 
-        public UpdatePricesJob(IProductRepository productRepository, IParser parser)
+        public UpdatePricesJob(IProductRepository productRepository, IParserFactory parserFactory)
         {
             this._productRepository = productRepository;
-            this._parser = parser;
+            this._parserFactory = parserFactory;
         }
         
         public async Task UpdatePrices()
@@ -27,7 +27,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
             {
                 Console.WriteLine("Starting product " + product.Id);
 
-                var siteInfo = await this._parser.GetSiteInfo(product.Uri);
+                var siteInfo = await this._parserFactory.CreateParser(product.Uri).GetSiteInfo(product.Uri);
 
                 product.PriceHistory.Add(
                     new PriceChange
