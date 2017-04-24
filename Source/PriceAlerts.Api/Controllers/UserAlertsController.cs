@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using MongoDB.Bson;
@@ -28,6 +29,7 @@ namespace PriceAlerts.Api.Controllers
             this._productFactory = productFactory;
         }
 
+        [Authorize]
         [HttpGet("{userId}/{alertId}")]
         public async Task<PriceAlerts.Api.Models.UserAlert> Get(string userId, string alertId)
         {
@@ -39,6 +41,7 @@ namespace PriceAlerts.Api.Controllers
             return userAlert;
         }
 
+        [Authorize]
         [HttpPost("{userId}")]
         public async Task<PriceAlerts.Api.Models.UserAlert> CreateAlert(string userId, [FromBody]Uri uri)
         {
@@ -64,6 +67,7 @@ namespace PriceAlerts.Api.Controllers
             return userAlert;
         }
 
+        [Authorize]
         [HttpPut("{userId}")]
         public async Task<PriceAlerts.Api.Models.UserAlert> UpdateAlert(string userId, [FromBody]PriceAlerts.Api.Models.UserAlert alert)
         {
@@ -108,6 +112,7 @@ namespace PriceAlerts.Api.Controllers
             return userAlert;
         }
 
+        [Authorize]
         [HttpDelete("{userId}/{alertId}")]
         public async Task<bool> DeleteAlert(string userId, string alertId)
         {

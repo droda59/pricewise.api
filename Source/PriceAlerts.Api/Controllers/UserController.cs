@@ -1,6 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using PriceAlerts.Common.Database;
@@ -19,6 +19,7 @@ namespace PriceAlerts.Api.Controllers
             this._userAlertFactory = userAlertFactory;
         }
 
+        [Authorize]
         [HttpGet("{userId}")]
         public async Task<IActionResult> Get(string userId)
         {
@@ -47,6 +48,7 @@ namespace PriceAlerts.Api.Controllers
             return this.Ok(user);
         }
 
+        [Authorize]
         [HttpPost("{userId}")]
         public async Task<IActionResult> Create([FromBody]Api.Models.User user)
         {
@@ -69,6 +71,7 @@ namespace PriceAlerts.Api.Controllers
             return this.BadRequest();
         }
 
+        [Authorize]
         [HttpPut("{userId}")]
         public async Task<IActionResult> Update(string userId, [FromBody]Api.Models.User user)
         {

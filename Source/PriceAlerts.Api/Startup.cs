@@ -62,6 +62,14 @@ namespace PriceAlerts.Api
             loggerFactory.AddDebug();
 
             app.UseCors("CorsPolicy");
+            
+            var options = new JwtBearerOptions
+            {
+                Audience = this.Configuration["Auth0:ApiIdentifier"],
+                Authority = $"https://{this.Configuration["Auth0:Domain"]}/"
+            };
+            app.UseJwtBearerAuthentication(options);
+
             app.UseMvc();
         }
     }
