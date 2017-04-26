@@ -27,6 +27,7 @@ namespace PriceAlerts.Api.Factories
                 BestCurrentDeal = new Api.Models.Deal 
                 {
                     Price = repoAlert.BestCurrentDeal.Price,
+                    Title = bestDealProduct.Title,
                     ModifiedAt = repoAlert.BestCurrentDeal.ModifiedAt,
                     ProductUrl = bestDealProduct.Uri
                 }

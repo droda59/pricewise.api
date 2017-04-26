@@ -42,6 +42,37 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [Authorize]
+        [HttpGet("{userId}/{alertId}/history")]
+        public async Task<IEnumerable<Api.Models.Deal>> GetHistory(string userId, string alertId)
+        {
+            var repoUser = await this._userRepository.GetAsync(userId);
+            var repoUserAlert = repoUser.Alerts.First(x => x.Id == alertId);
+
+            var alertProducts = new List<Common.Models.MonitoredProduct>();
+            await Task.WhenAll(repoUserAlert.Entries.Select(async entry => 
+            {
+                var existingProduct = await this._productRepository.GetAsync(entry.MonitoredProductId);
+
+                if (!entry.IsDeleted) 
+                {
+                    alertProducts.Add(existingProduct);
+                }
+            }));
+
+            var deals = alertProducts
+                .SelectMany(x => x.PriceHistory
+                    .Select(y => new Api.Models.Deal 
+                    {
+                        Price = y.Price,
+                        Title = x.Title,
+                        ModifiedAt = y.ModifiedAt,
+                        ProductUrl = x.Uri
+                    }));
+
+            return deals;
+        }
+
+        [Authorize]
         [HttpPost("{userId}")]
         public async Task<PriceAlerts.Api.Models.UserAlert> CreateAlert(string userId, [FromBody]Uri uri)
         {
