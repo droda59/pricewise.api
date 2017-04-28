@@ -1,5 +1,6 @@
 using Autofac;
 
+using PriceAlerts.PriceCheckJob.Emails;
 using PriceAlerts.PriceCheckJob.Jobs;
 
 namespace PriceAlerts.PriceCheckJob
@@ -10,6 +11,8 @@ namespace PriceAlerts.PriceCheckJob
         {
             builder.RegisterType<UpdatePricesJob>().AsSelf();
             builder.RegisterType<AlertUsersJob>().AsSelf();
+
+            builder.RegisterType<EmailSender>().As<IEmailSender>().SingleInstance();
         }
     }
 }
