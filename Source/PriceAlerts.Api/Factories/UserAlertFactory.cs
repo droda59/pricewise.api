@@ -24,6 +24,7 @@ namespace PriceAlerts.Api.Factories
                 Title = repoAlert.Title,
                 ImageUrl = repoAlert.ImageUrl,
                 IsActive = repoAlert.IsActive,
+                LastModifiedAt = repoAlert.LastModifiedAt, 
                 BestCurrentDeal = new Api.Models.Deal 
                 {
                     Price = repoAlert.BestCurrentDeal.Price,

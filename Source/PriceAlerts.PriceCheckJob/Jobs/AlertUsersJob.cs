@@ -71,6 +71,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                         };
 
                         alert.BestCurrentDeal = bestCurrentDeal;
+                        alert.LastModifiedAt = DateTime.Now;
 
                         var updateTask = this._userRepository.UpdateAsync(user.UserId, user);
                         var emailTask = this._emailSender.SendEmail(emailAlert);

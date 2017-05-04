@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace PriceAlerts.Api.Models
@@ -16,6 +17,8 @@ namespace PriceAlerts.Api.Models
         public string ImageUrl { get; set; }
 
         public bool IsActive { get; set; }
+
+        public DateTime LastModifiedAt { get; set; }
 
         public Deal BestCurrentDeal { get; set; }
 

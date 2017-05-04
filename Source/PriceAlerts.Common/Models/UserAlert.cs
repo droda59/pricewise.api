@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace PriceAlerts.Common.Models
@@ -16,6 +17,8 @@ namespace PriceAlerts.Common.Models
         public bool IsActive { get; set; }
 
         public bool IsDeleted { get; set; }
+
+        public DateTime LastModifiedAt { get; set; }
 
         public PriceChange BestCurrentDeal { get; set; }
 

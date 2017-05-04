@@ -77,6 +77,7 @@ namespace PriceAlerts.Api.Controllers
                 Title = existingProduct.Title, 
                 ImageUrl = existingProduct.ImageUrl,
                 IsActive = true,
+                LastModifiedAt = DateTime.Now,
                 BestCurrentDeal = existingProduct.PriceHistory.OrderBy(x => x.ModifiedAt).Last()
             };
 
@@ -101,6 +102,7 @@ namespace PriceAlerts.Api.Controllers
             var repoUserAlert = repoUser.Alerts.Single(x => x.Id == alert.Id);
             repoUserAlert.IsActive = alert.IsActive;
             repoUserAlert.Title = alert.Title;
+            repoUserAlert.LastModifiedAt = DateTime.Now;
             repoUserAlert.Entries.Clear();
 
             var alertProducts = new List<Common.Models.MonitoredProduct>();
@@ -145,6 +147,7 @@ namespace PriceAlerts.Api.Controllers
             var repoUserAlert = repoUser.Alerts.Single(x => x.Id == alertId);
             repoUserAlert.IsDeleted = true;
             repoUserAlert.IsActive = false;
+            repoUserAlert.LastModifiedAt = DateTime.Now;
 
             return await this._userRepository.UpdateAsync(userId, repoUser);
         }
