@@ -14,6 +14,8 @@ namespace PriceAlerts.Api.Models
 
         public string Title { get; set; }
 
+        public string Url { get; set; }
+
         public IEnumerable<PriceChange> PriceHistory { get; internal set; }
     }
 }

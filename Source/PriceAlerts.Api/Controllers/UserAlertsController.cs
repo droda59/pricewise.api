@@ -59,6 +59,7 @@ namespace PriceAlerts.Api.Controllers
                 .Select(x => new Models.ProductHistory
                 {
                     Title = x.Title,
+                    Url = x.Uri,
                     PriceHistory = x.PriceHistory.GroupBy(y => y.ModifiedAt.Date).Select(y => y.Min())
                 });
 

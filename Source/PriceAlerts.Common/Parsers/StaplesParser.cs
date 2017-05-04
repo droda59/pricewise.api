@@ -35,7 +35,7 @@ namespace PriceAlerts.Common.Parsers
         protected override decimal GetPrice(HtmlDocument doc)
         {
             var priceContent = doc.DocumentNode
-                .SelectSingleNode(".//div[@class='SEOFinalPrice']")
+                .SelectSingleNode(".//*[@class='SEOFinalPrice']")
                 .InnerText;
 
             var extractedValue = this.ExtractNumber(priceContent);
