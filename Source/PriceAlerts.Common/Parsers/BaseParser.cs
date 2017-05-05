@@ -67,7 +67,7 @@ namespace PriceAlerts.Common.Parsers
 
         protected string ExtractNumber(string original)
         {
-            return new string(original.Where(c => Char.IsDigit(c) || Char.IsPunctuation(c)).ToArray());
+            return new string(original.Replace(',', '.').Where(c => Char.IsDigit(c) || Char.IsPunctuation(c)).ToArray());
         }
 
         private async Task<HtmlDocument> LoadDocument(Uri uri)
