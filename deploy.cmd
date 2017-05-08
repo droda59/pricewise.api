@@ -73,11 +73,11 @@ call :ExecuteCmd dotnet restore "Source\PriceAlerts.PriceCheckJob\"
 IF !ERRORLEVEL! NEQ 0 goto error
 
 :: 2. Build and publish
-call :ExecuteCmd dotnet publish "Source\PriceAlerts.Api\" -o "%DEPLOYMENT_TEMP%" -c Release
+call :ExecuteCmd dotnet publish "Source\PriceAlerts.Api\PriceAlerts.Api.csproj" -o "%DEPLOYMENT_TEMP%" -c Release
 
 :: 2.1 Build and publish WebJobs
 echo Building and deploying PriceCheck WebJob
-call :ExecuteCmd dotnet publish "Source\PriceAlerts.PriceCheckJob\" -o "%DEPLOYMENT_TEMP%\App_Data\Jobs\Continuous\price-check-job" -c Release
+call :ExecuteCmd dotnet publish "Source\PriceAlerts.PriceCheckJob\PriceAlerts.PriceCheckJob.csproj" -o "%DEPLOYMENT_TEMP%\App_Data\Jobs\Continuous\price-check-job" -c Release
 
 IF !ERRORLEVEL! NEQ 0 goto error
 
