@@ -10,4 +10,8 @@
     <PackageReference Include="Autofac" Version="4.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="1.1.1" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="run.cmd" CopyToOutputDirectory="Always" />
+    <None Include="run.cmd" CopyToPublishDirectory="Always" />
+  </ItemGroup>
 </Project>
