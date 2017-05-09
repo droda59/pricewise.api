@@ -56,12 +56,8 @@ namespace PriceAlerts.PriceCheckJob.Emails
             var stringResponse = await response.Content.ReadAsStringAsync();
 
             var jsonResponse = JsonConvert.DeserializeObject<Emails.ApiResponse<ApiTypes.EmailSend>>(stringResponse);
-            if (jsonResponse.success)
-            {
-                return jsonResponse.Data;
-            }
-
-            return null;
+            
+            return jsonResponse.Data;
         }
     }
 }

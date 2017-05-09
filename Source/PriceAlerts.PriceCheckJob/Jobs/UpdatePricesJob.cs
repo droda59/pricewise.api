@@ -25,21 +25,30 @@ namespace PriceAlerts.PriceCheckJob.Jobs
 
             await Task.WhenAll(allProducts.Select(async product => 
             {
-                Console.WriteLine("Starting product " + product.Id);
+                try 
+                {
+                    Console.WriteLine("Starting product " + product.Id);
 
-                var siteInfo = await this._parserFactory.CreateParser(product.Uri).GetSiteInfo(product.Uri);
+                    var siteInfo = await this._parserFactory.CreateParser(product.Uri).GetSiteInfo(product.Uri);
 
-                product.PriceHistory.Add(
-                    new PriceChange
-                    {
-                        Price = siteInfo.Price,
-                        ModifiedAt = DateTime.Now,
-                        ProductId = product.Id
-                    });
+                    product.PriceHistory.Add(
+                        new PriceChange
+                        {
+                            Price = siteInfo.Price,
+                            ModifiedAt = DateTime.Now,
+                            ProductId = product.Id
+                        });
 
-                await this._productRepository.UpdateAsync(product.Id, product);
-                
-                Console.WriteLine("Finished product " + product.Id);
+                    await this._productRepository.UpdateAsync(product.Id, product);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Found error on product " + product.Id + ": " + e.Message);
+                }
+                finally
+                {
+                    Console.WriteLine("Finished product " + product.Id);
+                }
             }));
         }
     }

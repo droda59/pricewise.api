@@ -35,52 +35,59 @@ namespace PriceAlerts.PriceCheckJob.Jobs
 
             await Task.WhenAll(allUsers.Select(async user => 
             {
-                Console.WriteLine("Starting user " + user.UserId);
-
-                var alertsInUse = user.Alerts.Where(x => !x.IsDeleted && x.IsActive).ToList();
-                foreach (var alert in alertsInUse)
+                try 
                 {
-                    var alertProducts = alert.Entries.Where(x => !x.IsDeleted).Select(x => allProducts[x.MonitoredProductId]).ToList();
+                    Console.WriteLine("Starting user " + user.UserId);
 
-                    var bestCurrentDeal = alert.BestCurrentDeal;
-                    var bestCurrentDealUri = alertProducts.First().Uri;
-                    foreach(var product in alertProducts)
+                    var alertsInUse = user.Alerts.Where(x => !x.IsDeleted && x.IsActive).ToList();
+                    foreach (var alert in alertsInUse)
                     {
-                        var lastPrice = product.PriceHistory.OrderBy(y => y.ModifiedAt).Last();
-                        if (lastPrice.Price < bestCurrentDeal.Price)
+                        var alertProducts = alert.Entries.Where(x => !x.IsDeleted).Select(x => allProducts[x.MonitoredProductId]).ToList();
+
+                        var bestCurrentDeal = alert.BestCurrentDeal;
+                        var bestCurrentDealUri = alertProducts.First().Uri;
+                        foreach(var product in alertProducts)
                         {
-                            bestCurrentDeal = lastPrice;
-                            bestCurrentDealUri = product.Uri;
+                            var lastPrice = product.PriceHistory.OrderBy(y => y.ModifiedAt).Last();
+                            if (lastPrice.Price < bestCurrentDeal.Price)
+                            {
+                                bestCurrentDeal = lastPrice;
+                                bestCurrentDealUri = product.Uri;
+                            }
+                        }
+
+                        if (alert.BestCurrentDeal.Price != bestCurrentDeal.Price)
+                        {
+                            Console.WriteLine("Price dropped for alert " + alert.Id + " from " + alert.BestCurrentDeal.Price + " to " + bestCurrentDeal.Price);
+
+                            var emailAlert = new PriceChangeAlert
+                            {
+                                FirstName = user.FirstName,
+                                EmailAddress = user.Email,
+                                AlertTitle = alert.Title, 
+                                PreviousPrice = alert.BestCurrentDeal.Price, 
+                                NewPrice = bestCurrentDeal.Price,
+                                ProductUri = new Uri(bestCurrentDealUri)
+                            };
+
+                            alert.BestCurrentDeal = bestCurrentDeal;
+                            alert.LastModifiedAt = DateTime.Now;
+
+                            var updateTask = this._userRepository.UpdateAsync(user.UserId, user);
+                            var emailTask = this._emailSender.SendEmail(emailAlert);
+
+                            await Task.WhenAll(updateTask, emailTask);
                         }
                     }
-
-                    Console.WriteLine("Best price for alert " + alert.Id + " is " + bestCurrentDeal.Price);
-
-                    if (alert.BestCurrentDeal.Price != bestCurrentDeal.Price)
-                    {
-                        Console.WriteLine("Price dropped for alert " + alert.Id + " from " + alert.BestCurrentDeal.Price + " to " + bestCurrentDeal.Price);
-
-                        var emailAlert = new PriceChangeAlert
-                        {
-                            FirstName = user.FirstName,
-                            EmailAddress = user.Email,
-                            AlertTitle = alert.Title, 
-                            PreviousPrice = alert.BestCurrentDeal.Price, 
-                            NewPrice = bestCurrentDeal.Price,
-                            ProductUri = new Uri(bestCurrentDealUri)
-                        };
-
-                        alert.BestCurrentDeal = bestCurrentDeal;
-                        alert.LastModifiedAt = DateTime.Now;
-
-                        var updateTask = this._userRepository.UpdateAsync(user.UserId, user);
-                        var emailTask = this._emailSender.SendEmail(emailAlert);
-
-                        await Task.WhenAll(updateTask, emailTask);
-                    }
                 }
-
-                Console.WriteLine("Finished user " + user.UserId);
+                catch (Exception e)
+                {
+                    Console.WriteLine("Found error on user " + user.UserId + ": " + e.Message);
+                }
+                finally
+                {
+                    Console.WriteLine("Finished user " + user.UserId);
+                }
             }));
 
             this._emailSender.Dispose();
