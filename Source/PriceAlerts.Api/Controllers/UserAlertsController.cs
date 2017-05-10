@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using MongoDB.Bson;
-
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Factories;
 
@@ -17,14 +15,14 @@ namespace PriceAlerts.Api.Controllers
     public class UserAlertsController : Controller
     {
         private readonly IProductRepository _productRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IAlertRepository _alertRepository;
         private readonly Api.Factories.IUserAlertFactory _userAlertFactory;
         private readonly IProductFactory _productFactory;
 
-        public UserAlertsController(IProductRepository productRepository, IUserRepository userRepository, Api.Factories.IUserAlertFactory userAlertFactory, IProductFactory productFactory)
+        public UserAlertsController(IProductRepository productRepository, IAlertRepository alertRepository, Api.Factories.IUserAlertFactory userAlertFactory, IProductFactory productFactory)
         {
             this._productRepository = productRepository;
-            this._userRepository = userRepository;
+            this._alertRepository = alertRepository;
             this._userAlertFactory = userAlertFactory;
             this._productFactory = productFactory;
         }
@@ -33,8 +31,7 @@ namespace PriceAlerts.Api.Controllers
         [HttpGet("{userId}/{alertId}")]
         public async Task<Api.Models.UserAlert> Get(string userId, string alertId)
         {
-            var repoUser = await this._userRepository.GetAsync(userId);
-            var repoUserAlert = repoUser.Alerts.Single(x => x.Id == alertId);
+            var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
 
             var userAlert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
 
@@ -45,8 +42,7 @@ namespace PriceAlerts.Api.Controllers
         [HttpGet("{userId}/{alertId}/history")]
         public async Task<IEnumerable<Api.Models.ProductHistory>> GetHistory(string userId, string alertId)
         {
-            var repoUser = await this._userRepository.GetAsync(userId);
-            var repoUserAlert = repoUser.Alerts.Single(x => x.Id == alertId);
+            var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
 
             var alertProducts = new List<Common.Models.MonitoredProduct>();
             await Task.WhenAll(repoUserAlert.Entries.Where(x => !x.IsDeleted).Select(async entry => 
@@ -73,20 +69,15 @@ namespace PriceAlerts.Api.Controllers
             var existingProduct = await ForceGetProduct(uri.AbsoluteUri);
             var newAlert = new Common.Models.UserAlert 
             { 
-                Id = ObjectId.GenerateNewId().ToString(), 
                 Title = existingProduct.Title, 
                 ImageUrl = existingProduct.ImageUrl,
                 IsActive = true,
-                LastModifiedAt = DateTime.Now,
                 BestCurrentDeal = existingProduct.PriceHistory.OrderBy(x => x.ModifiedAt).Last()
             };
 
             newAlert.Entries.Add(new Common.Models.UserAlertEntry { MonitoredProductId = existingProduct.Id });
 
-            var repoUser = await this._userRepository.GetAsync(userId);
-            repoUser.Alerts.Add(newAlert);
-
-            await this._userRepository.UpdateAsync(userId, repoUser);
+            newAlert = await this._alertRepository.InsertAsync(userId, newAlert);
 
             var userAlert = await this._userAlertFactory.CreateUserAlert(newAlert);
 
@@ -97,12 +88,9 @@ namespace PriceAlerts.Api.Controllers
         [HttpPut("{userId}")]
         public async Task<Api.Models.UserAlert> UpdateAlert(string userId, [FromBody]Api.Models.UserAlert alert)
         {
-            var repoUser = await this._userRepository.GetAsync(userId);
-            
-            var repoUserAlert = repoUser.Alerts.Single(x => x.Id == alert.Id);
+            var repoUserAlert = await this._alertRepository.GetAsync(userId, alert.Id);
             repoUserAlert.IsActive = alert.IsActive;
             repoUserAlert.Title = alert.Title;
-            repoUserAlert.LastModifiedAt = DateTime.Now;
             repoUserAlert.Entries.Clear();
 
             var alertProducts = new List<Common.Models.MonitoredProduct>();
@@ -131,7 +119,7 @@ namespace PriceAlerts.Api.Controllers
 
             repoUserAlert.BestCurrentDeal = bestDeal.Item2;
 
-            await this._userRepository.UpdateAsync(userId, repoUser);
+            repoUserAlert = await this._alertRepository.UpdateAsync(userId, repoUserAlert);
 
             var userAlert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
 
@@ -142,14 +130,9 @@ namespace PriceAlerts.Api.Controllers
         [HttpDelete("{userId}/{alertId}")]
         public async Task<bool> DeleteAlert(string userId, string alertId)
         {
-            var repoUser = await this._userRepository.GetAsync(userId);
-            
-            var repoUserAlert = repoUser.Alerts.Single(x => x.Id == alertId);
-            repoUserAlert.IsDeleted = true;
-            repoUserAlert.IsActive = false;
-            repoUserAlert.LastModifiedAt = DateTime.Now;
+            var isDeleted = await this._alertRepository.DeleteAsync(userId, alertId);
 
-            return await this._userRepository.UpdateAsync(userId, repoUser);
+            return isDeleted;
         }
 
         private async Task<Common.Models.MonitoredProduct> ForceGetProduct(string uri)

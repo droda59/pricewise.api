@@ -19,18 +19,20 @@ namespace PriceAlerts.Common.Database
             return await this.Collection.Find(x => x.UserId == userId).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> UpdateAsync(string userId, User data)
+        public async Task<User> UpdateAsync(string userId, User data)
         {
-            var result = await this.Collection.FindOneAndReplaceAsync(x => x.UserId == userId, data);
+            var updatedEntry = await this.Collection.FindOneAndReplaceAsync(x => x.UserId == userId, data);
 
-            return result != null;
+            return updatedEntry;
         }
 
-        public async Task<bool> InsertAsync(User data)
+        public async Task<User> InsertAsync(User data)
         {
             await this.Collection.InsertOneAsync(data);
 
-            return true;
+            var insertedEntry = await this.GetAsync(data.UserId);
+
+            return insertedEntry;
         }
     }
 }

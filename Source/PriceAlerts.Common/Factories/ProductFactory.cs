@@ -29,12 +29,11 @@ namespace PriceAlerts.Common.Factories
                 ImageUrl = siteInfo.ImageUrl
             };
 
-            await this._productRepository.InsertAsync(monitoredProduct);
-            monitoredProduct = await this._productRepository.GetByUrlAsync(uri);
-
+            monitoredProduct = await this._productRepository.InsertAsync(monitoredProduct);
+            // TODO wtf is this with the ProductId?
             monitoredProduct.PriceHistory.Add(new PriceChange { Price = siteInfo.Price, ModifiedAt = DateTime.Now.ToUniversalTime(), ProductId = monitoredProduct.Id });
 
-            await this._productRepository.UpdateAsync(monitoredProduct.Id, monitoredProduct);
+            monitoredProduct = await this._productRepository.UpdateAsync(monitoredProduct.Id, monitoredProduct);
 
             return monitoredProduct;
         }

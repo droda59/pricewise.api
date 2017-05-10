@@ -24,18 +24,20 @@ namespace PriceAlerts.Common.Database
             return await this.Collection.Find(x => x.Uri == url).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> UpdateAsync(string id, MonitoredProduct data)
+        public async Task<MonitoredProduct> UpdateAsync(string id, MonitoredProduct data)
         {
-            var result = await this.Collection.FindOneAndReplaceAsync(x => x.Id == id, data);
+            var updatedEntry = await this.Collection.FindOneAndReplaceAsync(x => x.Id == id, data);
 
-            return result != null;
+            return updatedEntry;
         }
 
-        public async Task<bool> InsertAsync(MonitoredProduct data)
+        public async Task<MonitoredProduct> InsertAsync(MonitoredProduct data)
         {
             await this.Collection.InsertOneAsync(data);
 
-            return true;
+            var insertedEntry = await this.GetByUrlAsync(data.Uri);
+
+            return insertedEntry;
         }
     }
 }

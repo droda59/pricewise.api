@@ -13,8 +13,8 @@ namespace PriceAlerts.Common.Database
 
         Task<MonitoredProduct> GetByUrlAsync(string url);
 
-        Task<bool> UpdateAsync(string id, MonitoredProduct data);
+        Task<MonitoredProduct> UpdateAsync(string id, MonitoredProduct data);
 
-        Task<bool> InsertAsync(MonitoredProduct data);
+        Task<MonitoredProduct> InsertAsync(MonitoredProduct data);
     }
 }

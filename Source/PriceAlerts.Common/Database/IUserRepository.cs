@@ -11,8 +11,8 @@ namespace PriceAlerts.Common.Database
         
         Task<User> GetAsync(string userId);
 
-        Task<bool> UpdateAsync(string userId, User data);
+        Task<User> UpdateAsync(string userId, User data);
 
-        Task<bool> InsertAsync(User data);
+        Task<User> InsertAsync(User data);
     }
 }

@@ -61,11 +61,9 @@ namespace PriceAlerts.Api.Controllers
                 Email = user.Email
             };
 
-            var insertResult = await this._userRepository.InsertAsync(repoUser);
-            if (insertResult)
+            var newUser = await this._userRepository.InsertAsync(repoUser);
+            if (newUser != null)
             {
-                var newUser = await this.Get(user.UserId);
-
                 return this.Ok(newUser);
             }
             
@@ -81,12 +79,10 @@ namespace PriceAlerts.Api.Controllers
             repoUser.LastName = user.LastName;
             repoUser.Email = user.Email;
 
-            var updateResult = await this._userRepository.UpdateAsync(userId, repoUser);
-            if (updateResult)
+            var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
+            if (updatedUser != null)
             {
-                var newUser = await this.Get(user.UserId);
-
-                return this.Ok(newUser);
+                return this.Ok(updatedUser);
             }
             
             return this.BadRequest();

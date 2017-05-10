@@ -25,6 +25,7 @@ namespace PriceAlerts.Common
             
             builder.RegisterType<MonitoredProductRepository>().As<IProductRepository>().SingleInstance();
             builder.RegisterType<UserRepository>().As<IUserRepository>().SingleInstance();
+            builder.RegisterType<AlertRepository>().As<IAlertRepository>().SingleInstance();
         }
     }
 }
