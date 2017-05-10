@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
+using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
 
 namespace PriceAlerts.Api.Factories
@@ -38,7 +39,7 @@ namespace PriceAlerts.Api.Factories
             await Task.WhenAll(notDeletedEntries.Select(async entry => 
             {
                 var entryProduct = await this._productRepository.GetAsync(entry.MonitoredProductId);
-                var lastUpdate = entryProduct.PriceHistory.OrderByDescending(x => x.ModifiedAt).First();
+                var lastUpdate = entryProduct.PriceHistory.LastOf(x => x.ModifiedAt);
 
                 var userAlertEntry = new Api.Models.UserAlertEntry
                 {

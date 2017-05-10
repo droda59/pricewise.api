@@ -35,8 +35,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                         new PriceChange
                         {
                             Price = siteInfo.Price,
-                            ModifiedAt = DateTime.Now,
-                            ProductId = product.Id
+                            ModifiedAt = DateTime.Now.ToUniversalTime()
                         });
 
                     await this._productRepository.UpdateAsync(product.Id, product);

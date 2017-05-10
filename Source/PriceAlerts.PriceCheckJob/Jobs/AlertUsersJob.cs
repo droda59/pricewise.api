@@ -2,7 +2,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
+using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Models;
 using PriceAlerts.PriceCheckJob.Emails;
 using PriceAlerts.PriceCheckJob.Models;
 
@@ -12,12 +14,14 @@ namespace PriceAlerts.PriceCheckJob.Jobs
     {
         private readonly IProductRepository _productRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IAlertRepository _alertRepository;
         private readonly IEmailSender _emailSender;
 
-        public AlertUsersJob(IProductRepository productRepository, IUserRepository userRepository, IEmailSender emailSender)
+        public AlertUsersJob(IProductRepository productRepository, IUserRepository userRepository, IAlertRepository alertRepository, IEmailSender emailSender)
         {
             this._productRepository = productRepository;
             this._userRepository = userRepository;
+            this._alertRepository = alertRepository;
             this._emailSender = emailSender;
         }
         
@@ -48,10 +52,10 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                         var bestCurrentDealUri = alertProducts.First().Uri;
                         foreach(var product in alertProducts)
                         {
-                            var lastPrice = product.PriceHistory.OrderBy(y => y.ModifiedAt).Last();
+                            var lastPrice = product.PriceHistory.LastOf(y => y.ModifiedAt);
                             if (lastPrice.Price < bestCurrentDeal.Price)
                             {
-                                bestCurrentDeal = lastPrice;
+                                bestCurrentDeal = new Deal { ProductId = product.Id, Price = lastPrice.Price, ModifiedAt = lastPrice.ModifiedAt };
                                 bestCurrentDealUri = product.Uri;
                             }
                         }
@@ -71,9 +75,9 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                             };
 
                             alert.BestCurrentDeal = bestCurrentDeal;
-                            alert.LastModifiedAt = DateTime.Now;
 
-                            var updateTask = this._userRepository.UpdateAsync(user.UserId, user);
+                            // This makes one more database call since in the Update method we Get the user from the DB
+                            var updateTask = this._alertRepository.UpdateAsync(user.UserId, alert);
                             var emailTask = this._emailSender.SendEmail(emailAlert);
 
                             await Task.WhenAll(updateTask, emailTask);

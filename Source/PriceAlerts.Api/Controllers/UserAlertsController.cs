@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Factories;
 
@@ -67,12 +68,13 @@ namespace PriceAlerts.Api.Controllers
         public async Task<Api.Models.UserAlert> CreateAlert(string userId, [FromBody]Uri uri)
         {
             var existingProduct = await ForceGetProduct(uri.AbsoluteUri);
+            var currentPrice = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
             var newAlert = new Common.Models.UserAlert 
             { 
                 Title = existingProduct.Title, 
                 ImageUrl = existingProduct.ImageUrl,
                 IsActive = true,
-                BestCurrentDeal = existingProduct.PriceHistory.OrderBy(x => x.ModifiedAt).Last()
+                BestCurrentDeal = new Common.Models.Deal { Price = currentPrice.Price, ModifiedAt = currentPrice.ModifiedAt, ProductId = existingProduct.Id }
             };
 
             newAlert.Entries.Add(new Common.Models.UserAlertEntry { MonitoredProductId = existingProduct.Id });
@@ -112,12 +114,10 @@ namespace PriceAlerts.Api.Controllers
             }));
 
             var bestDeal = alertProducts
-                .Select(x => x.PriceHistory.OrderBy(y => y.ModifiedAt).Last())
-                .Select(x => Tuple.Create(x.Price, x))
-                .OrderBy(x => x.Item1)
-                .First();
+                .Select(p => Tuple.Create(p, p.PriceHistory.LastOf(y => y.ModifiedAt)))
+                .FirstOf(x => x.Item2.Price);
 
-            repoUserAlert.BestCurrentDeal = bestDeal.Item2;
+            repoUserAlert.BestCurrentDeal = new Common.Models.Deal { ProductId = bestDeal.Item1.Id, Price = bestDeal.Item2.Price, ModifiedAt = bestDeal.Item2.ModifiedAt };
 
             repoUserAlert = await this._alertRepository.UpdateAsync(userId, repoUserAlert);
 

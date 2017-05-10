@@ -20,7 +20,7 @@ namespace PriceAlerts.Common.Models
 
         public DateTime LastModifiedAt { get; set; }
 
-        public PriceChange BestCurrentDeal { get; set; }
+        public Deal BestCurrentDeal { get; set; }
 
         public IList<UserAlertEntry> Entries { get; set; }
     }
