@@ -38,7 +38,7 @@ namespace PriceAlerts.Common.Parsers
                 .SelectSingleNode(".//*[@class='SEOFinalPrice']")
                 .InnerText;
 
-            var extractedValue = this.ExtractNumber(priceContent);
+            var extractedValue = priceContent.ExtractNumber();
             var decimalValue = Convert.ToDecimal(extractedValue);
 
             return decimalValue;

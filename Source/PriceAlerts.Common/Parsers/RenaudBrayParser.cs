@@ -35,7 +35,7 @@ namespace PriceAlerts.Common.Parsers
                 .SelectSingleNode(".//*[contains(@class, 'lblPrice_adv2')]");
 
             var nodeValue = priceNode.InnerText;
-            var extractedValue = this.ExtractNumber(nodeValue);
+            var extractedValue = nodeValue.ExtractNumber();
             var decimalValue = Convert.ToDecimal(extractedValue);
 
             return decimalValue;

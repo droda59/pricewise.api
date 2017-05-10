@@ -43,7 +43,7 @@ namespace PriceAlerts.Common.Parsers
             }
 
             var content = sb.ToString();
-            var extractedValue = this.ExtractNumber(content);
+            var extractedValue = content.ExtractNumber();
             var decimalValue = Convert.ToDecimal(extractedValue);
 
             return decimalValue;

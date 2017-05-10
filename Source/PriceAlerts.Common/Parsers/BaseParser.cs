@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using HtmlAgilityPack;
@@ -64,29 +63,6 @@ namespace PriceAlerts.Common.Parsers
         protected void AddCustomHeaders(string header, string value)
         {
             this._customHeaders.Add(new KeyValuePair<string, string>(header, value));
-        }
-
-        protected string ExtractNumber(string original)
-        {
-            var cleanString = new string(original.Where(c => Char.IsDigit(c) || Char.IsPunctuation(c)).ToArray());
-            if (cleanString.Contains(","))
-            {
-                var numberBuilder = new StringBuilder();
-                var splitOnComma = cleanString.Split(',');
-                for (var i = 0; i < splitOnComma.Length; i++)
-                {
-                    var part = splitOnComma[i];
-
-                    if (i == splitOnComma.Length - 1 && !splitOnComma[i].Contains("."))
-                    {
-                        numberBuilder.Append(".");
-                    }
-
-                    numberBuilder.Append(part);
-                }
-            } 
-
-            return cleanString;
         }
 
         private async Task<HtmlDocument> LoadDocument(Uri uri)
