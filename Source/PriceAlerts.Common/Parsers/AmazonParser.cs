@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 using HtmlAgilityPack;
 
@@ -21,7 +22,7 @@ namespace PriceAlerts.Common.Parsers
 
         protected override string GetImageUrl(HtmlDocument doc)
         {
-            var nodeValue = doc.GetElementbyId("landingImage");
+            var nodeValue = doc.GetElementbyId("main-image-container").SelectNodes(".//img").First();
             var extractedValue = nodeValue.Attributes["src"].Value;
 
             return extractedValue;
@@ -33,6 +34,14 @@ namespace PriceAlerts.Common.Parsers
             if (priceNode == null)
             {
                 priceNode = doc.GetElementbyId("priceblock_dealprice");
+            }
+
+            if (priceNode == null)
+            {
+                var priceNodes = doc.GetElementbyId("tmmSwatches").SelectNodes(".//span[contains(@class, 'a-color-price')]");
+                var smallestPrice = priceNodes.Select(x => x.InnerHtml.ExtractDecimal()).Min();
+
+                return smallestPrice;
             }
 
             var nodeValue = priceNode.InnerText;
