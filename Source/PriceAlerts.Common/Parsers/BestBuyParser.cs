@@ -44,8 +44,7 @@ namespace PriceAlerts.Common.Parsers
                 .SelectSingleNode(".//span[@class='amount']");
 
             var nodeValue = priceNode.InnerText;
-            var extractedValue = nodeValue.ExtractNumber();
-            var decimalValue = Convert.ToDecimal(extractedValue);
+            var decimalValue = nodeValue.ExtractDecimal();
 
             return decimalValue;
         }

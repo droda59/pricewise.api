@@ -41,8 +41,7 @@ namespace PriceAlerts.Common.Parsers
                 .SelectSingleNode(".//meta[@itemprop='price']")
                 .Attributes["content"].Value;
 
-            var extractedValue = priceContent.ExtractNumber();
-            var decimalValue = Convert.ToDecimal(extractedValue);
+            var decimalValue = priceContent.ExtractDecimal();
 
             return decimalValue;
         }

@@ -36,8 +36,7 @@ namespace PriceAlerts.Common.Parsers
             }
 
             var nodeValue = priceNode.InnerText;
-            var extractedValue = nodeValue.ExtractNumber();
-            var decimalValue = Convert.ToDecimal(extractedValue);
+            var decimalValue = nodeValue.ExtractDecimal();
 
             return decimalValue;
         }

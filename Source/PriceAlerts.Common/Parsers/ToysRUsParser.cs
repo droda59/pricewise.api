@@ -38,8 +38,7 @@ namespace PriceAlerts.Common.Parsers
                 .SelectSingleNode(".//dd[@class='ours']");
 
             var nodeValue = priceNode.InnerText;
-            var extractedValue = nodeValue.ExtractNumber();
-            var decimalValue = Convert.ToDecimal(extractedValue);
+            var decimalValue = nodeValue.ExtractDecimal();
 
             return decimalValue;
         }

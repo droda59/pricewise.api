@@ -96,7 +96,7 @@ namespace PriceAlerts.Api.Controllers
             repoUserAlert.Entries.Clear();
 
             var alertProducts = new List<Common.Models.MonitoredProduct>();
-            await Task.WhenAll(alert.Entries.Select(async entry => 
+            foreach (var entry in alert.Entries)
             {
                 var existingProduct = await ForceGetProduct(entry.Uri);
 
@@ -111,7 +111,7 @@ namespace PriceAlerts.Api.Controllers
                         MonitoredProductId = existingProduct.Id,
                         IsDeleted = entry.IsDeleted
                     });
-            }));
+            }
 
             var bestDeal = alertProducts
                 .Select(p => Tuple.Create(p, p.PriceHistory.LastOf(y => y.ModifiedAt)))

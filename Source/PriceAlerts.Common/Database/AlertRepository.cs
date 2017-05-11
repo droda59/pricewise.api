@@ -40,7 +40,10 @@ namespace PriceAlerts.Common.Database
                 throw new KeyNotFoundException();
             }
             
-            repoUserAlert = data;
+            repoUserAlert.Title = data.Title;
+            repoUserAlert.BestCurrentDeal = data.BestCurrentDeal;
+            repoUserAlert.Entries = data.Entries;
+            repoUserAlert.IsActive = data.IsActive;
             repoUserAlert.LastModifiedAt = DateTime.Now;
 
             var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
@@ -51,11 +54,10 @@ namespace PriceAlerts.Common.Database
 
         public async Task<UserAlert> InsertAsync(string userId, UserAlert data)
         {
-            var repoUser = await this._userRepository.GetAsync(userId);
-
             data.Id = ObjectId.GenerateNewId().ToString();
             data.LastModifiedAt = DateTime.Now;
 
+            var repoUser = await this._userRepository.GetAsync(userId);
             repoUser.Alerts.Add(data);
 
             var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
