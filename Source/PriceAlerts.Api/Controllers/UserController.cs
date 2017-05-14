@@ -33,27 +33,21 @@ namespace PriceAlerts.Api.Controllers
                 return this.NotFound();
             }
 
-            var user = new UserDto()
-            {
-                UserId = repoUser.UserId,
-                FirstName = repoUser.FirstName,
-                LastName = repoUser.LastName,
-                Email = repoUser.Email
-            };
+            var userDto = CreateDto(repoUser);
 
             var notDeletedAlerts = repoUser.Alerts.Where(x => !x.IsDeleted).ToList();
             await Task.WhenAll(notDeletedAlerts.Select(async repoUserAlert => 
             {
                 var alert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
 
-                user.Alerts.Add(alert);
+                userDto.Alerts.Add(alert);
             }));
 
-            return this.Ok(user);
+            return this.Ok(userDto);
         }
 
         [Authorize]
-        [HttpPost("{userId}")]
+        [HttpPost]
         public async Task<IActionResult> Create([FromBody]UserDto user)
         {
             var repoUser = new User()
@@ -67,7 +61,7 @@ namespace PriceAlerts.Api.Controllers
             var newUser = await this._userRepository.InsertAsync(repoUser);
             if (newUser != null)
             {
-                return this.Ok(newUser);
+                return this.Ok(CreateDto(newUser));
             }
             
             return this.BadRequest();
@@ -85,9 +79,9 @@ namespace PriceAlerts.Api.Controllers
             var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
             if (updatedUser != null)
             {
-                return this.Ok(updatedUser);
+                return this.Ok(CreateDto(updatedUser));
             }
-            
+
             return this.BadRequest();
         }
 
@@ -104,10 +98,22 @@ namespace PriceAlerts.Api.Controllers
             var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
             if (updatedUser != null)
             {
-                return this.Ok(updatedUser);
+                return this.Ok(updatedUser.Settings);
             }
             
             return this.BadRequest();
+        }
+
+        private static UserDto CreateDto(User repoUser)
+        {
+            return new UserDto()
+            {
+                UserId = repoUser.UserId,
+                FirstName = repoUser.FirstName,
+                LastName = repoUser.LastName,
+                Email = repoUser.Email,
+                Settings = repoUser.Settings
+            };
         }
     }
 }

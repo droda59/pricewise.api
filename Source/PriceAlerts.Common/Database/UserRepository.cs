@@ -21,7 +21,10 @@ namespace PriceAlerts.Common.Database
 
         public async Task<User> UpdateAsync(string userId, User data)
         {
-            var updatedEntry = await this.Collection.FindOneAndReplaceAsync(x => x.UserId == userId, data);
+            var updatedEntry = await this.Collection.FindOneAndReplaceAsync<User>(
+                x => x.UserId == userId, 
+                data,
+                new FindOneAndReplaceOptions<User> { ReturnDocument = ReturnDocument.After });
 
             return updatedEntry;
         }

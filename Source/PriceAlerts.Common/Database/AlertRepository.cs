@@ -46,7 +46,7 @@ namespace PriceAlerts.Common.Database
             repoUserAlert.IsActive = data.IsActive;
             repoUserAlert.LastModifiedAt = DateTime.Now;
 
-            var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
+            await this._userRepository.UpdateAsync(userId, repoUser);
             var updatedAlert = await this.GetAsync(userId, data.Id);
 
             return updatedAlert;
@@ -60,7 +60,7 @@ namespace PriceAlerts.Common.Database
             var repoUser = await this._userRepository.GetAsync(userId);
             repoUser.Alerts.Add(data);
 
-            var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
+            await this._userRepository.UpdateAsync(userId, repoUser);
             var createdAlert = await this.GetAsync(userId, data.Id);
 
             return createdAlert;
@@ -79,7 +79,7 @@ namespace PriceAlerts.Common.Database
             repoUserAlert.IsActive = false;
             repoUserAlert.LastModifiedAt = DateTime.Now;
 
-            var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
+            await this._userRepository.UpdateAsync(userId, repoUser);
 
             return true;
         }
