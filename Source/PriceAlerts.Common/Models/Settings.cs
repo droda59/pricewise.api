@@ -7,7 +7,7 @@ namespace PriceAlerts.Common.Models
             this.AlertOnPriceDrop = true;
             this.AlertOnPriceRaise = false;
             this.SpecifyChangePercentage = false;
-            this.ChangePercentage = 0.1;
+            this.ChangePercentage = 0.1m;
         }
 
         public bool AlertOnPriceDrop { get; set; }
@@ -16,6 +16,6 @@ namespace PriceAlerts.Common.Models
 
         public bool SpecifyChangePercentage { get; set; }
 
-        public double ChangePercentage { get; set; }
+        public decimal ChangePercentage { get; set; }
     }
 }

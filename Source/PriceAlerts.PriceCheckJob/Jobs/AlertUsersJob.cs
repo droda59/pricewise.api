@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
-using PriceAlerts.Common.Models;
 using PriceAlerts.PriceCheckJob.Emails;
 using PriceAlerts.PriceCheckJob.Models;
 
@@ -48,39 +47,38 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                     {
                         var alertProducts = alert.Entries.Where(x => !x.IsDeleted).Select(x => allProducts[x.MonitoredProductId]).ToList();
 
-                        var bestCurrentDeal = alert.BestCurrentDeal;
-                        var bestCurrentDealUri = alertProducts.First().Uri;
-                        foreach(var product in alertProducts)
+                        var newBestDeal = alertProducts
+                            .Select(p => Tuple.Create(p, p.PriceHistory.LastOf(y => y.ModifiedAt)))
+                            .FirstOf(x => x.Item2.Price);
+
+                        if (alert.BestCurrentDeal.Price != newBestDeal.Item2.Price)
                         {
-                            var lastPrice = product.PriceHistory.LastOf(y => y.ModifiedAt);
-                            if (lastPrice.Price < bestCurrentDeal.Price)
+                            Console.WriteLine("Price dropped for alert " + alert.Id + " from " + alert.BestCurrentDeal.Price + " to " + newBestDeal.Item2.Price);
+
+                            if (!user.Settings.SpecifyChangePercentage || 
+                                user.Settings.SpecifyChangePercentage && Math.Abs(alert.BestCurrentDeal.Price - newBestDeal.Item2.Price) > (user.Settings.ChangePercentage * alert.BestCurrentDeal.Price))
                             {
-                                bestCurrentDeal = new Deal { ProductId = product.Id, Price = lastPrice.Price, ModifiedAt = lastPrice.ModifiedAt };
-                                bestCurrentDealUri = product.Uri;
+                                if (alert.BestCurrentDeal.Price < newBestDeal.Item2.Price && user.Settings.AlertOnPriceRaise
+                                || alert.BestCurrentDeal.Price > newBestDeal.Item2.Price && user.Settings.AlertOnPriceDrop)
+                                {
+                                    var emailAlert = new PriceChangeAlert
+                                    {
+                                        FirstName = user.FirstName,
+                                        EmailAddress = user.Email,
+                                        AlertTitle = alert.Title, 
+                                        PreviousPrice = alert.BestCurrentDeal.Price, 
+                                        NewPrice = newBestDeal.Item2.Price,
+                                        ProductUri = new Uri(newBestDeal.Item1.Uri)
+                                    };
+
+                                    await this._emailSender.SendEmail(emailAlert);
+                                }
                             }
-                        }
 
-                        if (alert.BestCurrentDeal.Price != bestCurrentDeal.Price)
-                        {
-                            Console.WriteLine("Price dropped for alert " + alert.Id + " from " + alert.BestCurrentDeal.Price + " to " + bestCurrentDeal.Price);
-
-                            var emailAlert = new PriceChangeAlert
-                            {
-                                FirstName = user.FirstName,
-                                EmailAddress = user.Email,
-                                AlertTitle = alert.Title, 
-                                PreviousPrice = alert.BestCurrentDeal.Price, 
-                                NewPrice = bestCurrentDeal.Price,
-                                ProductUri = new Uri(bestCurrentDealUri)
-                            };
-
-                            alert.BestCurrentDeal = bestCurrentDeal;
+                            alert.BestCurrentDeal = new Common.Models.Deal { ProductId = newBestDeal.Item1.Id, Price = newBestDeal.Item2.Price, ModifiedAt = newBestDeal.Item2.ModifiedAt };
 
                             // This makes one more database call since in the Update method we Get the user from the DB
                             var updateTask = this._alertRepository.UpdateAsync(user.UserId, alert);
-                            var emailTask = this._emailSender.SendEmail(emailAlert);
-
-                            await Task.WhenAll(updateTask, emailTask);
                         }
                     }
                 }
