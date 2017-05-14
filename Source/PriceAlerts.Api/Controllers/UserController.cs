@@ -86,7 +86,25 @@ namespace PriceAlerts.Api.Controllers
             }
             
             return this.BadRequest();
+        }
 
+        [Authorize]
+        [HttpPut("{userId}/settings")]
+        public async Task<IActionResult> UpdateSettings(string userId, [FromBody]Common.Models.Settings userSettings)
+        {
+            var repoUser = await this._userRepository.GetAsync(userId);
+            repoUser.Settings.AlertOnPriceDrop = userSettings.AlertOnPriceDrop;
+            repoUser.Settings.AlertOnPriceRaise = userSettings.AlertOnPriceRaise;
+            repoUser.Settings.SpecifyChangePercentage = userSettings.SpecifyChangePercentage;
+            repoUser.Settings.ChangePercentage = userSettings.ChangePercentage;
+
+            var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
+            if (updatedUser != null)
+            {
+                return this.Ok(updatedUser);
+            }
+            
+            return this.BadRequest();
         }
     }
 }

@@ -17,6 +17,8 @@ namespace PriceAlerts.Api.Models
 
         public string Email { get; set; }
 
+        public Common.Models.Settings Settings { get; set; }
+
         public IList<UserAlert> Alerts { get; set; }
     }
 }

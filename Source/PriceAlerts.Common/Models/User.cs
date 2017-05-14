@@ -6,6 +6,7 @@ namespace PriceAlerts.Common.Models
     {
         public User()
         {
+            this.Settings = new Settings();
             this.Alerts = new List<UserAlert>();
         }
 
@@ -16,6 +17,8 @@ namespace PriceAlerts.Common.Models
         public string LastName { get; set; }
 
         public string Email { get; set; }
+
+        public Settings Settings { get; set; }
 
         public IList<UserAlert> Alerts { get; set; }
     }
