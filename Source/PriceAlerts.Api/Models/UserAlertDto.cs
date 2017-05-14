@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace PriceAlerts.Api.Models
 {
-    public class UserAlert
+    public class UserAlertDto
     {
-        public UserAlert()
+        public UserAlertDto()
         {
-            this.Entries = new List<UserAlertEntry>();
+            this.Entries = new List<UserAlertEntryDto>();
         }
 
         public string Id { get; set; }
@@ -20,8 +20,8 @@ namespace PriceAlerts.Api.Models
 
         public DateTime LastModifiedAt { get; set; }
 
-        public Deal BestCurrentDeal { get; set; }
+        public DealDto BestCurrentDeal { get; set; }
 
-        public IList<UserAlertEntry> Entries { get; set; }
+        public IList<UserAlertEntryDto> Entries { get; set; }
     }
 }

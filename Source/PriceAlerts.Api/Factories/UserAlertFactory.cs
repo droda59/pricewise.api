@@ -1,8 +1,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 
+using PriceAlerts.Api.Models;
 using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Models;
 
 namespace PriceAlerts.Api.Factories
 {
@@ -15,18 +17,18 @@ namespace PriceAlerts.Api.Factories
             this._productRepository = productRepository;
         }
 
-        public async Task<Models.UserAlert> CreateUserAlert(Common.Models.UserAlert repoAlert)
+        public async Task<UserAlertDto> CreateUserAlert(UserAlert repoAlert)
         {
             var bestDealProduct = await this._productRepository.GetAsync(repoAlert.BestCurrentDeal.ProductId);
 
-            var userAlert = new Api.Models.UserAlert
+            var userAlert = new UserAlertDto
             {
                 Id = repoAlert.Id,
                 Title = repoAlert.Title,
                 ImageUrl = repoAlert.ImageUrl,
                 IsActive = repoAlert.IsActive,
                 LastModifiedAt = repoAlert.LastModifiedAt, 
-                BestCurrentDeal = new Api.Models.Deal 
+                BestCurrentDeal = new DealDto 
                 {
                     Price = repoAlert.BestCurrentDeal.Price,
                     Title = bestDealProduct.Title,
@@ -41,7 +43,7 @@ namespace PriceAlerts.Api.Factories
                 var entryProduct = await this._productRepository.GetAsync(entry.MonitoredProductId);
                 var lastUpdate = entryProduct.PriceHistory.LastOf(x => x.ModifiedAt);
 
-                var userAlertEntry = new Api.Models.UserAlertEntry
+                var userAlertEntry = new UserAlertEntryDto
                 {
                     Uri = entryProduct.Uri,
                     LastPrice = lastUpdate.Price,

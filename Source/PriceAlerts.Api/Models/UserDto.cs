@@ -2,11 +2,11 @@ using System.Collections.Generic;
 
 namespace PriceAlerts.Api.Models
 {
-    public class User
+    public class UserDto
     {
-        public User()
+        public UserDto()
         {
-            this.Alerts = new List<UserAlert>();
+            this.Alerts = new List<UserAlertDto>();
         }
 
         public string UserId { get; set; }
@@ -19,6 +19,6 @@ namespace PriceAlerts.Api.Models
 
         public Common.Models.Settings Settings { get; set; }
 
-        public IList<UserAlert> Alerts { get; set; }
+        public IList<UserAlertDto> Alerts { get; set; }
     }
 }

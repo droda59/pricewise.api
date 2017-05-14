@@ -2,7 +2,7 @@ using System;
 
 namespace PriceAlerts.Api.Models
 {
-    public class Deal
+    public class DealDto
     {
         public decimal Price { get; set; }
 

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Models;
 using PriceAlerts.PriceCheckJob.Emails;
 using PriceAlerts.PriceCheckJob.Models;
 
@@ -75,7 +76,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                 }
                             }
 
-                            alert.BestCurrentDeal = new Common.Models.Deal { ProductId = newBestDeal.Item1.Id, Price = newBestDeal.Item2.Price, ModifiedAt = newBestDeal.Item2.ModifiedAt };
+                            alert.BestCurrentDeal = new Deal { ProductId = newBestDeal.Item1.Id, Price = newBestDeal.Item2.Price, ModifiedAt = newBestDeal.Item2.ModifiedAt };
 
                             // This makes one more database call since in the Update method we Get the user from the DB
                             var updateTask = this._alertRepository.UpdateAsync(user.UserId, alert);

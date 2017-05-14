@@ -4,7 +4,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using PriceAlerts.Api.Factories;
+using PriceAlerts.Api.Models;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Models;
 
 namespace PriceAlerts.Api.Controllers
 {
@@ -12,9 +15,9 @@ namespace PriceAlerts.Api.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepository;
-        private readonly PriceAlerts.Api.Factories.IUserAlertFactory _userAlertFactory;
+        private readonly IUserAlertFactory _userAlertFactory;
 
-        public UserController(IUserRepository userRepository, PriceAlerts.Api.Factories.IUserAlertFactory userAlertFactory)
+        public UserController(IUserRepository userRepository, IUserAlertFactory userAlertFactory)
         {
             this._userRepository = userRepository;
             this._userAlertFactory = userAlertFactory;
@@ -30,7 +33,7 @@ namespace PriceAlerts.Api.Controllers
                 return this.NotFound();
             }
 
-            var user = new Api.Models.User()
+            var user = new UserDto()
             {
                 UserId = repoUser.UserId,
                 FirstName = repoUser.FirstName,
@@ -51,9 +54,9 @@ namespace PriceAlerts.Api.Controllers
 
         [Authorize]
         [HttpPost("{userId}")]
-        public async Task<IActionResult> Create([FromBody]Api.Models.User user)
+        public async Task<IActionResult> Create([FromBody]UserDto user)
         {
-            var repoUser = new Common.Models.User()
+            var repoUser = new User()
             {
                 UserId = user.UserId,
                 FirstName = user.FirstName,
@@ -72,7 +75,7 @@ namespace PriceAlerts.Api.Controllers
 
         [Authorize]
         [HttpPut("{userId}")]
-        public async Task<IActionResult> Update(string userId, [FromBody]Api.Models.User user)
+        public async Task<IActionResult> Update(string userId, [FromBody]UserDto user)
         {
             var repoUser = await this._userRepository.GetAsync(userId);
             repoUser.FirstName = user.FirstName;
@@ -90,7 +93,7 @@ namespace PriceAlerts.Api.Controllers
 
         [Authorize]
         [HttpPut("{userId}/settings")]
-        public async Task<IActionResult> UpdateSettings(string userId, [FromBody]Common.Models.Settings userSettings)
+        public async Task<IActionResult> UpdateSettings(string userId, [FromBody]Settings userSettings)
         {
             var repoUser = await this._userRepository.GetAsync(userId);
             repoUser.Settings.AlertOnPriceDrop = userSettings.AlertOnPriceDrop;

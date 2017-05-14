@@ -2,7 +2,7 @@ using System;
 
 namespace PriceAlerts.Api.Models
 {
-    public class UserAlertEntry
+    public class UserAlertEntryDto
     {
         public string Uri { get; set; }
 
