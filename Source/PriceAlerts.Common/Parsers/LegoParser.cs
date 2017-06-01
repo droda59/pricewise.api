@@ -16,7 +16,7 @@ namespace PriceAlerts.Common.Parsers
         {
             var titleNode = doc.DocumentNode
                 .SelectSingleNode(".//div[@class='overview__info']")
-                .SelectSingleNode(".//h1[@class='overview__name']");
+                .SelectSingleNode(".//h1[contains(@class, 'overview__name')]");
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
