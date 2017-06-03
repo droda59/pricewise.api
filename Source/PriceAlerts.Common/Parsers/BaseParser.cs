@@ -42,13 +42,43 @@ namespace PriceAlerts.Common.Parsers
         public async Task<SitePriceInfo> GetSiteInfo(Uri uri)
         {
             var document = await this.LoadDocument(uri);
+            string title;
+            string imageUrl;
+            decimal price;
+
+            try
+            {
+                title = this.GetTitle(document);
+            }
+            catch (Exception e)
+            {
+                throw new ParseException("Error parsing the title", e, uri);
+            }
+            
+            try
+            {
+                imageUrl = this.GetImageUrl(document);
+            }
+            catch (Exception e)
+            {
+                throw new ParseException("Error parsing the image", e, uri);
+            }
+            
+            try
+            {
+                price = this.GetPrice(document);
+            }
+            catch (Exception e)
+            {
+                throw new ParseException("Error parsing the price", e, uri);
+            }
 
             var sitePriceInfo = new SitePriceInfo
             {
                 Uri = uri.AbsoluteUri,
-                Title = this.GetTitle(document),
-                ImageUrl = this.GetImageUrl(document),
-                Price = this.GetPrice(document)
+                Title = title,
+                ImageUrl = imageUrl,
+                Price = price
             };
 
             return sitePriceInfo;
