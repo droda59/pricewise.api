@@ -3,7 +3,7 @@ using System.Linq;
 
 using HtmlAgilityPack;
 
-namespace PriceAlerts.Common.Parsers
+namespace PriceAlerts.Common.Parsers.SourceParsers
 {
     internal class AmazonParser : BaseParser, IParser
     {

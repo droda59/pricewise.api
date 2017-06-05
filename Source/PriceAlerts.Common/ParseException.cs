@@ -2,7 +2,7 @@ using System;
 
 namespace PriceAlerts.Common
 {
-    internal class ParseException : Exception
+    public class ParseException : Exception
     {
         public ParseException(string message, Exception innerException, Uri uri)
             : base(message, innerException)

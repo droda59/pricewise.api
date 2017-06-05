@@ -73,69 +73,91 @@ namespace PriceAlerts.Api.Controllers
 
         [Authorize]
         [HttpPost("{userId}")]
-        public async Task<UserAlertDto> CreateAlert(string userId, [FromBody]Uri uri)
+        public async Task<IActionResult> CreateAlert(string userId, [FromBody]Uri uri)
         {
-            var existingProduct = await ForceGetProduct(uri.AbsoluteUri);
-            var currentPrice = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
-            var newAlert = new UserAlert 
-            { 
-                Title = existingProduct.Title, 
-                ImageUrl = existingProduct.ImageUrl,
-                IsActive = true,
-                BestCurrentDeal = new Deal { Price = currentPrice.Price, ModifiedAt = currentPrice.ModifiedAt, ProductId = existingProduct.Id }
-            };
+            try 
+            {    
+                var existingProduct = await ForceGetProduct(uri.AbsoluteUri);
+                var currentPrice = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
+                var newAlert = new UserAlert 
+                { 
+                    Title = existingProduct.Title, 
+                    ImageUrl = existingProduct.ImageUrl,
+                    IsActive = true,
+                    BestCurrentDeal = new Deal { Price = currentPrice.Price, ModifiedAt = currentPrice.ModifiedAt, ProductId = existingProduct.Id }
+                };
 
-            newAlert.Entries.Add(new UserAlertEntry { MonitoredProductId = existingProduct.Id });
+                newAlert.Entries.Add(new UserAlertEntry { MonitoredProductId = existingProduct.Id });
 
-            newAlert = await this._alertRepository.InsertAsync(userId, newAlert);
+                newAlert = await this._alertRepository.InsertAsync(userId, newAlert);
 
-            var userAlert = await this._userAlertFactory.CreateUserAlert(newAlert);
+                var userAlert = await this._userAlertFactory.CreateUserAlert(newAlert);
 
-            return userAlert;
+                return this.Ok(userAlert);
+            }
+            catch (KeyNotFoundException)
+            {
+                return this.NotFound("The specified source is not yet supported.");
+            }
+            catch (ParseException e)
+            {
+                return this.BadRequest(e.Message);
+            }
         }
 
         [Authorize]
         [HttpPut("{userId}")]
-        public async Task<UserAlertDto> UpdateAlert(string userId, [FromBody]UserAlertDto alert)
+        public async Task<IActionResult> UpdateAlert(string userId, [FromBody]UserAlertDto alert)
         {
-            var repoUserAlert = await this._alertRepository.GetAsync(userId, alert.Id);
-            repoUserAlert.IsActive = alert.IsActive;
-            repoUserAlert.Title = alert.Title;
-            repoUserAlert.Entries.Clear();
-
-            var lockObject = new Object();
-            var alertProducts = new List<MonitoredProduct>();
-            await Task.WhenAll(alert.Entries.Select(async entry => 
+            try
             {
-                var existingProduct = await ForceGetProduct(entry.Uri);
+                var repoUserAlert = await this._alertRepository.GetAsync(userId, alert.Id);
+                repoUserAlert.IsActive = alert.IsActive;
+                repoUserAlert.Title = alert.Title;
+                repoUserAlert.Entries.Clear();
 
-                lock (lockObject) 
+                var lockObject = new Object();
+                var alertProducts = new List<MonitoredProduct>();
+                await Task.WhenAll(alert.Entries.Select(async entry => 
                 {
-                    if (!entry.IsDeleted) 
+                    var existingProduct = await ForceGetProduct(entry.Uri);
+
+                    lock (lockObject) 
                     {
-                        alertProducts.Add(existingProduct);
-                    }
-
-                    repoUserAlert.Entries.Add(
-                        new UserAlertEntry 
+                        if (!entry.IsDeleted) 
                         {
-                            MonitoredProductId = existingProduct.Id,
-                            IsDeleted = entry.IsDeleted
-                        });
-                }
-            }));
+                            alertProducts.Add(existingProduct);
+                        }
 
-            var bestDeal = alertProducts
-                .Select(p => Tuple.Create(p, p.PriceHistory.LastOf(y => y.ModifiedAt)))
-                .FirstOf(x => x.Item2.Price);
+                        repoUserAlert.Entries.Add(
+                            new UserAlertEntry 
+                            {
+                                MonitoredProductId = existingProduct.Id,
+                                IsDeleted = entry.IsDeleted
+                            });
+                    }
+                }));
 
-            repoUserAlert.BestCurrentDeal = new Deal { ProductId = bestDeal.Item1.Id, Price = bestDeal.Item2.Price, ModifiedAt = bestDeal.Item2.ModifiedAt };
+                var bestDeal = alertProducts
+                    .Select(p => Tuple.Create(p, p.PriceHistory.LastOf(y => y.ModifiedAt)))
+                    .FirstOf(x => x.Item2.Price);
 
-            repoUserAlert = await this._alertRepository.UpdateAsync(userId, repoUserAlert);
+                repoUserAlert.BestCurrentDeal = new Deal { ProductId = bestDeal.Item1.Id, Price = bestDeal.Item2.Price, ModifiedAt = bestDeal.Item2.ModifiedAt };
 
-            var userAlert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
+                repoUserAlert = await this._alertRepository.UpdateAsync(userId, repoUserAlert);
 
-            return userAlert;
+                var userAlert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
+
+                return this.Ok(userAlert);
+            }
+            catch (KeyNotFoundException)
+            {
+                return this.NotFound("The specified source is not yet supported.");
+            }
+            catch (ParseException e)
+            {
+                return this.BadRequest(e.Message);
+            }
         }
 
         [Authorize]

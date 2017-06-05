@@ -1,22 +1,19 @@
 using System;
-using System.Linq;
 
 using HtmlAgilityPack;
 
-namespace PriceAlerts.Common.Parsers
+namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class StaplesParser : BaseParser, IParser
+    internal class RenaudBrayParser : BaseParser, IParser
     {
-        public StaplesParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.staples.ca/"))
+        public RenaudBrayParser(IHtmlLoader htmlLoader)
+            : base(htmlLoader, new Uri("http://www.renaud-bray.com/"))
         {
         }
-        
+
         protected override string GetTitle(HtmlDocument doc)
         {
-            var titleNode = doc.DocumentNode
-                .SelectSingleNode(".//div[@class='product-microformat']")
-                .SelectSingleNode(".//span[@itemprop='name']");
+            var titleNode = doc.DocumentNode.SelectSingleNode("//h1[@class='lblTitle']");
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
@@ -34,11 +31,11 @@ namespace PriceAlerts.Common.Parsers
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var priceContent = doc.DocumentNode
-                .SelectSingleNode(".//*[@class='SEOFinalPrice']")
-                .InnerText;
+            var priceNode = doc.DocumentNode
+                .SelectSingleNode(".//*[contains(@class, 'lblPrice_adv2')]");
 
-            var decimalValue = priceContent.ExtractDecimal();
+            var nodeValue = priceNode.InnerText;
+            var decimalValue = nodeValue.ExtractDecimal();
 
             return decimalValue;
         }

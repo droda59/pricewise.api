@@ -2,7 +2,7 @@ using System;
 
 using HtmlAgilityPack;
 
-namespace PriceAlerts.Common.Parsers
+namespace PriceAlerts.Common.Parsers.SourceParsers
 {
     internal class ToysRUsParser : BaseParser, IParser
     {

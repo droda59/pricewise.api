@@ -6,7 +6,7 @@ using HtmlAgilityPack;
 
 using Newtonsoft.Json;
 
-namespace PriceAlerts.Common.Parsers
+namespace PriceAlerts.Common.Parsers.SourceParsers
 {
     internal class CanadianTireParser : BaseParser, IParser
     {

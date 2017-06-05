@@ -31,7 +31,7 @@ namespace PriceAlerts.Api.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return new BadRequestResult();
+                return new NotFoundResult();
             }
 
             var parsedContent = await parser.GetSiteInfo(uri);
