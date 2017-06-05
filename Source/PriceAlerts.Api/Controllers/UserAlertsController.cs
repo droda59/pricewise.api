@@ -48,11 +48,16 @@ namespace PriceAlerts.Api.Controllers
         {
             var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
 
+            var lockObject = new Object();
             var alertProducts = new List<MonitoredProduct>();
             await Task.WhenAll(repoUserAlert.Entries.Where(x => !x.IsDeleted).Select(async entry => 
             {
                 var existingProduct = await this._productRepository.GetAsync(entry.MonitoredProductId);
-                alertProducts.Add(existingProduct);
+
+                lock (lockObject) 
+                {
+                    alertProducts.Add(existingProduct);
+                }
             }));
 
             var deals = alertProducts
@@ -98,23 +103,27 @@ namespace PriceAlerts.Api.Controllers
             repoUserAlert.Title = alert.Title;
             repoUserAlert.Entries.Clear();
 
+            var lockObject = new Object();
             var alertProducts = new List<MonitoredProduct>();
-            foreach (var entry in alert.Entries)
+            await Task.WhenAll(alert.Entries.Select(async entry => 
             {
                 var existingProduct = await ForceGetProduct(entry.Uri);
 
-                if (!entry.IsDeleted) 
+                lock (lockObject) 
                 {
-                    alertProducts.Add(existingProduct);
-                }
-
-                repoUserAlert.Entries.Add(
-                    new UserAlertEntry 
+                    if (!entry.IsDeleted) 
                     {
-                        MonitoredProductId = existingProduct.Id,
-                        IsDeleted = entry.IsDeleted
-                    });
-            }
+                        alertProducts.Add(existingProduct);
+                    }
+
+                    repoUserAlert.Entries.Add(
+                        new UserAlertEntry 
+                        {
+                            MonitoredProductId = existingProduct.Id,
+                            IsDeleted = entry.IsDeleted
+                        });
+                }
+            }));
 
             var bestDeal = alertProducts
                 .Select(p => Tuple.Create(p, p.PriceHistory.LastOf(y => y.ModifiedAt)))

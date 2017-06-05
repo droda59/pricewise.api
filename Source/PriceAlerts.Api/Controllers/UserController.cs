@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,12 +36,16 @@ namespace PriceAlerts.Api.Controllers
 
             var userDto = CreateDto(repoUser);
 
+            var lockObject = new Object();
             var notDeletedAlerts = repoUser.Alerts.Where(x => !x.IsDeleted).ToList();
             await Task.WhenAll(notDeletedAlerts.Select(async repoUserAlert => 
             {
                 var alert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
 
-                userDto.Alerts.Add(alert);
+                lock(lockObject)
+                {
+                    userDto.Alerts.Add(alert);
+                }  
             }));
 
             return this.Ok(userDto);

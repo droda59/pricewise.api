@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -37,6 +38,7 @@ namespace PriceAlerts.Api.Factories
                 }
             };
 
+            var lockObject = new Object();    
             var notDeletedEntries = repoAlert.Entries.Where(x => !x.IsDeleted).ToList();
             await Task.WhenAll(notDeletedEntries.Select(async entry => 
             {
@@ -51,7 +53,10 @@ namespace PriceAlerts.Api.Factories
                     Title = entryProduct.Title
                 };
 
-                userAlert.Entries.Add(userAlertEntry);
+                lock (lockObject) 
+                {
+                    userAlert.Entries.Add(userAlertEntry);
+                }
             }));
 
             return userAlert;
