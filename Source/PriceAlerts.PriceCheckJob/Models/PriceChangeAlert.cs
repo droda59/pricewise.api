@@ -15,5 +15,7 @@ namespace PriceAlerts.PriceCheckJob.Models
         public decimal PreviousPrice { get; set; }
 
         public Uri ProductUri { get; set; }
+
+        public Uri ImageUrl { get; set; }
     }
 }

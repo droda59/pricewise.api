@@ -69,6 +69,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                         AlertTitle = alert.Title, 
                                         PreviousPrice = alert.BestCurrentDeal.Price, 
                                         NewPrice = newBestDeal.Item2.Price,
+                                        ImageUrl = new Uri(alert.ImageUrl), 
                                         ProductUri = new Uri(newBestDeal.Item1.Uri)
                                     };
 
