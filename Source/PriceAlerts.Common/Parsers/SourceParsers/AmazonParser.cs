@@ -12,6 +12,35 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
         {
         }
         
+        protected override bool HasRedirectProductUrl(HtmlDocument doc)
+        {
+            return doc.GetElementbyId("twisterContainer") != null
+                && doc.GetElementbyId("priceblock_ourprice") != null
+                && doc.GetElementbyId("priceblock_ourprice").InnerText.Contains("-");
+        }
+
+        protected override Uri GetRedirectProductUrl(HtmlDocument doc)
+        {
+            var optionNodes = doc
+                .GetElementbyId("twisterContainer")
+                .SelectSingleNode(".//span[@class='a-dropdown-container']")
+                .SelectSingleNode(".//select")
+                .SelectNodes(".//option");
+            
+            foreach (var optionNode in optionNodes)
+            {
+                var optionNodeValue = optionNode.Attributes["value"].Value.Split(',');
+                if (optionNodeValue.Length > 1)
+                {
+                    var productId = optionNodeValue[1];
+
+                    return new Uri(this.Domain, $"/dp/{productId}?th=1&psc=1");
+                }
+            }
+
+            return null;
+        }
+        
         protected override string GetTitle(HtmlDocument doc)
         {
             var nodeValue = doc.GetElementbyId("productTitle").InnerText;
