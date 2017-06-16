@@ -28,9 +28,8 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
         
         protected override string GetTitle(HtmlDocument doc)
         {
-            var titleNode = doc
-                .GetElementbyId("grpDescrip_h")
-                .SelectSingleNode(".//span");
+            var titleNode = doc.DocumentNode
+                .SelectSingleNode(".//span[@itemprop='name']");
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
