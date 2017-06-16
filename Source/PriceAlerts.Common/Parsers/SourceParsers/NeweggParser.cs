@@ -12,6 +12,20 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
         {
         }
         
+        protected override bool HasRedirectProductUrl(HtmlDocument doc)
+        {
+            return doc.GetElementbyId("wrap_shocker") != null;
+        }
+
+        protected override Uri GetRedirectProductUrl(HtmlDocument doc)
+        {
+            var redirectUrl = doc
+                .GetElementbyId("shellShockerViewDetails")
+                .Attributes["href"].Value;
+
+            return new Uri(redirectUrl);
+        }
+        
         protected override string GetTitle(HtmlDocument doc)
         {
             var titleNode = doc

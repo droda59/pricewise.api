@@ -41,10 +41,18 @@ namespace PriceAlerts.Common.Parsers
 
         public async Task<SitePriceInfo> GetSiteInfo(Uri uri)
         {
-            var document = await this.LoadDocument(uri);
             string title;
             string imageUrl;
             decimal price;
+            Uri productUrl = uri;
+
+            var document = await this.LoadDocument(productUrl);
+
+            if (this.HasRedirectProductUrl(document))
+            {
+                productUrl = this.GetRedirectProductUrl(document);
+                document = await this.LoadDocument(productUrl);
+            }
 
             try
             {
@@ -75,7 +83,7 @@ namespace PriceAlerts.Common.Parsers
 
             var sitePriceInfo = new SitePriceInfo
             {
-                Uri = uri.AbsoluteUri,
+                Uri = productUrl.AbsoluteUri,
                 Title = title,
                 ImageUrl = imageUrl,
                 Price = price
@@ -89,6 +97,16 @@ namespace PriceAlerts.Common.Parsers
         protected abstract string GetImageUrl(HtmlDocument doc);
 
         protected abstract decimal GetPrice(HtmlDocument doc);
+
+        protected virtual Uri GetRedirectProductUrl(HtmlDocument doc)
+        {
+            return null;
+        }
+
+        protected virtual bool HasRedirectProductUrl(HtmlDocument doc)
+        {
+            return false;
+        }
 
         protected void AddCustomHeaders(string header, string value)
         {
