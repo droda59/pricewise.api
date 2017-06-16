@@ -113,10 +113,10 @@ namespace PriceAlerts.Common.Parsers
             this._customHeaders.Add(new KeyValuePair<string, string>(header, value));
         }
 
-        private async Task<HtmlDocument> LoadDocument(Uri uri)
+        protected async Task<HtmlDocument> LoadDocument(Uri uri)
         {
             var content = await this._htmlLoader.ReadHtmlAsync(uri, this._customHeaders.ToArray());
-            
+
             var document = new HtmlDocument();
             
             document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));

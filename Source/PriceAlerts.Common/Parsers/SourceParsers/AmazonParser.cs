@@ -21,6 +21,7 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
 
         protected override Uri GetRedirectProductUrl(HtmlDocument doc)
         {
+            // For size selection in select control
             var optionNodes = doc
                 .GetElementbyId("twisterContainer")
                 .SelectSingleNode(".//span[@class='a-dropdown-container']")
@@ -67,10 +68,24 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
 
             if (priceNode == null)
             {
-                var priceNodes = doc.GetElementbyId("tmmSwatches").SelectNodes(".//span[contains(@class, 'a-color-price')]");
-                var smallestPrice = priceNodes.Select(x => x.InnerHtml.ExtractDecimal()).Min();
+                priceNode = doc.GetElementbyId("tmmSwatches");
+                if (priceNode != null)
+                {
+                    var priceNodes = doc.GetElementbyId("tmmSwatches").SelectNodes(".//span[contains(@class, 'a-color-price')]");
+                    var smallestPrice = priceNodes.Select(x => x.InnerHtml.ExtractDecimal()).Min();
 
-                return smallestPrice;
+                    return smallestPrice;
+                }
+            }
+
+            // For format selection
+            if (priceNode == null)
+            {
+                priceNode = doc
+                    .GetElementbyId("twisterContainer")
+                    .SelectSingleNode(".//ul[contains(@class, 'a-button-toggle-group')]")
+                    .SelectSingleNode(".//span[contains(@class, 'a-button-selected')]")
+                    .SelectSingleNode(".//span[contains(@class, 'a-size-mini')]");
             }
 
             var nodeValue = priceNode.InnerText;
