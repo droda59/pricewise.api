@@ -24,8 +24,9 @@ namespace PriceAlerts.Common.Tests
 
         [Theory]
         // [InlineData(typeof(AmazonTestParser))]
-        [InlineData(typeof(ArchambaultTestParser))]
+        // [InlineData(typeof(ArchambaultTestParser))]
         // [InlineData(typeof(NeweggTestParser))]
+        [InlineData(typeof(RenaudBrayTestParser))]
         public async Task GetSiteInfo_AlwaysReturnSiteInfo(Type parserType)
         {
             this._parser = this.CreateTestParser(parserType, this._htmlLoader);
