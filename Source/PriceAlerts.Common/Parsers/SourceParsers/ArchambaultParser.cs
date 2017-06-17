@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using HtmlAgilityPack;
 
@@ -16,6 +17,13 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
             var titleNode = doc.DocumentNode
                 .SelectSingleNode(".//div[@class='product-info']")
                 .SelectSingleNode(".//h1");
+
+            if (titleNode == null)
+            {
+                titleNode = doc.DocumentNode
+                    .SelectSingleNode(".//div[@class='main-content']")
+                    .SelectSingleNode(".//h1");
+            }
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
@@ -35,6 +43,12 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
         {
             var priceNodes = doc.DocumentNode
                 .SelectNodes(".//p[@class='our-price']/text()");
+
+            if (priceNodes == null || !priceNodes.Any())
+            {
+                priceNodes = doc.DocumentNode
+                    .SelectNodes(".//p[@class='listed-price']/text()");
+            }
 
             var sb  = new StringBuilder();
             foreach(var node in priceNodes)
