@@ -42,7 +42,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                             page.GetElementbyId("mainResults")
                                 .SelectSingleNode(".//ul[contains(@class, 's-result-list')]")
                                 .SelectNodes(".//li[contains(@class, 's-result-item')]")
-                                .Take(10)
+                                .Take(6)
                                 .Select(x => x.SelectSingleNode(".//a[contains(@class, 's-access-detail-page')]"))
                                 .Select(x => new Uri(x.Attributes["href"].Value)));
                     }  
