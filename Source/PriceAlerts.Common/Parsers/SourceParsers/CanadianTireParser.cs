@@ -24,6 +24,13 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
                 .SelectSingleNode(".//div[@class='pdp-header__main']")
                 .SelectSingleNode(".//h1");
 
+            if (titleNode == null)
+            {
+                titleNode = doc.DocumentNode
+                    .SelectSingleNode(".//div[@class='pdp-header__main']")
+                    .SelectSingleNode(".//h2");
+            }
+
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
             return extractedValue;
