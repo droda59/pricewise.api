@@ -23,16 +23,16 @@ namespace PriceAlerts.Common.Tests
         }
 
         [Theory]
-        // [InlineData(typeof(AmazonTestParser))]
-        // [InlineData(typeof(ArchambaultTestParser))]
-        // [InlineData(typeof(BestBuyTestParser))]
-        // [InlineData(typeof(CanadianTireTestParser))]
-        // [InlineData(typeof(LegoTestParser))]
+        [InlineData(typeof(AmazonTestParser))]
+        [InlineData(typeof(ArchambaultTestParser))]
+        [InlineData(typeof(BestBuyTestParser))]
+        [InlineData(typeof(CanadianTireTestParser))]
+        [InlineData(typeof(LegoTestParser))]
         // [InlineData(typeof(NeweggTestParser))]
-        // [InlineData(typeof(RenaudBrayTestParser))]
-        // [InlineData(typeof(StaplesTestParser))]
+        [InlineData(typeof(RenaudBrayTestParser))]
+        [InlineData(typeof(StaplesTestParser))]
         [InlineData(typeof(TigerDirectTestParser))]
-        // [InlineData(typeof(ToysRUsTestParser))]
+        [InlineData(typeof(ToysRUsTestParser))]
         public async Task GetSiteInfo_AlwaysReturnSiteInfo(Type parserType)
         {
             this._parser = this.CreateTestParser(parserType, this._htmlLoader);
