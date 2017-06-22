@@ -5,7 +5,7 @@ using HtmlAgilityPack;
 
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class NeweggParser : BaseParser, IParser
+    internal class NeweggParser : BaseParser//, IParser
     {
         public NeweggParser(IHtmlLoader htmlLoader)
             : base(htmlLoader, new Uri("https://www.newegg.ca/"))
