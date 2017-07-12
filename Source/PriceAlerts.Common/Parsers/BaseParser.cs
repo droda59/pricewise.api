@@ -34,13 +34,9 @@ namespace PriceAlerts.Common.Parsers
             this._htmlLoader.Dispose();
         }
 
-        public async Task<SitePriceInfo> GetSiteInfo(string uri)
-        {
-            return await this.GetSiteInfo(new Uri(uri));
-        }
-
         public async Task<SitePriceInfo> GetSiteInfo(Uri uri)
         {
+            string productIdentifier;
             string title;
             string imageUrl;
             decimal price;
@@ -81,8 +77,18 @@ namespace PriceAlerts.Common.Parsers
                 throw new ParseException("Error parsing the price", e, uri);
             }
 
+            try
+            {
+                productIdentifier = this.GetProductIdentifier(document);
+            }
+            catch (Exception e)
+            {
+                throw new ParseException("Error parsing the product identifier", e, uri);
+            }
+
             var sitePriceInfo = new SitePriceInfo
             {
+                ProductIdentifier = productIdentifier, 
                 Uri = productUrl.AbsoluteUri,
                 Title = title,
                 ImageUrl = imageUrl,
@@ -97,6 +103,11 @@ namespace PriceAlerts.Common.Parsers
         protected abstract string GetImageUrl(HtmlDocument doc);
 
         protected abstract decimal GetPrice(HtmlDocument doc);
+
+        protected virtual string GetProductIdentifier(HtmlDocument doc)
+        {
+            return string.Empty;
+        }
 
         protected virtual Uri GetRedirectProductUrl(HtmlDocument doc)
         {

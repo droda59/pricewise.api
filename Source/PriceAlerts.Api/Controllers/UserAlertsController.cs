@@ -15,6 +15,7 @@ using PriceAlerts.Common.Models;
 
 namespace PriceAlerts.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     public class UserAlertsController : Controller
     {
@@ -31,7 +32,6 @@ namespace PriceAlerts.Api.Controllers
             this._productFactory = productFactory;
         }
 
-        [Authorize]
         [HttpGet("{userId}/{alertId}")]
         public async Task<UserAlertDto> Get(string userId, string alertId)
         {
@@ -42,7 +42,6 @@ namespace PriceAlerts.Api.Controllers
             return userAlert;
         }
 
-        [Authorize]
         [HttpGet("{userId}/{alertId}/history")]
         public async Task<IEnumerable<ProductHistory>> GetHistory(string userId, string alertId)
         {
@@ -71,13 +70,12 @@ namespace PriceAlerts.Api.Controllers
             return deals;
         }
 
-        [Authorize]
         [HttpPost("{userId}")]
         public async Task<IActionResult> CreateAlert(string userId, [FromBody]Uri uri)
         {
             try 
             {    
-                var existingProduct = await ForceGetProduct(uri.AbsoluteUri);
+                var existingProduct = await ForceGetProduct(uri);
                 var currentPrice = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
                 var newAlert = new UserAlert 
                 { 
@@ -105,7 +103,6 @@ namespace PriceAlerts.Api.Controllers
             }
         }
 
-        [Authorize]
         [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateAlert(string userId, [FromBody]UserAlertDto alert)
         {
@@ -120,7 +117,8 @@ namespace PriceAlerts.Api.Controllers
                 var alertProducts = new List<MonitoredProduct>();
                 await Task.WhenAll(alert.Entries.Select(async entry => 
                 {
-                    var existingProduct = await ForceGetProduct(entry.Uri);
+                    var productUri = new Uri(entry.Uri);
+                    var existingProduct = await ForceGetProduct(productUri);
 
                     lock (lockObject) 
                     {
@@ -160,7 +158,6 @@ namespace PriceAlerts.Api.Controllers
             }
         }
 
-        [Authorize]
         [HttpDelete("{userId}/{alertId}")]
         public async Task<bool> DeleteAlert(string userId, string alertId)
         {
@@ -169,9 +166,9 @@ namespace PriceAlerts.Api.Controllers
             return isDeleted;
         }
 
-        private async Task<MonitoredProduct> ForceGetProduct(string uri)
+        private async Task<MonitoredProduct> ForceGetProduct(Uri uri)
         {
-            var existingProduct = await this._productRepository.GetByUrlAsync(uri);
+            var existingProduct = await this._productRepository.GetByUrlAsync(uri.AbsoluteUri);
             if (existingProduct == null)
             {
                 existingProduct = await this._productFactory.CreateProduct(uri);

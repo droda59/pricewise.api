@@ -13,13 +13,6 @@ namespace PriceAlerts.Common.Parsers
             this._parsers = parsers.ToDictionary(x => x.Domain.Authority);
         }
 
-        public IParser CreateParser(string url)
-        {
-            var uri = new Uri(url);
-
-            return this.CreateParser(uri);
-        }
-
         public IParser CreateParser(Uri uri)
         {
             var domain = uri.Authority;

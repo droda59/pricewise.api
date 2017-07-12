@@ -18,12 +18,13 @@ namespace PriceAlerts.Common.Factories
             this._productRepository = productRepository;
         }
 
-        public async Task<MonitoredProduct> CreateProduct(string uri)
+        public async Task<MonitoredProduct> CreateProduct(Uri uri)
         {
             var siteInfo = await this._parserFactory.CreateParser(uri).GetSiteInfo(uri);
 
             var monitoredProduct = new MonitoredProduct
             {
+                ProductIdentifier = siteInfo.ProductIdentifier, 
                 Uri = siteInfo.Uri,
                 Title = siteInfo.Title,
                 ImageUrl = siteInfo.ImageUrl

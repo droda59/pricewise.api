@@ -8,6 +8,8 @@ namespace PriceAlerts.Common.Database
     public interface IProductRepository
     {
         Task<IEnumerable<MonitoredProduct>> GetAllAsync();
+
+        Task<IEnumerable<MonitoredProduct>> GetAllByProductIdentifierAsync(string productIdentifier);
         
         Task<MonitoredProduct> GetAsync(string id);
 

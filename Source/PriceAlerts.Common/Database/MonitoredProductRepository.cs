@@ -14,6 +14,11 @@ namespace PriceAlerts.Common.Database
             return await this.Collection.Find(FilterDefinition<MonitoredProduct>.Empty).ToListAsync();
         }
 
+        public async Task<IEnumerable<MonitoredProduct>> GetAllByProductIdentifierAsync(string productIdentifier)
+        {
+            return await this.Collection.Find(x => x.ProductIdentifier == productIdentifier).ToListAsync();
+        }
+
         public async Task<MonitoredProduct> GetAsync(string id)
         {
             return await this.Collection.Find(x => x.Id == id).FirstOrDefaultAsync();

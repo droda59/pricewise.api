@@ -9,6 +9,8 @@ namespace PriceAlerts.Common.Models
             this.PriceHistory = new List<PriceChange>();
         }
 
+        public string ProductIdentifier { get; set; }
+
         public string Uri { get; set; }
 
         public string Title { get; set; }

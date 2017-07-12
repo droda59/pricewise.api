@@ -10,7 +10,5 @@ namespace PriceAlerts.Common.Parsers
         Uri Domain { get; }
 
         Task<SitePriceInfo> GetSiteInfo(Uri uri);
-
-        Task<SitePriceInfo> GetSiteInfo(string uri);
     }
 }

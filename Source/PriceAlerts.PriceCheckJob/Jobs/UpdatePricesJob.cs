@@ -29,7 +29,8 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                 {
                     Console.WriteLine("Starting product " + product.Id);
 
-                    var siteInfo = await this._parserFactory.CreateParser(product.Uri).GetSiteInfo(product.Uri);
+                    var productUri = new Uri(product.Uri);
+                    var siteInfo = await this._parserFactory.CreateParser(productUri).GetSiteInfo(productUri);
 
                     product.PriceHistory.Add(
                         new PriceChange
