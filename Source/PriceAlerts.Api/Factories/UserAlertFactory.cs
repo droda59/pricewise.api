@@ -50,7 +50,8 @@ namespace PriceAlerts.Api.Factories
                     Uri = entryProduct.Uri,
                     LastPrice = lastUpdate.Price,
                     LastUpdate = lastUpdate.ModifiedAt,
-                    Title = entryProduct.Title
+                    Title = entryProduct.Title,
+                    ProductIdentifier = entryProduct.ProductIdentifier
                 };
 
                 lock (lockObject) 

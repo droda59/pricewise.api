@@ -69,7 +69,16 @@ namespace PriceAlerts.Api.Controllers
                     }
                 }));
 
-                var allProducts = knownProducts.Concat(newProducts);
+                var allProducts = knownProducts.Concat(newProducts).Select(
+                    product => 
+                        new ProductInfo
+                        {
+                            Url = product.Uri,
+                            Title = product.Title,
+                            Price = product.PriceHistory.LastOf(y => y.ModifiedAt).Price,
+                            ImageUrl = product.ImageUrl,
+                            ProductIdentifier = product.ProductIdentifier
+                        });
 
                 return this.Ok(allProducts);
             }
