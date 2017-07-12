@@ -76,6 +76,7 @@ namespace PriceAlerts.Api.Controllers
                             Url = product.Uri,
                             Title = product.Title,
                             Price = product.PriceHistory.LastOf(y => y.ModifiedAt).Price,
+                            LastUpdate = product.PriceHistory.LastOf(y => y.ModifiedAt).ModifiedAt,
                             ImageUrl = product.ImageUrl,
                             ProductIdentifier = product.ProductIdentifier
                         });

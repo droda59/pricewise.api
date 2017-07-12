@@ -14,5 +14,7 @@ namespace PriceAlerts.Api.Models
         public string ImageUrl { get; set; }
 
         public string ProductIdentifier { get; set; }
+
+        public DateTime LastUpdate { get; set; }
     }
 }
