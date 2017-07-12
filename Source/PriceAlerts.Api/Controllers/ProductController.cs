@@ -36,6 +36,12 @@ namespace PriceAlerts.Api.Controllers
         [HttpGet("{productidentifier}")]
         public async Task<IActionResult> FindProductsByIdentifier(string productIdentifier)
         {
+            // Do not search for an empty identifier
+            if (string.IsNullOrWhiteSpace(productIdentifier))
+            {
+                return this.NoContent();
+            }
+
             var lockObject = new Object();
 
             try
