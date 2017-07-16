@@ -34,9 +34,13 @@ namespace PriceAlerts.Common.Parsers
             this._htmlLoader.Dispose();
         }
 
-        public async Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm)
+        public async Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm, int maxResultCount = 5)
         {
-            return await Task.FromResult(Enumerable.Empty<Uri>());
+            var searchUrl = this.CreateSearchUri(searchTerm);
+
+            var document = await this.LoadDocument(searchUrl);
+
+            return this.GetSearchResultsUris(document, maxResultCount);
         }
 
         protected void AddCustomHeaders(string header, string value)
@@ -54,5 +58,9 @@ namespace PriceAlerts.Common.Parsers
 
             return document;
         }
+
+        protected abstract Uri CreateSearchUri(string searchTerm);
+
+        protected abstract IEnumerable<Uri> GetSearchResultsUris(HtmlDocument doc, int maxResultCount);
     }
 }

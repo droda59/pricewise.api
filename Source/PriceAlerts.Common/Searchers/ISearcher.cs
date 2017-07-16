@@ -10,6 +10,6 @@ namespace PriceAlerts.Common.Searchers
     {
         Uri Domain { get; }
 
-        Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm);
+        Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm, int maxResultCount = 5);
     }
 }
