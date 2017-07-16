@@ -42,5 +42,19 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
 
             return decimalValue;
         }
+
+        // protected override string GetProductIdentifier(HtmlDocument doc)
+        // {
+        //     var modelNumberNode = doc.DocumentNode
+        //         .SelectSingleNode("//div[contains(@class,'product-title-section')]")
+        //         .SelectSingleNode(".//ul[contains(@class, 'item-subtitle')]//span[@ng-bind='product.metadata.mfpartnumber']");
+
+        //     if (modelNumberNode != null)
+        //     {
+        //         return modelNumberNode.InnerText;
+        //     }
+
+        //     return string.Empty;
+        // }
     }
 }

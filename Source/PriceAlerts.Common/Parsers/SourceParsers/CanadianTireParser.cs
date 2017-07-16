@@ -48,17 +48,12 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
         protected override decimal GetPrice(HtmlDocument doc)
         {
             decimal price = 0m;
+
             var sku = doc.DocumentNode.SelectSingleNode(".//div[@class='sku-selectors__fieldset-wrapper']").Attributes["data-sku"].Value.Substring(0, 7);
-            var priceUrl = new Uri($"http://www.canadiantire.ca/ESB/PriceAvailability?SKU={sku}&Banner=CTR&Language=E");
-            var getPriceTask = this._htmlLoader.ReadHtmlAsync(priceUrl);
-            getPriceTask.Wait();
-
-            var priceResult = getPriceTask.Result;
-
-            var priceJson = JsonConvert.DeserializeObject<List<dynamic>>(priceResult);
-            if (priceJson.Any())
+            var infoJson = this.GetProductInfo(sku);
+            if (infoJson.Any())
             {
-                var productEntry = priceJson.First();
+                var productEntry = infoJson.First();
                 price = productEntry.Price;
 
                 if (productEntry.Promo != null) 
@@ -68,6 +63,34 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
             }
 
             return price;
+        }
+
+        protected override string GetProductIdentifier(HtmlDocument doc)
+        {
+            var productIdentifier = string.Empty;
+
+            // var sku = doc.DocumentNode.SelectSingleNode(".//div[@class='sku-selectors__fieldset-wrapper']").Attributes["data-sku"].Value.Substring(0, 7);
+            // var infoJson = this.GetProductInfo(sku);
+            // if (infoJson.Any())
+            // {
+            //     var productEntry = infoJson.First();
+            //     productIdentifier = productEntry.PartNumber;
+            // }
+
+            return productIdentifier;
+        }
+
+        private IEnumerable<dynamic> GetProductInfo(string sku)
+        {
+            var priceUrl = new Uri($"http://www.canadiantire.ca/ESB/PriceAvailability?SKU={sku}&Banner=CTR&Language=E");
+            var getInfoTask = this._htmlLoader.ReadHtmlAsync(priceUrl);
+            getInfoTask.Wait();
+
+            var infoResult = getInfoTask.Result;
+
+            var infoJson = JsonConvert.DeserializeObject<List<dynamic>>(infoResult);
+
+            return infoJson;
         }
     }
 }

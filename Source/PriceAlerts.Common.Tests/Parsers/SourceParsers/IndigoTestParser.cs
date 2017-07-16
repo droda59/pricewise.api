@@ -26,7 +26,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var pagesToBrowse = new List<Uri>();
             pagesToBrowse.AddRange(
                 document.DocumentNode
-                    .SelectNodes(".//a[contains(@class, 'banner-link')]")
+                    .SelectNodes(".//a[@data-type='bannerLink']")
                     .Select(x => new Uri(this.Domain, x.Attributes["href"].Value)));
 
             await Task.WhenAll(pagesToBrowse.Select(async pageUrl => 

@@ -27,7 +27,7 @@ namespace PriceAlerts.Common.Tests
         [InlineData(typeof(BestBuyTestParser))]
         [InlineData(typeof(CanadianTireTestParser))]
         [InlineData(typeof(CarcajouTestParser))]
-        [InlineData(typeof(IndigoTestParser))]
+        // [InlineData(typeof(IndigoTestParser))]
         [InlineData(typeof(LegoTestParser))]
         // [InlineData(typeof(NeweggTestParser))]
         [InlineData(typeof(RenaudBrayTestParser))]
@@ -46,10 +46,13 @@ namespace PriceAlerts.Common.Tests
 
                 var siteInfo = await parser.GetSiteInfo(urlToTest);
 
+                // Console.WriteLine($"Product ID {siteInfo.ProductIdentifier}");
+
                 Assert.NotNull(siteInfo);
                 Assert.NotNull(siteInfo.Uri);
                 Assert.NotNull(siteInfo.Title);
                 Assert.NotNull(siteInfo.ImageUrl);
+                Assert.NotNull(siteInfo.ProductIdentifier);
                 Assert.True(siteInfo.Price >= 0);
             }
 

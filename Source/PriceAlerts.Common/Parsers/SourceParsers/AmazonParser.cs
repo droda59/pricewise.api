@@ -1,15 +1,20 @@
 using System;
 using System.Linq;
-
+using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
     internal class AmazonParser : BaseParser, IParser
     {
+        private readonly Regex _isbn13Expression;
+        private readonly Regex _isbn10Expression;
+
         public AmazonParser(IHtmlLoader htmlLoader)
             : base(htmlLoader, new Uri("https://www.amazon.ca/"))
         {
+            this._isbn13Expression = new Regex(@"[0-9]{13}", RegexOptions.Compiled);
+            this._isbn10Expression = new Regex(@"[0-9]{10}", RegexOptions.Compiled);
         }
         
         protected override bool HasRedirectProductUrl(HtmlDocument doc)
@@ -92,6 +97,29 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
             var decimalValue = nodeValue.ExtractDecimal();
 
             return decimalValue;
+        }
+
+        protected override string GetProductIdentifier(HtmlDocument doc)
+        {
+            var titleNode = doc.DocumentNode.SelectSingleNode("//meta[@name='title']");
+            var titleValue = titleNode.Attributes["content"].Value;
+
+            if (this._isbn13Expression.IsMatch(titleValue))
+            {
+                return this._isbn13Expression.Match(titleValue).Value;
+            }
+
+            if (this._isbn10Expression.IsMatch(titleValue))
+            {
+                return this._isbn10Expression.Match(titleValue).Value;
+            }
+
+            return string.Empty;
+
+            // var keywordsNode = doc.DocumentNode.SelectSingleNode("//meta[@name='keywords']");
+            // var keywordsValue = keywordsNode.Attributes["content"].Value;
+
+            // return keywordsValue.Split(',').Last();
         }
     }
 }
