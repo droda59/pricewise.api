@@ -77,6 +77,11 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
                 if (priceNode != null)
                 {
                     var priceNodes = doc.GetElementbyId("tmmSwatches").SelectNodes(".//span[contains(@class, 'a-color-price')]");
+                    if (priceNodes == null || !priceNodes.Any())
+                    {
+                        priceNodes = doc.GetElementbyId("tmmSwatches").SelectNodes(".//span[contains(@class, 'a-color-base')]");
+                    }
+
                     var smallestPrice = priceNodes.Select(x => x.InnerHtml.ExtractDecimal()).Min();
 
                     return smallestPrice;
