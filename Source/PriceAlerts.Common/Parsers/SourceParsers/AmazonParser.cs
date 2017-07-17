@@ -8,12 +8,14 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
     internal class AmazonParser : BaseParser, IParser
     {
         private readonly Regex _isbn13Expression;
+        private readonly Regex _isbn13CompleteExpression;
         private readonly Regex _isbn10Expression;
 
         public AmazonParser(IHtmlLoader htmlLoader)
             : base(htmlLoader, new Uri("https://www.amazon.ca/"))
         {
             this._isbn13Expression = new Regex(@"[0-9]{13}", RegexOptions.Compiled);
+            this._isbn13CompleteExpression = new Regex(@"[0-9]{3}\-[0-9]{10}", RegexOptions.Compiled);
             this._isbn10Expression = new Regex(@"[0-9]{10}", RegexOptions.Compiled);
         }
         
@@ -117,6 +119,38 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
             if (this._isbn10Expression.IsMatch(titleValue))
             {
                 return this._isbn10Expression.Match(titleValue).Value;
+            }
+
+            var detailsListNode = doc
+                .GetElementbyId("detail_bullets_id")
+                .SelectNodes(".//table//td[contains(@class, 'bucket')]//div[contains(@class, 'content')]//ul//li");
+
+            if (detailsListNode != null && detailsListNode.Any())
+            {
+                var detailTitleNodes = detailsListNode.SelectMany(x => x.SelectNodes(".//b")).ToList();
+                foreach (var detailTitleNode in detailTitleNodes)
+                {
+                    if (detailTitleNode.InnerText.Contains("ISBN-13"))
+                    {
+                        var detailValue = detailTitleNode.ParentNode.InnerText;
+                        if (this._isbn13CompleteExpression.IsMatch(detailValue))
+                        {
+                            return this._isbn13CompleteExpression.Match(detailValue).Value.Replace("-", "");
+                        }
+                    }
+                }
+
+                foreach (var detailTitleNode in detailTitleNodes)
+                {
+                    if (detailTitleNode.InnerText.Contains("ISBN-10"))
+                    {
+                        var detailValue = detailTitleNode.ParentNode.InnerText;
+                        if (this._isbn10Expression.IsMatch(detailValue))
+                        {
+                            return this._isbn10Expression.Match(detailValue).Value;
+                        }
+                    }
+                }
             }
 
             return string.Empty;
