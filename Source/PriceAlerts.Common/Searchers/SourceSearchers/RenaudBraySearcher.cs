@@ -23,18 +23,23 @@ namespace PriceAlerts.Common.Parsers.SourceSearchers
 
         protected override IEnumerable<Uri> GetSearchResultsUris(HtmlDocument doc, int maxResultCount)
         {
-            var resultsListNode = doc.GetElementbyId("resultats_recherche_produits");
+            var resultsListNodes = doc.DocumentNode
+                .SelectSingleNode(".//div[contains(@class, 'search_summary')]")
+                .SelectNodes(".//div[contains(@class, 'section_results')]");
 
-            if (resultsListNode != null)
+            if (resultsListNodes != null)
             {
-                var resultNodes = resultsListNode
-                    .SelectSingleNode(".//div[@id='results0']")
-                    .SelectNodes(".//tr//a[contains(@class,'prod_thumb')]");
-                
-                foreach (var resultNode in resultNodes.Take(maxResultCount))
+                foreach (var resultNode in resultsListNodes)
                 {
-                    var resultLink = resultNode.Attributes["href"].Value;
-                    yield return new Uri(this.Domain, $"/fr/{resultLink}");
+                    var uniqueLinks = resultNode
+                        .SelectNodes(".//a[contains(@class, 'lblTitle')][href]")
+                        .Select(x => x.Attributes["href"].Value)
+                        .Distinct()
+                        .Take(maxResultCount);
+                    foreach (var uniqueLink in uniqueLinks)
+                    {
+                        yield return new Uri(this.Domain, uniqueLink);
+                    }
                 }
             }
 
