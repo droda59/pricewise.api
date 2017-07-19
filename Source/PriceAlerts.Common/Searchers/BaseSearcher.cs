@@ -38,9 +38,25 @@ namespace PriceAlerts.Common.Parsers
         {
             var searchUrl = this.CreateSearchUri(searchTerm);
 
-            var document = await this.LoadDocument(searchUrl);
+            // var document = await this.LoadDocument(searchUrl);
 
-            return this.GetSearchResultsUris(document, maxResultCount);
+            var data = await this._htmlLoader.LoadHtmlAsync(searchUrl, this._customHeaders.ToArray());
+            
+            if (data.IsSuccessStatusCode)
+            {
+                var content = await data.Content.ReadAsStringAsync();
+
+                var document = new HtmlDocument();
+                document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
+
+                return this.GetSearchResultsUris(document, maxResultCount);
+            }
+            else if (data.Headers.Location != null)
+            {
+                return new [] { data.Headers.Location };
+            }
+
+            return Enumerable.Empty<Uri>();
         }
 
         protected void AddCustomHeaders(string header, string value)
@@ -50,11 +66,16 @@ namespace PriceAlerts.Common.Parsers
 
         protected async Task<HtmlDocument> LoadDocument(Uri uri)
         {
-            var content = await this._htmlLoader.ReadHtmlAsync(uri, this._customHeaders.ToArray());
-
-            var document = new HtmlDocument();
+            HtmlDocument document = null;
+            var data = await this._htmlLoader.LoadHtmlAsync(uri, this._customHeaders.ToArray());
             
-            document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
+            if (data.IsSuccessStatusCode)
+            {
+                var content = await data.Content.ReadAsStringAsync();
+
+                document = new HtmlDocument();
+                document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
+            }
 
             return document;
         }

@@ -48,6 +48,14 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
 
         protected override string GetProductIdentifier(HtmlDocument doc)
         {
+            var isbnMetaNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:isbn']");
+            var isbnMetaValue = isbnMetaNode.Attributes["content"].Value;
+
+            if (this._isbn13Expression.IsMatch(isbnMetaValue))
+            {
+                return this._isbn13Expression.Match(isbnMetaValue).Value;
+            }
+
             var isbnSectionNode = doc.DocumentNode
                 .SelectSingleNode("//table[@class='tblDetails_adv2']")
                 .SelectSingleNode(".//tr[contains(@id, 'ISBN')]");
@@ -67,6 +75,12 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
                     return this._isbn10Expression.Match(isbn10Value).Value;
                 }
             }
+
+            // var upcMetaNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:upc']");
+            // if (upcMetaNode != null)
+            // {
+            //     return isbnMetaNode.Attributes["content"].Value;
+            // }
 
             return string.Empty;
         }

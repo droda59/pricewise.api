@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -11,7 +12,12 @@ namespace PriceAlerts.Common
 
         public void Initialize()
         {
-            this._httpClient = new HttpClient();
+            var handler = new HttpClientHandler() 
+            {
+                AllowAutoRedirect = false
+            };
+            
+            this._httpClient = new HttpClient(handler);
         }
 
         public void Dispose()
@@ -20,7 +26,21 @@ namespace PriceAlerts.Common
             this._httpClient = null;
         }
 
+
         public async Task<string> ReadHtmlAsync(Uri uri, params KeyValuePair<string, string>[] customHeaders)
+        {
+            string content = null;
+
+            var data = await this.LoadHtmlAsync(uri, customHeaders);
+            if (data.IsSuccessStatusCode)
+            {
+                content = await data.Content.ReadAsStringAsync();
+            }
+            
+            return content;
+        }
+
+        public async Task<HttpResponseMessage> LoadHtmlAsync(Uri uri, params KeyValuePair<string, string>[] customHeaders)
         {
             var message = new HttpRequestMessage(new HttpMethod("GET"), uri.AbsoluteUri);
 
@@ -29,14 +49,9 @@ namespace PriceAlerts.Common
                 message.Headers.Add(customHeader.Key, customHeader.Value);
             }
 
-            string content = null;
             var data = await this._httpClient.SendAsync(message);
-            if (data.IsSuccessStatusCode)
-            {
-                content = await data.Content.ReadAsStringAsync();
-            }
             
-            return content;
+            return data;
         }
     }
 }
