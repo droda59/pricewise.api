@@ -53,7 +53,19 @@ namespace PriceAlerts.Common.Parsers
             }
             else if (data.Headers.Location != null)
             {
-                return new [] { data.Headers.Location };
+                Uri location;
+                if (Uri.IsWellFormedUriString(data.Headers.Location.ToString(), UriKind.Absolute))
+                {
+                    location = data.Headers.Location;
+                }
+                else
+                {
+                    location = new Uri(this.Domain, data.Headers.Location);
+                }
+
+                Console.WriteLine(location.AbsoluteUri);
+
+                return new [] { location };
             }
 
             return Enumerable.Empty<Uri>();
