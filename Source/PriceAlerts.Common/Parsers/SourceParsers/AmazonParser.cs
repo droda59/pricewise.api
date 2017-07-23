@@ -121,33 +121,34 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
                 return this._isbn10Expression.Match(titleValue).Value;
             }
 
-            var detailsListNode = doc
-                .GetElementbyId("detail_bullets_id")
-                .SelectNodes(".//table//td[contains(@class, 'bucket')]//div[contains(@class, 'content')]//ul//li");
-
-            if (detailsListNode != null && detailsListNode.Any())
+            var detailsListNode = doc.GetElementbyId("detail_bullets_id");
+            if (detailsListNode != null)
             {
-                var detailTitleNodes = detailsListNode.SelectMany(x => x.SelectNodes(".//b")).ToList();
-                foreach (var detailTitleNode in detailTitleNodes)
+                var detailsListNodes = detailsListNode.SelectNodes(".//table//td[contains(@class, 'bucket')]//div[contains(@class, 'content')]//ul//li");
+                if (detailsListNodes != null && detailsListNodes.Any())
                 {
-                    if (detailTitleNode.InnerText.Contains("ISBN-13"))
+                    var detailTitleNodes = detailsListNodes.SelectMany(x => x.SelectNodes(".//b")).ToList();
+                    foreach (var detailTitleNode in detailTitleNodes)
                     {
-                        var detailValue = detailTitleNode.ParentNode.InnerText;
-                        if (this._isbn13CompleteExpression.IsMatch(detailValue))
+                        if (detailTitleNode.InnerText.Contains("ISBN-13"))
                         {
-                            return this._isbn13CompleteExpression.Match(detailValue).Value.Replace("-", "");
+                            var detailValue = detailTitleNode.ParentNode.InnerText;
+                            if (this._isbn13CompleteExpression.IsMatch(detailValue))
+                            {
+                                return this._isbn13CompleteExpression.Match(detailValue).Value.Replace("-", "");
+                            }
                         }
                     }
-                }
 
-                foreach (var detailTitleNode in detailTitleNodes)
-                {
-                    if (detailTitleNode.InnerText.Contains("ISBN-10"))
+                    foreach (var detailTitleNode in detailTitleNodes)
                     {
-                        var detailValue = detailTitleNode.ParentNode.InnerText;
-                        if (this._isbn10Expression.IsMatch(detailValue))
+                        if (detailTitleNode.InnerText.Contains("ISBN-10"))
                         {
-                            return this._isbn10Expression.Match(detailValue).Value;
+                            var detailValue = detailTitleNode.ParentNode.InnerText;
+                            if (this._isbn10Expression.IsMatch(detailValue))
+                            {
+                                return this._isbn10Expression.Match(detailValue).Value;
+                            }
                         }
                     }
                 }

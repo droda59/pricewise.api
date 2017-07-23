@@ -44,16 +44,25 @@ namespace PriceAlerts.Common.Tests
             {
                 // Console.WriteLine($"Testing {urlToTest.AbsoluteUri}");
 
-                var siteInfo = await parser.GetSiteInfo(urlToTest);
+                try
+                {
+                    var siteInfo = await parser.GetSiteInfo(urlToTest);
 
-                // Console.WriteLine($"Product ID {siteInfo.ProductIdentifier}");
+                    // Console.WriteLine($"Product ID {siteInfo.ProductIdentifier}");
 
-                Assert.NotNull(siteInfo);
-                Assert.NotNull(siteInfo.Uri);
-                Assert.NotNull(siteInfo.Title);
-                Assert.NotNull(siteInfo.ImageUrl);
-                Assert.NotNull(siteInfo.ProductIdentifier);
-                Assert.True(siteInfo.Price >= 0);
+                    Assert.NotNull(siteInfo);
+                    Assert.NotNull(siteInfo.Uri);
+                    Assert.NotNull(siteInfo.Title);
+                    Assert.NotNull(siteInfo.ImageUrl);
+                    Assert.NotNull(siteInfo.ProductIdentifier);
+                    Assert.True(siteInfo.Price >= 0);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Failed test on {urlToTest}");
+
+                    throw e;
+                }
             }
 
             Console.WriteLine($"Ran {urlsToTest.Count} tests on {parser.Domain}");
