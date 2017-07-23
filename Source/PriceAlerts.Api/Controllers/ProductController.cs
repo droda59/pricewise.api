@@ -60,10 +60,16 @@ namespace PriceAlerts.Api.Controllers
                         var newProductsUrls = await searcher.GetProductsUrls(productIdentifier);
                         await Task.WhenAll(newProductsUrls.Select(async url => 
                         {
-                            var newProduct = await this._productFactory.CreateProduct(url);
-                            lock (lockObject) 
+                            try
                             {
-                                newProducts.Add(newProduct);
+                                var newProduct = await this._productFactory.CreateProduct(url);
+                                lock (lockObject) 
+                                {
+                                    newProducts.Add(newProduct);
+                                }
+                            }
+                            catch (Exception)
+                            {
                             }
                         }));
                     }

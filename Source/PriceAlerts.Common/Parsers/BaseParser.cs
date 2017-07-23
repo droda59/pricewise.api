@@ -126,13 +126,37 @@ namespace PriceAlerts.Common.Parsers
 
         protected async Task<HtmlDocument> LoadDocument(Uri uri)
         {
-            var content = await this._htmlLoader.ReadHtmlAsync(uri, this._customHeaders.ToArray());
+            var data = await this._htmlLoader.LoadHtmlAsync(uri, this._customHeaders.ToArray());
+            if (!data.IsSuccessStatusCode)
+            {
+                if (data.Headers.Location != null)
+                {
+                    Uri location;
+                    if (Uri.IsWellFormedUriString(data.Headers.Location.ToString(), UriKind.Absolute))
+                    {
+                        location = data.Headers.Location;
+                    }
+                    else
+                    {
+                        location = new Uri(this.Domain, data.Headers.Location);
+                    }
 
-            var document = new HtmlDocument();
-            
-            document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
+                    Console.WriteLine("Redirect: " + location.AbsoluteUri);
 
-            return document;
+                    return await this.LoadDocument(location);
+                }
+            }
+            else
+            {
+                var content = await data.Content.ReadAsStringAsync();
+
+                var document = new HtmlDocument();
+                document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
+
+                return document;
+            }
+
+            return null;
         }
     }
 }

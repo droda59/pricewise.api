@@ -63,7 +63,7 @@ namespace PriceAlerts.Common.Parsers
                     location = new Uri(this.Domain, data.Headers.Location);
                 }
 
-                Console.WriteLine(location.AbsoluteUri);
+                Console.WriteLine("Redirect: " + location.AbsoluteUri);
 
                 return new [] { location };
             }
