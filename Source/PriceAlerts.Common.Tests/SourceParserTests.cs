@@ -20,19 +20,19 @@ namespace PriceAlerts.Common.Tests
             this._htmlLoader = new HtmlLoader();
         }
 
-        [Theory]
-        [InlineData(typeof(AmazonTestParser))]
-        [InlineData(typeof(ArchambaultTestParser))]
-        [InlineData(typeof(BestBuyTestParser))]
-        [InlineData(typeof(CanadianTireTestParser))]
-        [InlineData(typeof(CarcajouTestParser))]
-        // [InlineData(typeof(IndigoTestParser))]
-        [InlineData(typeof(LegoTestParser))]
-        // [InlineData(typeof(NeweggTestParser))]
-        [InlineData(typeof(RenaudBrayTestParser))]
-        [InlineData(typeof(StaplesTestParser))]
-        [InlineData(typeof(TigerDirectTestParser))]
-        [InlineData(typeof(ToysRUsTestParser))]
+        // [Theory]
+        // [InlineData(typeof(AmazonTestParser))]
+        // [InlineData(typeof(ArchambaultTestParser))]
+        // [InlineData(typeof(BestBuyTestParser))]
+        // [InlineData(typeof(CanadianTireTestParser))]
+        // [InlineData(typeof(CarcajouTestParser))]
+        // // [InlineData(typeof(IndigoTestParser))]
+        // [InlineData(typeof(LegoTestParser))]
+        // // [InlineData(typeof(NeweggTestParser))]
+        // [InlineData(typeof(RenaudBrayTestParser))]
+        // [InlineData(typeof(StaplesTestParser))]
+        // [InlineData(typeof(TigerDirectTestParser))]
+        // [InlineData(typeof(ToysRUsTestParser))]
         public async Task GetSiteInfo_AlwaysReturnSiteInfo(Type parserType)
         {
             var parser = this.CreateTestParser(parserType, this._htmlLoader);

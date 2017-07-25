@@ -4,28 +4,22 @@ using System.Text.RegularExpressions;
 
 namespace PriceAlerts.Common.Cleaners.Sources
 {
-    internal class AmazonCleaner : BaseCleaner, ICleaner
+    internal class BestBuyCleaner : BaseCleaner, ICleaner
     {
         private readonly Regex _idExpression;
 
-        public AmazonCleaner()
-            : base(new Uri("https://www.amazon.ca/"))
+        public BestBuyCleaner()
+            : base(new Uri("http://www.bestbuy.ca/"))
         {
-            this._idExpression = new Regex(@"[a-zA-Z0-9]{10}$", RegexOptions.Compiled);
+            this._idExpression = new Regex(@"[a-zA-Z0-9]{8}(.aspx)", RegexOptions.Compiled);
         }
 
         public override Uri CleanUrl(Uri originalUrl)
         {
             var urlWithoutQueryString = new UriBuilder(originalUrl) { Query = string.Empty }.Uri;
-            var cleanUrl = urlWithoutQueryString.AbsoluteUri;
-            var refIndex = cleanUrl.LastIndexOf("/ref=");
-            if (refIndex >= 0)
-            {
-                cleanUrl = cleanUrl.Substring(0, refIndex);
-            }
 
             var newUrl = string.Empty;
-            var urlSegments = new Uri(cleanUrl).Segments;
+            var urlSegments = urlWithoutQueryString.Segments;
             foreach (var segment in urlSegments)
             {
                 if (string.Equals(segment, "/", StringComparison.OrdinalIgnoreCase))
@@ -33,10 +27,17 @@ namespace PriceAlerts.Common.Cleaners.Sources
                     continue;
                 }
 
-                if (string.Equals(segment, "gp/", StringComparison.OrdinalIgnoreCase) 
-                    || string.Equals(segment, "dp/", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(segment, "en-ca/", StringComparison.OrdinalIgnoreCase) 
+                    || string.Equals(segment, "fr-ca/", StringComparison.OrdinalIgnoreCase))
                 {
-                    newUrl += "dp/";
+                    newUrl += segment;
+                    continue;
+                }
+
+                if (string.Equals(segment, "product/", StringComparison.OrdinalIgnoreCase))
+                {
+                    newUrl += segment;
+                    newUrl += "-/";
                     continue;
                 }
 
