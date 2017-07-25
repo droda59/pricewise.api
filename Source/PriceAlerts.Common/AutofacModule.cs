@@ -2,7 +2,7 @@ using System.Linq;
 using System.Reflection;
 
 using Autofac;
-
+using PriceAlerts.Common.Cleaners;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Parsers;
@@ -15,6 +15,11 @@ namespace PriceAlerts.Common
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<HtmlLoader>().As<IHtmlLoader>().SingleInstance();
+
+            builder.RegisterAssemblyTypes(typeof(ICleaner).GetTypeInfo().Assembly)
+                .Where(x => x.GetInterfaces().Contains(typeof(ICleaner)) && x.Name.EndsWith("Cleaner"))
+                .As<ICleaner>()
+                .SingleInstance();
             
             builder.RegisterType<ParserFactory>().As<IParserFactory>().SingleInstance();
             builder.RegisterAssemblyTypes(typeof(IParser).GetTypeInfo().Assembly)

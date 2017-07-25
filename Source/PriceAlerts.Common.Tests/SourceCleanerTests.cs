@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using PriceAlerts.Common.Parsers;
-using PriceAlerts.Common.Parsers.SourceParsers;
+using PriceAlerts.Common.Cleaners;
+using PriceAlerts.Common.Cleaners.Sources;
 using PriceAlerts.Common.Tests.Parsers;
 using PriceAlerts.Common.Tests.Parsers.SourceParsers;
 
@@ -11,43 +10,34 @@ using Xunit;
 
 namespace PriceAlerts.Common.Tests
 {
-    public class SourceParserTests
+    public class SourceCleanerTests
     {
         private readonly HtmlLoader _htmlLoader;
 
-        public SourceParserTests()
+        public SourceCleanerTests()
         {
             this._htmlLoader = new HtmlLoader();
         }
 
         [Theory]
-        [InlineData(typeof(AmazonTestParser))]
-        [InlineData(typeof(ArchambaultTestParser))]
-        [InlineData(typeof(BestBuyTestParser))]
-        [InlineData(typeof(CanadianTireTestParser))]
-        [InlineData(typeof(CarcajouTestParser))]
-        // [InlineData(typeof(IndigoTestParser))]
-        [InlineData(typeof(LegoTestParser))]
-        // [InlineData(typeof(NeweggTestParser))]
-        [InlineData(typeof(RenaudBrayTestParser))]
-        [InlineData(typeof(StaplesTestParser))]
-        [InlineData(typeof(TigerDirectTestParser))]
-        [InlineData(typeof(ToysRUsTestParser))]
-        public async Task GetSiteInfo_AlwaysReturnSiteInfo(Type parserType)
+        [InlineData(typeof(AmazonCleaner), typeof(AmazonTestParser))]
+        public async Task GetSiteInfo_AlwaysReturnSiteInfo(Type cleanerType, Type parserType)
         {
+            var cleaner = this.CreateTestCleaner(cleanerType);
             var parser = this.CreateTestParser(parserType, this._htmlLoader);
             var urlsToTest = (await parser.GetTestProductsUrls()).ToList();
 
             Assert.NotEmpty(urlsToTest);
             foreach (var urlToTest in urlsToTest)
             {
-                // Console.WriteLine($"Testing {urlToTest.AbsoluteUri}");
-
                 try
                 {
-                    var siteInfo = await parser.GetSiteInfo(urlToTest);
+                    var cleanUrl = cleaner.CleanUrl(urlToTest);
+                    Assert.NotNull(cleanUrl);
 
-                    // Console.WriteLine($"Product ID {siteInfo.ProductIdentifier}");
+                    // Console.WriteLine($"Cleaning {cleanUrl.AbsoluteUri}");
+
+                    var siteInfo = await parser.GetSiteInfo(cleanUrl);
 
                     Assert.NotNull(siteInfo);
                     Assert.NotNull(siteInfo.Uri);
@@ -65,6 +55,11 @@ namespace PriceAlerts.Common.Tests
             }
 
             Console.WriteLine($"Ran {urlsToTest.Count} tests on {parser.Domain}");
+        }
+
+        private ICleaner CreateTestCleaner(Type parserType)
+        {
+            return (ICleaner)Activator.CreateInstance(parserType);
         }
 
         private ITestParser CreateTestParser(Type parserType, IHtmlLoader htmlLoader)
