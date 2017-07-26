@@ -8,7 +8,7 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
     internal class StaplesParser : BaseParser, IParser
     {
         public StaplesParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.staples.ca/"))
+            : base(htmlLoader, new Uri("https://www.staples.ca/"))
         {
         }
         

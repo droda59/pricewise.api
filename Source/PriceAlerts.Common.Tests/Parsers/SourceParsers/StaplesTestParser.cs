@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using HtmlAgilityPack;
-
+using PriceAlerts.Common.Parsers.SourceParsers;
 using PriceAlerts.Common.Tests.Parsers;
 
-namespace PriceAlerts.Common.Parsers.SourceParsers
+namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class StaplesTestParser : StaplesParser, ITestParser
     {
