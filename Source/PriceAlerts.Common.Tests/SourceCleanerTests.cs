@@ -25,7 +25,8 @@ namespace PriceAlerts.Common.Tests
         // [InlineData(typeof(CanadianTireCleaner), typeof(CanadianTireTestParser))]
         // // [InlineData(typeof(IndigoCleaner), typeof(IndigoTestParser))]
         // [InlineData(typeof(RenaudBrayCleaner), typeof(RenaudBrayTestParser))]
-        [InlineData(typeof(StaplesCleaner), typeof(StaplesTestParser))]
+        // [InlineData(typeof(StaplesCleaner), typeof(StaplesTestParser))]
+        [InlineData(typeof(TigerDirectCleaner), typeof(TigerDirectTestParser))]
         public async Task GetSiteInfo_AlwaysReturnSiteInfo(Type cleanerType, Type parserType)
         {
             var cleaner = this.CreateTestCleaner(cleanerType);
