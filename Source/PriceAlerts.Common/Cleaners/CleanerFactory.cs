@@ -11,7 +11,7 @@ namespace PriceAlerts.Common.Cleaners
 
         public CleanerFactory(IEnumerable<ICleaner> cleaners)
         {
-            this._cleaners = cleaners.ToDictionary(x => x.Domain.Authority);
+            this._cleaners = cleaners.Where(x => x.Domain != null).ToDictionary(x => x.Domain.Authority);
             this._baseCleaner = new BaseCleaner();
         }
 

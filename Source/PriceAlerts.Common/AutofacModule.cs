@@ -16,6 +16,7 @@ namespace PriceAlerts.Common
         {
             builder.RegisterType<HtmlLoader>().As<IHtmlLoader>().SingleInstance();
 
+            builder.RegisterType<CleanerFactory>().As<ICleanerFactory>().SingleInstance();
             builder.RegisterAssemblyTypes(typeof(ICleaner).GetTypeInfo().Assembly)
                 .Where(x => x.GetInterfaces().Contains(typeof(ICleaner)) && x.Name.EndsWith("Cleaner"))
                 .As<ICleaner>()

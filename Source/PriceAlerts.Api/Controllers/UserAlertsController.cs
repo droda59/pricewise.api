@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
 using PriceAlerts.Common;
+using PriceAlerts.Common.Cleaners;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Models;
@@ -23,13 +24,15 @@ namespace PriceAlerts.Api.Controllers
         private readonly IAlertRepository _alertRepository;
         private readonly IUserAlertFactory _userAlertFactory;
         private readonly IProductFactory _productFactory;
+        private readonly ICleanerFactory _cleanerFactory;
 
-        public UserAlertsController(IProductRepository productRepository, IAlertRepository alertRepository, IUserAlertFactory userAlertFactory, IProductFactory productFactory)
+        public UserAlertsController(IProductRepository productRepository, IAlertRepository alertRepository, IUserAlertFactory userAlertFactory, IProductFactory productFactory, ICleanerFactory cleanerFactory)
         {
             this._productRepository = productRepository;
             this._alertRepository = alertRepository;
             this._userAlertFactory = userAlertFactory;
             this._productFactory = productFactory;
+            this._cleanerFactory = cleanerFactory;
         }
 
         [HttpGet("{userId}/{alertId}")]
@@ -74,7 +77,7 @@ namespace PriceAlerts.Api.Controllers
         public async Task<IActionResult> CreateAlert(string userId, [FromBody]Uri uri)
         {
             try 
-            {    
+            {
                 var existingProduct = await ForceGetProduct(uri);
                 var currentPrice = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
                 var newAlert = new UserAlert 
@@ -168,7 +171,8 @@ namespace PriceAlerts.Api.Controllers
 
         private async Task<MonitoredProduct> ForceGetProduct(Uri uri)
         {
-            var existingProduct = await this._productRepository.GetByUrlAsync(uri.AbsoluteUri);
+            var cleanUrl = this._cleanerFactory.CreateCleaner(uri).CleanUrl(uri);
+            var existingProduct = await this._productRepository.GetByUrlAsync(cleanUrl.AbsoluteUri);
             if (existingProduct == null)
             {
                 existingProduct = await this._productFactory.CreateProduct(uri);

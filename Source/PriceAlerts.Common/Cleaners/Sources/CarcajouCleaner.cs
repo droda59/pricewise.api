@@ -7,24 +7,21 @@ using Microsoft.Extensions.Primitives;
 
 namespace PriceAlerts.Common.Cleaners.Sources
 {
-    internal class RenaudBrayCleaner : BaseCleaner, ICleaner
+    internal class CarcajouCleaner : BaseCleaner, ICleaner
     {
-        private readonly Regex _idExpression;
-
-        public RenaudBrayCleaner()
-            : base(new Uri("http://www.renaud-bray.com/"))
+        public CarcajouCleaner()
+            : base(new Uri("http://www.librairiecarcajou.com/"))
         {
-            this._idExpression = new Regex(@"[0-9]{7}$", RegexOptions.Compiled);
         }
 
         public override Uri CleanUrl(Uri originalUrl)
         {
-            var id = StringValues.Empty;
+            StringValues sku = StringValues.Empty;
             var queryParameters = QueryHelpers.ParseQuery(originalUrl.Query);
-            if (queryParameters.TryGetValue("id", out id) && this._idExpression.IsMatch(id))
+            if (queryParameters.TryGetValue("prod_id", out sku))
             {
                 var urlWithoutQueryString = new UriBuilder(originalUrl) { Query = string.Empty };
-                var urlWithQueryString = QueryHelpers.AddQueryString(urlWithoutQueryString.Uri.AbsoluteUri, "id", id);
+                var urlWithQueryString = QueryHelpers.AddQueryString(urlWithoutQueryString.Uri.AbsoluteUri, "prod_id", sku);
 
                 return new Uri(urlWithQueryString);
             }
