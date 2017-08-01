@@ -54,7 +54,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
 
                         if (alert.BestCurrentDeal.Price != newBestDeal.Item2.Price)
                         {
-                            Console.WriteLine("Price dropped for alert " + alert.Id + " from " + alert.BestCurrentDeal.Price + " to " + newBestDeal.Item2.Price);
+                            Console.WriteLine("Price changed for alert " + alert.Id + " from " + alert.BestCurrentDeal.Price + " to " + newBestDeal.Item2.Price);
 
                             if (!user.Settings.SpecifyChangePercentage || 
                                 user.Settings.SpecifyChangePercentage && Math.Abs(alert.BestCurrentDeal.Price - newBestDeal.Item2.Price) > (user.Settings.ChangePercentage * alert.BestCurrentDeal.Price))
@@ -64,7 +64,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                 {
                                     var emailAlert = new PriceChangeAlert
                                     {
-                                        FirstName = user.FirstName,
+                                        FirstName = user.FirstName ?? string.Empty,
                                         EmailAddress = user.Email,
                                         AlertTitle = alert.Title, 
                                         PreviousPrice = alert.BestCurrentDeal.Price, 

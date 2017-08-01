@@ -1,22 +1,18 @@
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
+
 using HtmlAgilityPack;
+
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class AmazonParser : BaseParser, IParser
+    public class AmazonParser : BaseParser, IParser
     {
-        private readonly Regex _isbn13Expression;
-        private readonly Regex _isbn13CompleteExpression;
-        private readonly Regex _isbn10Expression;
-
-        public AmazonParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("https://www.amazon.ca/"))
+        public AmazonParser(IDocumentLoader documentLoader)
+            : base(documentLoader, new AmazonSource())
         {
-            this._isbn13Expression = new Regex(@"[0-9]{13}", RegexOptions.Compiled);
-            this._isbn13CompleteExpression = new Regex(@"[0-9]{3}\-[0-9]{10}", RegexOptions.Compiled);
-            this._isbn10Expression = new Regex(@"[0-9]{10}", RegexOptions.Compiled);
         }
         
         protected override bool HasRedirectProductUrl(HtmlDocument doc)
@@ -42,7 +38,7 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
                 {
                     var productId = optionNodeValue[1];
 
-                    return new Uri(this.Domain, $"/dp/{productId}?th=1&psc=1");
+                    return new Uri(this.Source.Domain, $"/dp/{productId}?th=1&psc=1");
                 }
             }
 
@@ -111,14 +107,14 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
             var titleNode = doc.DocumentNode.SelectSingleNode("//meta[@name='title']");
             var titleValue = titleNode.Attributes["content"].Value;
 
-            if (this._isbn13Expression.IsMatch(titleValue))
+            if (ISBNHelper.ISBN13Expression.IsMatch(titleValue))
             {
-                return this._isbn13Expression.Match(titleValue).Value;
+                return ISBNHelper.ISBN13Expression.Match(titleValue).Value;
             }
 
-            if (this._isbn10Expression.IsMatch(titleValue))
+            if (ISBNHelper.ISBN10Expression.IsMatch(titleValue))
             {
-                return this._isbn10Expression.Match(titleValue).Value;
+                return ISBNHelper.ISBN10Expression.Match(titleValue).Value;
             }
 
             var detailsListNode = doc.GetElementbyId("detail_bullets_id");
@@ -133,9 +129,9 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
                         if (detailTitleNode.InnerText.Contains("ISBN-13"))
                         {
                             var detailValue = detailTitleNode.ParentNode.InnerText;
-                            if (this._isbn13CompleteExpression.IsMatch(detailValue))
+                            if (ISBNHelper.ISBN13CompleteExpression.IsMatch(detailValue))
                             {
-                                return this._isbn13CompleteExpression.Match(detailValue).Value.Replace("-", "");
+                                return ISBNHelper.ISBN13CompleteExpression.Match(detailValue).Value.Replace("-", "");
                             }
                         }
                     }
@@ -145,9 +141,9 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
                         if (detailTitleNode.InnerText.Contains("ISBN-10"))
                         {
                             var detailValue = detailTitleNode.ParentNode.InnerText;
-                            if (this._isbn10Expression.IsMatch(detailValue))
+                            if (ISBNHelper.ISBN10Expression.IsMatch(detailValue))
                             {
-                                return this._isbn10Expression.Match(detailValue).Value;
+                                return ISBNHelper.ISBN10Expression.Match(detailValue).Value;
                             }
                         }
                     }

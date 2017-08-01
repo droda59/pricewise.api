@@ -1,20 +1,18 @@
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
+
 using HtmlAgilityPack;
+
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class RenaudBrayParser : BaseParser, IParser
+    public class RenaudBrayParser : BaseParser, IParser
     {
-        private readonly Regex _isbn13Expression;
-        private readonly Regex _isbn10Expression;
-
-        public RenaudBrayParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.renaud-bray.com/"))
+        public RenaudBrayParser(IDocumentLoader documentLoader)
+            : base(documentLoader, new RenaudBraySource())
         {
-            this._isbn13Expression = new Regex(@"[0-9]{13}", RegexOptions.Compiled);
-            this._isbn10Expression = new Regex(@"[0-9]{10}", RegexOptions.Compiled);
         }
 
         protected override string GetTitle(HtmlDocument doc)
@@ -49,11 +47,13 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
         protected override string GetProductIdentifier(HtmlDocument doc)
         {
             var isbnMetaNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:isbn']");
-            var isbnMetaValue = isbnMetaNode.Attributes["content"].Value;
-
-            if (this._isbn13Expression.IsMatch(isbnMetaValue))
+            if (isbnMetaNode != null)
             {
-                return this._isbn13Expression.Match(isbnMetaValue).Value;
+                var isbnMetaValue = isbnMetaNode.Attributes["content"].Value;
+                if (ISBNHelper.ISBN13Expression.IsMatch(isbnMetaValue))
+                {
+                    return ISBNHelper.ISBN13Expression.Match(isbnMetaValue).Value;
+                }
             }
 
             var isbnSectionNode = doc.DocumentNode
@@ -64,15 +64,15 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
             {
                 var isbnNode = isbnSectionNode.SelectSingleNode(".//span[contains(@id, 'ISBNInfo')]");
                 var isbn13Value = isbnNode.InnerText.Split(' ').First();
-                if (this._isbn13Expression.IsMatch(isbn13Value))
+                if (ISBNHelper.ISBN13Expression.IsMatch(isbn13Value))
                 {
-                    return this._isbn13Expression.Match(isbn13Value).Value;
+                    return ISBNHelper.ISBN13Expression.Match(isbn13Value).Value;
                 }
 
                 var isbn10Value = isbnNode.InnerText.Split(' ').Last().Replace("(", string.Empty).Replace(")", string.Empty);
-                if (this._isbn10Expression.IsMatch(isbn10Value))
+                if (ISBNHelper.ISBN10Expression.IsMatch(isbn10Value))
                 {
-                    return this._isbn10Expression.Match(isbn10Value).Value;
+                    return ISBNHelper.ISBN10Expression.Match(isbn10Value).Value;
                 }
             }
 

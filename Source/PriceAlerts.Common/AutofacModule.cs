@@ -2,11 +2,12 @@ using System.Linq;
 using System.Reflection;
 
 using Autofac;
-using PriceAlerts.Common.Cleaners;
+
 using PriceAlerts.Common.Database;
-using PriceAlerts.Common.Factories;
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Parsers;
 using PriceAlerts.Common.Searchers;
+using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common
 {
@@ -14,28 +15,26 @@ namespace PriceAlerts.Common
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<HtmlLoader>().As<IHtmlLoader>().SingleInstance();
+            builder.RegisterType<HttpClient>().As<IRequestClient>().SingleInstance();
+            builder.RegisterType<DocumentLoader>().As<IDocumentLoader>().SingleInstance();
 
-            builder.RegisterType<CleanerFactory>().As<ICleanerFactory>().SingleInstance();
-            builder.RegisterAssemblyTypes(typeof(ICleaner).GetTypeInfo().Assembly)
-                .Where(x => x.GetInterfaces().Contains(typeof(ICleaner)) && x.Name.EndsWith("Cleaner"))
-                .As<ICleaner>()
+            builder.RegisterAssemblyTypes(typeof(ISource).GetTypeInfo().Assembly)
+                .Where(x => x.GetInterfaces().Contains(typeof(ISource)) && x.Name.EndsWith("Source"))
+                .AsSelf()
                 .SingleInstance();
-            
-            builder.RegisterType<ParserFactory>().As<IParserFactory>().SingleInstance();
-            builder.RegisterAssemblyTypes(typeof(IParser).GetTypeInfo().Assembly)
+
+            builder.RegisterAssemblyTypes(this.ThisAssembly)
                 .Where(x => x.GetInterfaces().Contains(typeof(IParser)) && x.Name.EndsWith("Parser"))
+                .AsSelf()
                 .As<IParser>()
                 .SingleInstance();
 
-            builder.RegisterType<SearcherFactory>().As<ISearcherFactory>().SingleInstance();
-            builder.RegisterAssemblyTypes(typeof(ISearcher).GetTypeInfo().Assembly)
+            builder.RegisterAssemblyTypes(this.ThisAssembly)
                 .Where(x => x.GetInterfaces().Contains(typeof(ISearcher)) && x.Name.EndsWith("Searcher"))
+                .AsSelf()
                 .As<ISearcher>()
                 .SingleInstance();
 
-            builder.RegisterType<ProductFactory>().As<IProductFactory>().SingleInstance();
-            
             builder.RegisterType<MonitoredProductRepository>().As<IProductRepository>().SingleInstance();
             builder.RegisterType<UserRepository>().As<IUserRepository>().SingleInstance();
             builder.RegisterType<AlertRepository>().As<IAlertRepository>().SingleInstance();

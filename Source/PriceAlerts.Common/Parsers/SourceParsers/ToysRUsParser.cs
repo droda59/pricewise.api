@@ -2,14 +2,16 @@ using System;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Sources;
+
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class ToysRUsParser : BaseParser, IParser
+    public class ToysRUsParser : BaseParser, IParser
     {
-        public ToysRUsParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.toysrus.ca/"))
+        public ToysRUsParser(IDocumentLoader documentLoader)
+            : base(documentLoader, new ToysRUsSource())
         {
-            this.AddCustomHeaders("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36");
         }
 
         protected override string GetTitle(HtmlDocument doc)

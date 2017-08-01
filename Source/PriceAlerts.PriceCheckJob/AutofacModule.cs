@@ -12,6 +12,7 @@ namespace PriceAlerts.PriceCheckJob
             builder.RegisterType<UpdatePricesJob>().AsSelf();
             builder.RegisterType<AlertUsersJob>().AsSelf();
 
+            builder.RegisterType<ParserFactory>().As<IParserFactory>().SingleInstance();
             builder.RegisterType<EmailSender>().As<IEmailSender>().SingleInstance();
         }
     }

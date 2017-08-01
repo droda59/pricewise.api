@@ -10,10 +10,8 @@ using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
 using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
-using PriceAlerts.Common.Factories;
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Models;
-using PriceAlerts.Common.Parsers;
-using PriceAlerts.Common.Searchers;
 
 namespace PriceAlerts.Api.Controllers
 {
@@ -22,14 +20,14 @@ namespace PriceAlerts.Api.Controllers
     {
         private readonly IProductRepository _productRepository;
         private readonly IProductFactory _productFactory;
-        private readonly IParserFactory _parserFactory;
+        private readonly IHandlerFactory _handlerFactory;
         private readonly ISearcherFactory _searcherFactory;
 
-        public ProductController(IProductRepository productRepository, IProductFactory productFactory, IParserFactory parserFactory, ISearcherFactory searcherFactory)
+        public ProductController(IProductRepository productRepository, IProductFactory productFactory, IHandlerFactory handlerFactory, ISearcherFactory searcherFactory)
         {
             this._productRepository = productRepository;
             this._productFactory = productFactory;
-            this._parserFactory = parserFactory;
+            this._handlerFactory = handlerFactory;
             this._searcherFactory = searcherFactory;
         }
 
@@ -55,7 +53,7 @@ namespace PriceAlerts.Api.Controllers
                 await Task.WhenAll(this._searcherFactory.Searchers.Select(async searcher => 
                 {
                     // Skip all sources for which we already have the product identifier
-                    if (!knownProductsSources.Contains(searcher.Domain.Authority))
+                    if (searcher.Source != null && !knownProductsSources.Contains(searcher.Source.Domain.Authority))
                     {
                         var newProductsUrls = await searcher.GetProductsUrls(productIdentifier);
                         await Task.WhenAll(newProductsUrls.Select(async url => 

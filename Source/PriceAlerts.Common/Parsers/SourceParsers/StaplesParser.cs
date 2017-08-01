@@ -3,12 +3,15 @@ using System.Linq;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Sources;
+
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class StaplesParser : BaseParser, IParser
+    public class StaplesParser : BaseParser, IParser
     {
-        public StaplesParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("https://www.staples.ca/"))
+        public StaplesParser(IDocumentLoader documentLoader)
+            : base(documentLoader, new StaplesSource())
         {
         }
         

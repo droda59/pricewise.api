@@ -5,49 +5,39 @@ using System.Threading.Tasks;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Parsers.Models;
+using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Parsers
 {
-    internal abstract class BaseParser : IDisposable
+    public abstract class BaseParser
     {
-        private readonly IHtmlLoader _htmlLoader;
-        private readonly Uri _baseUri;
-        private readonly IList<KeyValuePair<string, string>> _customHeaders;
+        private readonly IDocumentLoader _documentLoader;
 
-        protected BaseParser(IHtmlLoader htmlLoader, Uri baseUri)
+        protected BaseParser(IDocumentLoader documentLoader, ISource source)
         {
-            this._htmlLoader = htmlLoader;
-            this._baseUri = baseUri;
-            this._customHeaders = new List<KeyValuePair<string, string>>();
+            this._documentLoader = documentLoader;
 
-            if (this._htmlLoader != null)
-            {
-                this._htmlLoader.Initialize();
-            }
+            this.Source = source;
         }
+        
+        public ISource Source { get; }
 
-        public Uri Domain => this._baseUri;
-
-        public void Dispose()
-        {
-            this._htmlLoader.Dispose();
-        }
-
-        public async Task<SitePriceInfo> GetSiteInfo(Uri uri)
+        public async Task<SitePriceInfo> GetSiteInfo(Uri url)
         {
             string productIdentifier;
             string title;
             string imageUrl;
             decimal price;
-            Uri productUrl = uri;
+            Uri productUrl = url;
 
-            var document = await this.LoadDocument(productUrl);
+            var document = await this._documentLoader.LoadDocument(productUrl, this.Source.CustomHeaders);
 
             if (this.HasRedirectProductUrl(document))
             {
                 productUrl = this.GetRedirectProductUrl(document);
-                document = await this.LoadDocument(productUrl);
+                document = await this._documentLoader.LoadDocument(productUrl, this.Source.CustomHeaders);
             }
 
             try
@@ -56,7 +46,7 @@ namespace PriceAlerts.Common.Parsers
             }
             catch (Exception e)
             {
-                throw new ParseException("Error parsing the title", e, uri);
+                throw new ParseException("Error parsing the title", e, productUrl);
             }
             
             try
@@ -65,7 +55,7 @@ namespace PriceAlerts.Common.Parsers
             }
             catch (Exception e)
             {
-                throw new ParseException("Error parsing the image", e, uri);
+                throw new ParseException("Error parsing the image", e, productUrl);
             }
             
             try
@@ -74,7 +64,7 @@ namespace PriceAlerts.Common.Parsers
             }
             catch (Exception e)
             {
-                throw new ParseException("Error parsing the price", e, uri);
+                throw new ParseException("Error parsing the price", e, productUrl);
             }
 
             try
@@ -83,7 +73,7 @@ namespace PriceAlerts.Common.Parsers
             }
             catch (Exception e)
             {
-                throw new ParseException("Error parsing the product identifier", e, uri);
+                throw new ParseException("Error parsing the product identifier", e, productUrl);
             }
 
             var sitePriceInfo = new SitePriceInfo
@@ -117,46 +107,6 @@ namespace PriceAlerts.Common.Parsers
         protected virtual bool HasRedirectProductUrl(HtmlDocument doc)
         {
             return false;
-        }
-
-        protected void AddCustomHeaders(string header, string value)
-        {
-            this._customHeaders.Add(new KeyValuePair<string, string>(header, value));
-        }
-
-        protected async Task<HtmlDocument> LoadDocument(Uri uri)
-        {
-            var data = await this._htmlLoader.LoadHtmlAsync(uri, this._customHeaders.ToArray());
-            if (!data.IsSuccessStatusCode)
-            {
-                if (data.Headers.Location != null)
-                {
-                    Uri location;
-                    if (Uri.IsWellFormedUriString(data.Headers.Location.ToString(), UriKind.Absolute))
-                    {
-                        location = data.Headers.Location;
-                    }
-                    else
-                    {
-                        location = new Uri(this.Domain, data.Headers.Location);
-                    }
-
-                    Console.WriteLine("Redirect: " + location.AbsoluteUri);
-
-                    return await this.LoadDocument(location);
-                }
-            }
-            else
-            {
-                var content = await data.Content.ReadAsStringAsync();
-
-                var document = new HtmlDocument();
-                document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
-
-                return document;
-            }
-
-            return null;
         }
     }
 }

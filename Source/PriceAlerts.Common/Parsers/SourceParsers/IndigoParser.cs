@@ -1,20 +1,18 @@
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
+
 using HtmlAgilityPack;
+
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class IndigoParser : BaseParser, IParser
+    public class IndigoParser : BaseParser, IParser
     {
-        private readonly Regex _isbn13Expression;
-        private readonly Regex _isbn10Expression;
-
-        public IndigoParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("https://www.chapters.indigo.ca/"))
+        public IndigoParser(IDocumentLoader documentLoader)
+            : base(documentLoader, new IndigoSource())
         {
-            this._isbn13Expression = new Regex(@"[0-9]{13}", RegexOptions.Compiled);
-            this._isbn10Expression = new Regex(@"[0-9]{10}", RegexOptions.Compiled);
         }
 
         protected override string GetTitle(HtmlDocument doc)
@@ -86,17 +84,17 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
                 var isbnNodes = isbnRootNode.SelectNodes(".//span[@class='item-page__spec-value']");
                 foreach (var isbnNode in isbnNodes)
                 {
-                    if (this._isbn13Expression.IsMatch(isbnNode.InnerText))
+                    if (ISBNHelper.ISBN13Expression.IsMatch(isbnNode.InnerText))
                     {
-                        return this._isbn13Expression.Match(isbnNode.InnerText).Value;
+                        return ISBNHelper.ISBN13Expression.Match(isbnNode.InnerText).Value;
                     }
                 }
                 
                 foreach (var isbnNode in isbnNodes)
                 {
-                    if (this._isbn10Expression.IsMatch(isbnNode.InnerText))
+                    if (ISBNHelper.ISBN10Expression.IsMatch(isbnNode.InnerText))
                     {
-                        return this._isbn10Expression.Match(isbnNode.InnerText).Value;
+                        return ISBNHelper.ISBN10Expression.Match(isbnNode.InnerText).Value;
                     }
                 }
             }

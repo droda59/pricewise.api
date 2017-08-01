@@ -5,20 +5,22 @@ using System.Text.RegularExpressions;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Searchers;
+using PriceAlerts.Common.Sources;
 
-namespace PriceAlerts.Common.Parsers.SourceSearchers
+namespace PriceAlerts.Common.Searchers.SourceSearchers
 {
-    internal class AmazonSearcher : BaseSearcher, ISearcher
+    public class AmazonSearcher : BaseSearcher, ISearcher
     {
-        public AmazonSearcher(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("https://www.amazon.ca/"))
+        public AmazonSearcher(IRequestClient requestClient)
+            : base(requestClient, new AmazonSource())
         {
         }
 
         protected override Uri CreateSearchUri(string searchTerm)
         {
-            return new Uri(this.Domain, $"/s/field-keywords={searchTerm}");
+            return new Uri(this.Source.Domain, $"/s/field-keywords={searchTerm}");
         }
 
         protected override IEnumerable<Uri> GetSearchResultsUris(HtmlDocument doc, int maxResultCount)

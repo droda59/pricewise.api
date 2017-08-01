@@ -3,12 +3,15 @@ using System.Linq;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Sources;
+
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class BestBuyParser : BaseParser, IParser
+    public class BestBuyParser : BaseParser, IParser
     {
-        public BestBuyParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.bestbuy.ca/"))
+        public BestBuyParser(IDocumentLoader documentLoader)
+            : base(documentLoader, new BestBuySource())
         {
         }
         

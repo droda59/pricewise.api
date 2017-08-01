@@ -2,13 +2,14 @@ using System;
 using System.Threading.Tasks;
 
 using PriceAlerts.Common.Parsers.Models;
+using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Parsers
 {
     public interface IParser
     {
-        Uri Domain { get; }
+        Task<SitePriceInfo> GetSiteInfo(Uri url);
 
-        Task<SitePriceInfo> GetSiteInfo(Uri uri);
+        ISource Source { get; }
     }
 }

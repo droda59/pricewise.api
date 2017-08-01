@@ -9,9 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
 using PriceAlerts.Common;
-using PriceAlerts.Common.Cleaners;
 using PriceAlerts.Common.Database;
-using PriceAlerts.Common.Factories;
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Models;
 
 namespace PriceAlerts.Api.Controllers
@@ -24,15 +23,15 @@ namespace PriceAlerts.Api.Controllers
         private readonly IAlertRepository _alertRepository;
         private readonly IUserAlertFactory _userAlertFactory;
         private readonly IProductFactory _productFactory;
-        private readonly ICleanerFactory _cleanerFactory;
+        private readonly IHandlerFactory _handlerFactory;
 
-        public UserAlertsController(IProductRepository productRepository, IAlertRepository alertRepository, IUserAlertFactory userAlertFactory, IProductFactory productFactory, ICleanerFactory cleanerFactory)
+        public UserAlertsController(IProductRepository productRepository, IAlertRepository alertRepository, IUserAlertFactory userAlertFactory, IProductFactory productFactory, IHandlerFactory handlerFactory)
         {
             this._productRepository = productRepository;
             this._alertRepository = alertRepository;
             this._userAlertFactory = userAlertFactory;
             this._productFactory = productFactory;
-            this._cleanerFactory = cleanerFactory;
+            this._handlerFactory = handlerFactory;
         }
 
         [HttpGet("{userId}/{alertId}")]
@@ -169,13 +168,13 @@ namespace PriceAlerts.Api.Controllers
             return isDeleted;
         }
 
-        private async Task<MonitoredProduct> ForceGetProduct(Uri uri)
+        private async Task<MonitoredProduct> ForceGetProduct(Uri url)
         {
-            var cleanUrl = this._cleanerFactory.CreateCleaner(uri).CleanUrl(uri);
+            var cleanUrl = this._handlerFactory.CreateHandler(url).HandleCleanUrl(url);
             var existingProduct = await this._productRepository.GetByUrlAsync(cleanUrl.AbsoluteUri);
             if (existingProduct == null)
             {
-                existingProduct = await this._productFactory.CreateProduct(uri);
+                existingProduct = await this._productFactory.CreateProduct(url);
             }
 
             return existingProduct;

@@ -1,19 +1,19 @@
 using System;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
+
 using HtmlAgilityPack;
+
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class ArchambaultParser : BaseParser, IParser
+    public class ArchambaultParser : BaseParser, IParser
     {
-        private readonly Regex _isbn13Expression;
-
-        public ArchambaultParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.archambault.ca/"))
+        public ArchambaultParser(IDocumentLoader documentLoader)
+            : base(documentLoader, new ArchambaultSource())
         {
-            this._isbn13Expression = new Regex(@"[0-9]{13}", RegexOptions.Compiled);
         }
 
         protected override string GetTitle(HtmlDocument doc)
@@ -72,9 +72,9 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
             var keywordsValue = keywordsNode.Attributes["content"].Value;
 
             var firstKeyword = keywordsValue.Split(',').First();
-            if (this._isbn13Expression.IsMatch(firstKeyword))
+            if (ISBNHelper.ISBN13Expression.IsMatch(firstKeyword))
             {
-                return this._isbn13Expression.Match(firstKeyword).Value;
+                return ISBNHelper.ISBN13Expression.Match(firstKeyword).Value;
             }
 
             return string.Empty;

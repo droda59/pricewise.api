@@ -3,12 +3,15 @@ using System.Linq;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Sources;
+
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class LegoParser : BaseParser, IParser
+    public class LegoParser : BaseParser, IParser
     {
-        public LegoParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("https://shop.lego.com/"))
+        public LegoParser(IDocumentLoader documentLoader)
+            : base(documentLoader, new LegoSource())
         {
         }
         
@@ -38,13 +41,20 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var priceContent = doc.DocumentNode
+            var priceContentNode = doc.DocumentNode
                 .SelectSingleNode(".//div[@class='overview__info']")
                 .SelectSingleNode(".//div[@class='product-price']")
-                .SelectSingleNode(".//span[@class='product-price__list-price']")
-                .InnerText;
+                .SelectSingleNode(".//span[@class='product-price__list-price']");
+            
+            if (priceContentNode == null)
+            {
+                priceContentNode = doc.DocumentNode
+                    .SelectSingleNode(".//div[@class='overview__info']")
+                    .SelectSingleNode(".//div[@class='product-price']")
+                    .SelectSingleNode(".//div[@class='product-price__sale']//span");
+            }
 
-            var decimalValue = priceContent.ExtractDecimal();
+            var decimalValue = priceContentNode.InnerText.ExtractDecimal();
 
             return decimalValue;
         }
