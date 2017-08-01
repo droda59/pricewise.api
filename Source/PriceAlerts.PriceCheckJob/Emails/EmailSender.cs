@@ -45,7 +45,7 @@ namespace PriceAlerts.PriceCheckJob.Emails
                 { "merge_productDomain", alert.ProductUri.Authority },
                 { "merge_imageUrl", alert.ImageUrl.AbsoluteUri}, 
                 { "isTransactional", true.ToString() },
-                { "template", "Hello" }
+                { "template", "Price change" }
             };
 
             var uriWithQuery = QueryHelpers.AddQueryString("email/send", parametersToAdd);

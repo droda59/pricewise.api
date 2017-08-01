@@ -54,10 +54,14 @@ namespace PriceAlerts.PriceCheckJob.Jobs
 
                         if (alert.BestCurrentDeal.Price != newBestDeal.Item2.Price)
                         {
-                            Console.WriteLine("Price dropped for alert " + alert.Id + " from " + alert.BestCurrentDeal.Price + " to " + newBestDeal.Item2.Price);
+                            var changePrice = Math.Abs(alert.BestCurrentDeal.Price - newBestDeal.Item2.Price);
+                            var changeAcceptationThreshold = (user.Settings.ChangePercentage * alert.BestCurrentDeal.Price);
+
+                            Console.WriteLine($"Price changed for alert {alert.Id} from {alert.BestCurrentDeal.Price} to {newBestDeal.Item2.Price}");
+                            Console.WriteLine($"A change of {changePrice} over a {changeAcceptationThreshold} threshold");
 
                             if (!user.Settings.SpecifyChangePercentage || 
-                                user.Settings.SpecifyChangePercentage && Math.Abs(alert.BestCurrentDeal.Price - newBestDeal.Item2.Price) > (user.Settings.ChangePercentage * alert.BestCurrentDeal.Price))
+                                user.Settings.SpecifyChangePercentage && changePrice > changeAcceptationThreshold)
                             {
                                 if (alert.BestCurrentDeal.Price < newBestDeal.Item2.Price && user.Settings.AlertOnPriceRaise
                                 || alert.BestCurrentDeal.Price > newBestDeal.Item2.Price && user.Settings.AlertOnPriceDrop)
@@ -72,6 +76,8 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                         ImageUrl = new Uri(alert.ImageUrl), 
                                         ProductUri = new Uri(newBestDeal.Item1.Uri)
                                     };
+
+                                    Console.WriteLine($"Sending email to user {user.Id} for alert {alert.Id}");
 
                                     await this._emailSender.SendEmail(emailAlert);
                                 }
