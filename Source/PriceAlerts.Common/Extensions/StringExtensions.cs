@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace PriceAlerts.Common
 {
@@ -43,6 +44,47 @@ namespace PriceAlerts.Common
             }
 
             return decimalValue;
+        }
+
+        public static bool IsBase64Url(this string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            var base64string = value.Trim().Replace("\\n", string.Empty);
+
+            if (!base64string.StartsWith("data:image/png;base64,")
+            && !base64string.StartsWith("data:image/jpeg;base64,"))
+            {
+                return false;
+            }
+
+            base64string = base64string
+                .Replace("data:image/png;base64,", string.Empty)
+                .Replace("data:image/jpeg;base64,", string.Empty);
+
+            if (base64string.Length % 4 != 0)
+            {
+                return false;
+            }
+
+            // if (!Regex.IsMatch(base64string, @"^[a-zA-Z0-9\+/]*={0,3}$", RegexOptions.None))
+            // {
+            //     return false;
+            // }
+
+            try
+            {
+                Convert.FromBase64String(base64string);
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

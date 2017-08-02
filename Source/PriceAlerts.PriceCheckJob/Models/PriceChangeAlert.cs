@@ -16,6 +16,6 @@ namespace PriceAlerts.PriceCheckJob.Models
 
         public Uri ProductUri { get; set; }
 
-        public Uri ImageUrl { get; set; }
+        public string ImageUrl { get; set; }
     }
 }

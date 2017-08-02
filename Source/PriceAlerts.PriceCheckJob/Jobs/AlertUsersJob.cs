@@ -57,8 +57,8 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                             var changePrice = Math.Abs(alert.BestCurrentDeal.Price - newBestDeal.Item2.Price);
                             var changeAcceptationThreshold = (user.Settings.ChangePercentage * alert.BestCurrentDeal.Price);
 
-                            Console.WriteLine($"Price changed for alert {alert.Id} from {alert.BestCurrentDeal.Price} to {newBestDeal.Item2.Price}");
-                            Console.WriteLine($"A change of {changePrice} over a {changeAcceptationThreshold} threshold");
+                            // Console.WriteLine($"Price changed for alert {alert.Id} from {alert.BestCurrentDeal.Price} to {newBestDeal.Item2.Price}");
+                            // Console.WriteLine($"A change of {changePrice} over a {changeAcceptationThreshold} threshold");
 
                             if (!user.Settings.SpecifyChangePercentage || 
                                 user.Settings.SpecifyChangePercentage && changePrice > changeAcceptationThreshold)
@@ -73,7 +73,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                         AlertTitle = alert.Title, 
                                         PreviousPrice = alert.BestCurrentDeal.Price, 
                                         NewPrice = newBestDeal.Item2.Price,
-                                        ImageUrl = new Uri(alert.ImageUrl), 
+                                        ImageUrl = alert.ImageUrl.IsBase64Url() ? string.Empty : alert.ImageUrl,
                                         ProductUri = new Uri(newBestDeal.Item1.Uri)
                                     };
 
