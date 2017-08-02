@@ -5,20 +5,22 @@ using System.Text.RegularExpressions;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Searchers;
+using PriceAlerts.Common.Sources;
 
-namespace PriceAlerts.Common.Parsers.SourceSearchers
+namespace PriceAlerts.Common.Searchers.SourceSearchers
 {
-    internal class IndigoSearcher : BaseSearcher, ISearcher
+    public class IndigoSearcher : BaseSearcher, ISearcher
     {
-        public IndigoSearcher(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("https://www.chapters.indigo.ca/"))
+        public IndigoSearcher(IRequestClient requestClient)
+            : base(requestClient, new IndigoSource())
         {
         }
 
         protected override Uri CreateSearchUri(string searchTerm)
         {
-            return new Uri(this.Domain, $"/en-CA/home/search/?keywords={searchTerm}");
+            return new Uri(this.Source.Domain, $"/en-CA/home/search/?keywords={searchTerm}");
         }
 
         protected override IEnumerable<Uri> GetSearchResultsUris(HtmlDocument doc, int maxResultCount)
@@ -32,7 +34,7 @@ namespace PriceAlerts.Common.Parsers.SourceSearchers
                 foreach (var resultNode in resultNodes.Take(maxResultCount))
                 {
                     var resultLink = resultNode.Attributes["href"].Value;
-                    yield return new Uri(this.Domain, resultLink);
+                    yield return new Uri(this.Source.Domain, resultLink);
                 }
             }
 

@@ -31,13 +31,6 @@ namespace PriceAlerts.PriceCheckJob.Jobs
 
                     var productUri = new Uri(product.Uri);
                     var siteInfo = await this._parserFactory.CreateParser(productUri).GetSiteInfo(productUri);
-                    
-                    // This is made so the current products that have no identifier can try to fetch one
-                    // TODO Remove when all products have an identifier
-                    if (string.IsNullOrWhiteSpace(product.ProductIdentifier))
-                    {
-                        product.ProductIdentifier = siteInfo.ProductIdentifier;
-                    }
 
                     product.PriceHistory.Add(
                         new PriceChange

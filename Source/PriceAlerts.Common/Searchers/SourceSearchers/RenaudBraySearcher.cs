@@ -5,20 +5,22 @@ using System.Text.RegularExpressions;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Searchers;
+using PriceAlerts.Common.Sources;
 
-namespace PriceAlerts.Common.Parsers.SourceSearchers
+namespace PriceAlerts.Common.Searchers.SourceSearchers
 {
-    internal class RenaudBraySearcher : BaseSearcher, ISearcher
+    public class RenaudBraySearcher : BaseSearcher, ISearcher
     {
-        public RenaudBraySearcher(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.renaud-bray.com/"))
+        public RenaudBraySearcher(IRequestClient requestClient)
+            : base(requestClient, new RenaudBraySource())
         {
         }
 
         protected override Uri CreateSearchUri(string searchTerm)
         {
-            return new Uri(this.Domain, $"/Recherche.aspx?words={searchTerm}");
+            return new Uri(this.Source.Domain, $"/Recherche.aspx?words={searchTerm}");
         }
 
         protected override IEnumerable<Uri> GetSearchResultsUris(HtmlDocument doc, int maxResultCount)
@@ -38,7 +40,7 @@ namespace PriceAlerts.Common.Parsers.SourceSearchers
                         .Take(maxResultCount);
                     foreach (var uniqueLink in uniqueLinks)
                     {
-                        yield return new Uri(this.Domain, uniqueLink);
+                        yield return new Uri(this.Source.Domain, uniqueLink);
                     }
                 }
             }

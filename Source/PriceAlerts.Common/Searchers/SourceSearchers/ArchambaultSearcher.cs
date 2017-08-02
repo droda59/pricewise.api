@@ -5,20 +5,22 @@ using System.Text.RegularExpressions;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Searchers;
+using PriceAlerts.Common.Sources;
 
-namespace PriceAlerts.Common.Parsers.SourceSearchers
+namespace PriceAlerts.Common.Searchers.SourceSearchers
 {
-    internal class AchambaultSearcher : BaseSearcher, ISearcher
+    public class ArchambaultSearcher : BaseSearcher, ISearcher
     {
-        public AchambaultSearcher(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.archambault.ca/"))
+        public ArchambaultSearcher(IRequestClient requestClient)
+            : base(requestClient, new ArchambaultSource())
         {
         }
 
         protected override Uri CreateSearchUri(string searchTerm)
         {
-            return new Uri(this.Domain, $"/qmi/navigation/search/SearchResults.jsp?erpId=ACH&searchMode=simple&department=&searchType=ALL&searchInput={searchTerm}");
+            return new Uri(this.Source.Domain, $"/qmi/navigation/search/SearchResults.jsp?erpId=ACH&searchMode=simple&department=&searchType=ALL&searchInput={searchTerm}");
         }
 
         protected override IEnumerable<Uri> GetSearchResultsUris(HtmlDocument doc, int maxResultCount)
@@ -33,7 +35,7 @@ namespace PriceAlerts.Common.Parsers.SourceSearchers
                 foreach (var resultNode in resultNodes.Take(maxResultCount))
                 {
                     var resultLink = resultNode.Attributes["href"].Value;
-                    yield return new Uri(this.Domain, resultLink);
+                    yield return new Uri(this.Source.Domain, resultLink);
                 }
             }
 

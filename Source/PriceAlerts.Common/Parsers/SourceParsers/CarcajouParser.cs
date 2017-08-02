@@ -1,18 +1,18 @@
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
+
 using HtmlAgilityPack;
+
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class CarcajouParser : BaseParser, IParser
+    public class CarcajouParser : BaseParser, IParser
     {
-        private readonly Regex _isbn13Expression;
-        
-        public CarcajouParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.librairiecarcajou.com/"))
+        public CarcajouParser(IDocumentLoader documentLoader)
+            : base(documentLoader, new CarcajouSource())
         {
-            this._isbn13Expression = new Regex(@"[0-9]{13}", RegexOptions.Compiled);
         }
         
         protected override string GetTitle(HtmlDocument doc)
@@ -54,9 +54,9 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
                 if (descriptionNode.InnerText.Contains("ISBN"))
                 {
                     var isbnNodeValue = descriptionNode.NextSibling.InnerText;
-                    if (this._isbn13Expression.IsMatch(isbnNodeValue))
+                    if (ISBNHelper.ISBN13Expression.IsMatch(isbnNodeValue))
                     {
-                        return this._isbn13Expression.Match(isbnNodeValue).Value;
+                        return ISBNHelper.ISBN13Expression.Match(isbnNodeValue).Value;
                     }
                 }
             }

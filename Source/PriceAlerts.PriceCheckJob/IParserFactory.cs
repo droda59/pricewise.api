@@ -1,6 +1,8 @@
 using System;
 
-namespace PriceAlerts.Common.Parsers
+using PriceAlerts.Common.Parsers;
+
+namespace PriceAlerts.PriceCheckJob
 {
     public interface IParserFactory
     {

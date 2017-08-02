@@ -3,12 +3,15 @@ using System.Linq;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Sources;
+
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class TigerDirectParser : BaseParser, IParser
+    public class TigerDirectParser : BaseParser, IParser
     {
-        public TigerDirectParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.tigerdirect.ca/"))
+        public TigerDirectParser(IDocumentLoader documentLoader)
+            : base(documentLoader, new TigerDirectSource())
         {
         }
         

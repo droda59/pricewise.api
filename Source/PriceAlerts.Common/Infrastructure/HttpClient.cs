@@ -4,11 +4,11 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace PriceAlerts.Common
+namespace PriceAlerts.Common.Infrastructure
 {
-    internal class HtmlLoader : IHtmlLoader
+    internal class HttpClient : IRequestClient
     {
-        private HttpClient _httpClient;
+        private System.Net.Http.HttpClient _httpClient;
 
         public void Initialize()
         {
@@ -17,7 +17,7 @@ namespace PriceAlerts.Common
                 AllowAutoRedirect = false
             };
             
-            this._httpClient = new HttpClient(handler);
+            this._httpClient = new System.Net.Http.HttpClient(handler);
         }
 
         public void Dispose()
@@ -25,7 +25,6 @@ namespace PriceAlerts.Common
             this._httpClient.Dispose();
             this._httpClient = null;
         }
-
 
         public async Task<string> ReadHtmlAsync(Uri uri, params KeyValuePair<string, string>[] customHeaders)
         {

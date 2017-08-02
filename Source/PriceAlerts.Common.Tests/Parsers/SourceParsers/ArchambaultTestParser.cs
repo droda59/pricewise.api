@@ -6,28 +6,33 @@ using System.Threading.Tasks;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Parsers.Models;
 using PriceAlerts.Common.Parsers.SourceParsers;
+using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class ArchambaultTestParser : ArchambaultParser, ITestParser
     {
-        public ArchambaultTestParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader)
+        private readonly IDocumentLoader _documentLoader;
+
+        public ArchambaultTestParser(IDocumentLoader documentLoader)
+            : base(documentLoader)
         {
+            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
         {
             var productUrls = new List<Uri>();
 
-            var document = await this.LoadDocument(this.Domain);
+            var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
             
             productUrls.AddRange(document.DocumentNode
                     .SelectNodes(".//ul[contains(@class, 'product-list')]//span[contains(@class, 'shadow-behind')]")
                     .Select(x => x.ParentNode.Attributes["href"].Value)
-                    .Select(x => new Uri(this.Domain, x)));
+                    .Select(x => new Uri(this.Source.Domain, x)));
 
             return productUrls;
         }

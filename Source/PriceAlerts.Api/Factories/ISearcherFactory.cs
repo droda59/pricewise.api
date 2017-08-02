@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace PriceAlerts.Common.Searchers
+using PriceAlerts.Common.Searchers;
+
+namespace PriceAlerts.Api.Factories
 {
     public interface ISearcherFactory
     {

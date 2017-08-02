@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PriceAlerts.Common.Parsers
+using PriceAlerts.Common.Parsers;
+
+namespace PriceAlerts.PriceCheckJob
 {
     internal class ParserFactory : IParserFactory
     {
@@ -10,7 +12,7 @@ namespace PriceAlerts.Common.Parsers
 
         public ParserFactory(IEnumerable<IParser> parsers)
         {
-            this._parsers = parsers.ToDictionary(x => x.Domain.Authority);
+            this._parsers = parsers.ToDictionary(x => x.Source.Domain.Authority);
         }
 
         public IParser CreateParser(Uri uri)

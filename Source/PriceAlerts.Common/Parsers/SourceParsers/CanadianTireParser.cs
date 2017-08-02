@@ -6,16 +6,19 @@ using HtmlAgilityPack;
 
 using Newtonsoft.Json;
 
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Sources;
+
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    internal class CanadianTireParser : BaseParser, IParser
+    public class CanadianTireParser : BaseParser, IParser
     {
-        private readonly IHtmlLoader _htmlLoader;
+        private readonly IRequestClient _requestClient;
 
-        public CanadianTireParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.canadiantire.ca/"))
+        public CanadianTireParser(IRequestClient requestClient, IDocumentLoader documentLoader)
+            : base(documentLoader, new CanadianTireSource())
         {
-            this._htmlLoader = htmlLoader;
+            this._requestClient = requestClient;
         }
 
         protected override string GetTitle(HtmlDocument doc)
@@ -82,8 +85,8 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
 
         private IEnumerable<dynamic> GetProductInfo(string sku)
         {
-            var priceUrl = new Uri($"http://www.canadiantire.ca/ESB/PriceAvailability?SKU={sku}&Banner=CTR&Language=E");
-            var getInfoTask = this._htmlLoader.ReadHtmlAsync(priceUrl);
+            var priceUrl = new Uri(this.Source.Domain, $"/ESB/PriceAvailability?SKU={sku}&Banner=CTR&Language=E");
+            var getInfoTask = this._requestClient.ReadHtmlAsync(priceUrl);
             getInfoTask.Wait();
 
             var infoResult = getInfoTask.Result;

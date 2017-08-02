@@ -5,16 +5,21 @@ using System.Threading.Tasks;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Parsers.SourceParsers;
+using PriceAlerts.Common.Sources;
 using PriceAlerts.Common.Tests.Parsers;
 
 namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class AmazonTestParser : AmazonParser, ITestParser
     {
-        public AmazonTestParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader)
+        private readonly IDocumentLoader _documentLoader;
+
+        public AmazonTestParser(IDocumentLoader documentLoader)
+            : base(documentLoader)
         {
+            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
@@ -22,18 +27,18 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var lockObject = new object();
             var productUrls = new List<Uri>();
 
-            var document = await this.LoadDocument(this.Domain);
+            var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
             
             var pagesToBrowse = new List<Uri>();
             pagesToBrowse.AddRange(
                 document.DocumentNode
                     .SelectSingleNode(".//div[contains(@class, 'popular-departments')]")
                     .SelectNodes(".//a")
-                    .Select(x => new Uri(this.Domain, x.Attributes["href"].Value)));
+                    .Select(x => new Uri(this.Source.Domain, x.Attributes["href"].Value)));
 
             await Task.WhenAll(pagesToBrowse.Select(async pageUrl => 
             {
-                var page = await this.LoadDocument(pageUrl);
+                var page = await this._documentLoader.LoadDocument(pageUrl, this.Source.CustomHeaders);
                 if (page.GetElementbyId("mainResults") != null)
                 {
                     lock(lockObject)

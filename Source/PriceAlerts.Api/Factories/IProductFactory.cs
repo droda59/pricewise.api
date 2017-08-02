@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 using PriceAlerts.Common.Models;
 
-namespace PriceAlerts.Common.Factories
+namespace PriceAlerts.Api.Factories
 {
     public interface IProductFactory
     {

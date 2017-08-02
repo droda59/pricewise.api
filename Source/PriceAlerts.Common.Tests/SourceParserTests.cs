@@ -1,10 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
+using Autofac;
+
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Parsers;
 using PriceAlerts.Common.Parsers.SourceParsers;
+using PriceAlerts.Common.Sources;
 using PriceAlerts.Common.Tests.Parsers;
 using PriceAlerts.Common.Tests.Parsers.SourceParsers;
 
@@ -14,11 +19,14 @@ namespace PriceAlerts.Common.Tests
 {
     public class SourceParserTests
     {
-        private readonly HtmlLoader _htmlLoader;
+        private readonly IContainer _container;
 
         public SourceParserTests()
         {
-            this._htmlLoader = new HtmlLoader();
+			var builder = new ContainerBuilder();
+            builder.RegisterModule(new PriceAlerts.Common.AutofacModule());
+
+            this._container = builder.Build();
         }
 
         [Theory]
@@ -36,7 +44,7 @@ namespace PriceAlerts.Common.Tests
         [InlineData(typeof(ToysRUsTestParser))]
         public async Task GetSiteInfo_AlwaysReturnSiteInfo(Type parserType)
         {
-            var parser = this.CreateTestParser(parserType, this._htmlLoader);
+            var parser = this.CreateTestParser(parserType);
             var urlsToTest = (await parser.GetTestProductsUrls()).ToList();
 
             Assert.NotEmpty(urlsToTest);
@@ -65,12 +73,22 @@ namespace PriceAlerts.Common.Tests
                 }
             }
 
-            Console.WriteLine($"Ran {urlsToTest.Count} tests on {parser.Domain}");
+            Console.WriteLine($"Ran {urlsToTest.Count} tests on {parser.Source.Domain}");
+            Console.WriteLine();
         }
 
-        private ITestParser CreateTestParser(Type parserType, IHtmlLoader htmlLoader)
+        private ITestParser CreateTestParser(Type parserType)
         {
-            return (ITestParser)Activator.CreateInstance(parserType, htmlLoader);
+            ConstructorInfo ctor = parserType.GetConstructors()[0];
+            List<object> parameters = new List<object>();
+            var parameterInfos = ctor.GetParameters();
+
+            foreach (ParameterInfo parameterInfo in parameterInfos)
+            {
+                parameters.Add(this._container.Resolve(parameterInfo.ParameterType));
+            }
+
+            return (ITestParser)ctor.Invoke(parameters.ToArray());
         }
     }
 }

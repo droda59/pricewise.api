@@ -5,29 +5,34 @@ using System.Threading.Tasks;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Parsers.SourceParsers;
+using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class BestBuyTestParser : BestBuyParser, ITestParser
     {
-        public BestBuyTestParser(IHtmlLoader htmlLoader)
-            : base(htmlLoader)
+        private readonly IDocumentLoader _documentLoader;
+
+        public BestBuyTestParser(IDocumentLoader documentLoader)
+            : base(documentLoader)
         {
+            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
         {
             var productUrls = new List<Uri>();
 
-            var document = await this.LoadDocument(this.Domain);
+            var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
             
             productUrls.AddRange(document.DocumentNode
                     .SelectNodes(".//div[contains(@class, 'products-wrapper')]//div[contains(@class, 'layout-item')]//div[contains(@class, 'price-wrapper')]")
                     .SelectMany(x => x.Ancestors("a"))
                     .Select(x => x.Attributes["href"].Value)
                     .Where(x => x.Contains("/product/"))
-                    .Select(x => new Uri(this.Domain, x)));
+                    .Select(x => new Uri(this.Source.Domain, x)));
 
             return productUrls;
         }

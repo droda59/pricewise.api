@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using PriceAlerts.Common.Parsers;
+using PriceAlerts.Api.Factories;
+using PriceAlerts.Api.SourceHandlers;
 
 namespace PriceAlerts.Api.Controllers
 {
@@ -13,28 +14,28 @@ namespace PriceAlerts.Api.Controllers
     [Authorize(Policy = "LocalOnly")]
     public class ParserTestController : Controller
     {
-        private readonly IParserFactory _parserFactory;
+        private readonly IHandlerFactory _handlerFactory;
 
-        public ParserTestController(IParserFactory parserFactory)
+        public ParserTestController(IHandlerFactory handlerFactory)
         {
-            this._parserFactory = parserFactory;
+            this._handlerFactory = handlerFactory;
         }
 
         [HttpPost("parse")]
         public async Task<IActionResult> ParseAsync([FromBody]Uri uri)
         {
-            IParser parser = null;
+            IHandler handler = null;
 
             try
             {
-                parser = this._parserFactory.CreateParser(uri);
+                handler = this._handlerFactory.CreateHandler(uri);
             }
             catch (KeyNotFoundException)
             {
                 return new NotFoundResult();
             }
 
-            var parsedContent = await parser.GetSiteInfo(uri);
+            var parsedContent = await handler.HandleParse(uri);
 
             return new ObjectResult(parsedContent);
         }

@@ -5,20 +5,22 @@ using System.Text.RegularExpressions;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Searchers;
+using PriceAlerts.Common.Sources;
 
-namespace PriceAlerts.Common.Parsers.SourceSearchers
+namespace PriceAlerts.Common.Searchers.SourceSearchers
 {
-    internal class CarcajouSearcher : BaseSearcher, ISearcher
+    public class CarcajouSearcher : BaseSearcher, ISearcher
     {
-        public CarcajouSearcher(IHtmlLoader htmlLoader)
-            : base(htmlLoader, new Uri("http://www.librairiecarcajou.com/"))
+        public CarcajouSearcher(IRequestClient requestClient)
+            : base(requestClient, new CarcajouSource())
         {
         }
 
         protected override Uri CreateSearchUri(string searchTerm)
         {
-            return new Uri(this.Domain, $"/fr/recherche.php?sl_search_where=isbn&q={searchTerm}");
+            return new Uri(this.Source.Domain, $"/fr/recherche.php?sl_search_where=isbn&q={searchTerm}");
         }
 
         protected override IEnumerable<Uri> GetSearchResultsUris(HtmlDocument doc, int maxResultCount)
@@ -34,7 +36,7 @@ namespace PriceAlerts.Common.Parsers.SourceSearchers
                 foreach (var resultNode in resultNodes.Take(maxResultCount))
                 {
                     var resultLink = resultNode.Attributes["href"].Value;
-                    yield return new Uri(this.Domain, $"/fr/{resultLink}");
+                    yield return new Uri(this.Source.Domain, $"/fr/{resultLink}");
                 }
             }
 

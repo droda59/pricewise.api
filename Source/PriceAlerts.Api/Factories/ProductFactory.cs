@@ -3,24 +3,24 @@ using System.Threading.Tasks;
 
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Models;
-using PriceAlerts.Common.Parsers;
 
-namespace PriceAlerts.Common.Factories
+namespace PriceAlerts.Api.Factories
 {
     internal class ProductFactory : IProductFactory
     {
-        private readonly IParserFactory _parserFactory;
+        private readonly IHandlerFactory _handlerFactory;
         private readonly IProductRepository _productRepository;
 
-        public ProductFactory(IParserFactory parserFactory, IProductRepository productRepository)
+        public ProductFactory(IHandlerFactory handlerFactory, IProductRepository productRepository)
         {
-            this._parserFactory = parserFactory;
+            this._handlerFactory = handlerFactory;
             this._productRepository = productRepository;
         }
 
-        public async Task<MonitoredProduct> CreateProduct(Uri uri)
+        public async Task<MonitoredProduct> CreateProduct(Uri url)
         {
-            var siteInfo = await this._parserFactory.CreateParser(uri).GetSiteInfo(uri);
+            var handler = this._handlerFactory.CreateHandler(url);
+            var siteInfo = await handler.HandleParse(url);
 
             var monitoredProduct = new MonitoredProduct
             {

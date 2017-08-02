@@ -5,33 +5,32 @@ using System.Threading.Tasks;
 
 using HtmlAgilityPack;
 
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Parsers.Models;
+using PriceAlerts.Common.Sources;
 
-namespace PriceAlerts.Common.Parsers
+namespace PriceAlerts.Common.Searchers
 {
-    internal abstract class BaseSearcher : IDisposable
+    public abstract class BaseSearcher : ISearcher, IDisposable
     {
-        private readonly IHtmlLoader _htmlLoader;
-        private readonly Uri _baseUri;
-        private readonly IList<KeyValuePair<string, string>> _customHeaders;
+        private readonly IRequestClient _requestClient;
 
-        protected BaseSearcher(IHtmlLoader htmlLoader, Uri baseUri)
+        protected BaseSearcher(IRequestClient requestClient, ISource source)
         {
-            this._htmlLoader = htmlLoader;
-            this._baseUri = baseUri;
-            this._customHeaders = new List<KeyValuePair<string, string>>();
-
-            if (this._htmlLoader != null)
+            this._requestClient = requestClient;
+            if (this._requestClient != null)
             {
-                this._htmlLoader.Initialize();
+                this._requestClient.Initialize();
             }
+
+            this.Source = source;
         }
 
-        public Uri Domain => this._baseUri;
+        public ISource Source { get; }
 
         public void Dispose()
         {
-            this._htmlLoader.Dispose();
+            this._requestClient.Dispose();
         }
 
         public async Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm, int maxResultCount = 5)
@@ -40,7 +39,7 @@ namespace PriceAlerts.Common.Parsers
 
             // var document = await this.LoadDocument(searchUrl);
 
-            var data = await this._htmlLoader.LoadHtmlAsync(searchUrl, this._customHeaders.ToArray());
+            var data = await this._requestClient.LoadHtmlAsync(searchUrl, this.Source.CustomHeaders.ToArray());
             
             if (data.IsSuccessStatusCode)
             {
@@ -60,7 +59,7 @@ namespace PriceAlerts.Common.Parsers
                 }
                 else
                 {
-                    location = new Uri(this.Domain, data.Headers.Location);
+                    location = new Uri(this.Source.Domain, data.Headers.Location);
                 }
 
                 Console.WriteLine("Redirect: " + location.AbsoluteUri);
@@ -69,27 +68,6 @@ namespace PriceAlerts.Common.Parsers
             }
 
             return Enumerable.Empty<Uri>();
-        }
-
-        protected void AddCustomHeaders(string header, string value)
-        {
-            this._customHeaders.Add(new KeyValuePair<string, string>(header, value));
-        }
-
-        protected async Task<HtmlDocument> LoadDocument(Uri uri)
-        {
-            HtmlDocument document = null;
-            var data = await this._htmlLoader.LoadHtmlAsync(uri, this._customHeaders.ToArray());
-            
-            if (data.IsSuccessStatusCode)
-            {
-                var content = await data.Content.ReadAsStringAsync();
-
-                document = new HtmlDocument();
-                document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
-            }
-
-            return document;
         }
 
         protected abstract Uri CreateSearchUri(string searchTerm);

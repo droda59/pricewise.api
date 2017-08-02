@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace PriceAlerts.Common
+namespace PriceAlerts.Common.Infrastructure
 {
-    public interface IHtmlLoader : IDisposable
+    public interface IRequestClient : IDisposable
     {
         Task<string> ReadHtmlAsync(Uri uri, params KeyValuePair<string, string>[] customHeaders);
 

@@ -43,7 +43,7 @@ namespace PriceAlerts.PriceCheckJob.Emails
                 { "merge_newPrice" , alert.NewPrice.ToString() },
                 { "merge_productUrl" , alert.ProductUri.AbsoluteUri },
                 { "merge_productDomain", alert.ProductUri.Authority },
-                { "merge_imageUrl", alert.ImageUrl.AbsoluteUri}, 
+                { "merge_imageUrl", alert.ImageUrl }, 
                 { "isTransactional", true.ToString() },
                 { "template", "Price change" }
             };

@@ -1,6 +1,6 @@
 using System;
 
-namespace PriceAlerts.Common
+namespace PriceAlerts.Common.Infrastructure
 {
     public class ParseException : Exception
     {

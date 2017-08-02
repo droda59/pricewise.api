@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PriceAlerts.Common.Searchers
+using PriceAlerts.Common.Searchers;
+
+namespace PriceAlerts.Api.Factories
 {
     internal class SearcherFactory : ISearcherFactory
     {
