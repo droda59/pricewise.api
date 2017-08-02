@@ -7,7 +7,7 @@ namespace PriceAlerts.Api.SourceHandlers
 {
     internal class LegoHandler : BaseHandler, IHandler
     {
-        public LegoHandler(LegoSource source, OriginalCleaner cleaner, LegoParser parser, EmptySearcher searcher)
+        public LegoHandler(LegoSource source, EmptyQueryStringCleaner cleaner, LegoParser parser, EmptySearcher searcher)
             : base(source, cleaner, parser, searcher)
         {
         }
