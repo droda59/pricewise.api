@@ -42,6 +42,7 @@ namespace PriceAlerts.Common.Tests
         [InlineData(typeof(StaplesTestParser))]
         [InlineData(typeof(TigerDirectTestParser))]
         [InlineData(typeof(ToysRUsTestParser))]
+        [InlineData(typeof(MonoPriceTestParser))]
         public async Task GetSiteInfo_AlwaysReturnSiteInfo(Type parserType)
         {
             var parser = this.CreateTestParser(parserType);
