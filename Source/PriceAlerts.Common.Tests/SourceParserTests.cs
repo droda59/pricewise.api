@@ -33,6 +33,7 @@ namespace PriceAlerts.Common.Tests
         [InlineData(typeof(AmazonTestParser))]
         [InlineData(typeof(ArchambaultTestParser))]
         [InlineData(typeof(BestBuyTestParser))]
+        [InlineData(typeof(BraultMartineauTestParser))]
         [InlineData(typeof(CanadianTireTestParser))]
         [InlineData(typeof(CarcajouTestParser))]
         // [InlineData(typeof(IndigoTestParser))]
