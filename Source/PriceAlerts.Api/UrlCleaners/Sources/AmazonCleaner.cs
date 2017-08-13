@@ -13,7 +13,7 @@ namespace PriceAlerts.Api.UrlCleaners.Sources
         public AmazonCleaner(AmazonSource source)
             : base(source)
         {
-            this._idExpression = new Regex(@"[a-zA-Z0-9]{10}$", RegexOptions.Compiled);
+            this._idExpression = new Regex(@"[a-zA-Z0-9]{10}(/{0,1})$", RegexOptions.Compiled);
         }
 
         public override Uri CleanUrl(Uri originalUrl)
