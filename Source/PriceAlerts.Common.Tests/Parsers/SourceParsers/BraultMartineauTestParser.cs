@@ -33,9 +33,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                 new Uri("http://www.braultetmartineau.com/fr/televiseurs"),
                 new Uri("http://www.braultetmartineau.com/fr/refrigerateurs"),
                 new Uri("http://www.braultetmartineau.com/fr/fours"),
-                new Uri("http://www.braultetmartineau.com/fr/divans"),
-                new Uri("http://www.braultetmartineau.com/fr/chaises"),
-                new Uri("http://www.braultetmartineau.com/fr/ensembles-matelas-sommier")
+                new Uri("http://www.braultetmartineau.com/en/divans"),
+                new Uri("http://www.braultetmartineau.com/en/chaises"),
+                new Uri("http://www.braultetmartineau.com/en/ensembles-matelas-sommier")
             };
 
             await Task.WhenAll(pagesToBrowse.Select(async pageUrl => 
