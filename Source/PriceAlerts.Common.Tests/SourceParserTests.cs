@@ -41,6 +41,7 @@ namespace PriceAlerts.Common.Tests
         [InlineData(typeof(LeonTestParser))]
         // [InlineData(typeof(NeweggTestParser))]
         [InlineData(typeof(RenaudBrayTestParser))]
+        [InlineData(typeof(SearsTestParser))]
         [InlineData(typeof(StaplesTestParser))]
         [InlineData(typeof(TigerDirectTestParser))]
         [InlineData(typeof(ToysRUsTestParser))]
