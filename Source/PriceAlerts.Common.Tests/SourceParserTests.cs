@@ -33,12 +33,15 @@ namespace PriceAlerts.Common.Tests
         [InlineData(typeof(AmazonTestParser))]
         [InlineData(typeof(ArchambaultTestParser))]
         [InlineData(typeof(BestBuyTestParser))]
+        [InlineData(typeof(BraultMartineauTestParser))]
         [InlineData(typeof(CanadianTireTestParser))]
         [InlineData(typeof(CarcajouTestParser))]
         // [InlineData(typeof(IndigoTestParser))]
         [InlineData(typeof(LegoTestParser))]
+        [InlineData(typeof(LeonTestParser))]
         // [InlineData(typeof(NeweggTestParser))]
         [InlineData(typeof(RenaudBrayTestParser))]
+        [InlineData(typeof(SearsTestParser))]
         [InlineData(typeof(StaplesTestParser))]
         [InlineData(typeof(TigerDirectTestParser))]
         [InlineData(typeof(ToysRUsTestParser))]
@@ -51,7 +54,7 @@ namespace PriceAlerts.Common.Tests
             Assert.NotEmpty(urlsToTest);
             foreach (var urlToTest in urlsToTest)
             {
-                // Console.WriteLine($"Testing {urlToTest.AbsoluteUri}");
+                Console.WriteLine($"Testing {urlToTest.AbsoluteUri}");
 
                 try
                 {
