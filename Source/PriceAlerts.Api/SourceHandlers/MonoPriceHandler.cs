@@ -13,7 +13,7 @@ namespace PriceAlerts.Api.SourceHandlers
 {
     internal class MonoPriceHandler : BaseHandler, IHandler
     {
-        public MonoPriceHandler(MonoPriceSource source, EmptyQueryStringCleaner cleaner, AmazonParser parser, AmazonSearcher searcher)
+        public MonoPriceHandler(MonoPriceSource source, EmptyQueryStringCleaner cleaner, MonoPriceParser parser, EmptySearcher searcher)
             : base(source, cleaner, parser, searcher)
         {
         }
