@@ -30,7 +30,7 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
             var match = sourceRegex.Match(containerNode.OuterHtml);
             var extractedValue = match.Value.Substring(7, match.Value.Length -  8);
 
-            return "http:\\" + extractedValue;
+            return "http://" + extractedValue;
         }
 
         protected override decimal GetPrice(HtmlDocument doc)
