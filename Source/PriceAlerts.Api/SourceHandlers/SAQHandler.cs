@@ -13,7 +13,7 @@ namespace PriceAlerts.Api.SourceHandlers
 {
     internal class SAQHandler : BaseHandler, IHandler
     {
-        public SAQHandler(SAQSource source, OriginalCleaner cleaner, SAQParser parser, EmptySearcher searcher)
+        public SAQHandler(SAQSource source, EmptyQueryStringCleaner cleaner, SAQParser parser, EmptySearcher searcher)
             : base(source, cleaner, parser, searcher)
         {
         }
