@@ -70,7 +70,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                     {
                                         FirstName = user.FirstName ?? string.Empty,
                                         EmailAddress = user.Email,
-                                        AlertTitle = alert.Title, 
+                                        AlertTitle = alert.Title ?? string.Empty, 
                                         PreviousPrice = alert.BestCurrentDeal.Price, 
                                         NewPrice = newBestDeal.Item2.Price,
                                         ImageUrl = alert.ImageUrl.IsBase64Url() ? string.Empty : alert.ImageUrl,
