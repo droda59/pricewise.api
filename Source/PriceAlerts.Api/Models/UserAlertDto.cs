@@ -18,8 +18,6 @@ namespace PriceAlerts.Api.Models
 
         public bool IsActive { get; set; }
 
-        public DateTime LastModifiedAt { get; set; }
-
         public DealDto BestCurrentDeal { get; set; }
 
         public IList<UserAlertEntryDto> Entries { get; set; }

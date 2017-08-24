@@ -28,7 +28,6 @@ namespace PriceAlerts.Api.Factories
                 Title = repoAlert.Title,
                 ImageUrl = repoAlert.ImageUrl,
                 IsActive = repoAlert.IsActive,
-                LastModifiedAt = repoAlert.LastModifiedAt, 
                 BestCurrentDeal = new DealDto 
                 {
                     Price = repoAlert.BestCurrentDeal.Price,
@@ -49,7 +48,6 @@ namespace PriceAlerts.Api.Factories
                 {
                     Uri = entryProduct.Uri,
                     LastPrice = lastUpdate.Price,
-                    LastUpdate = lastUpdate.ModifiedAt,
                     Title = entryProduct.Title,
                     ProductIdentifier = entryProduct.ProductIdentifier
                 };

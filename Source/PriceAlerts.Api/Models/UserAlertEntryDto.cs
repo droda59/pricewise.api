@@ -12,8 +12,6 @@ namespace PriceAlerts.Api.Models
 
         public string ProductIdentifier { get; set; }
 
-        public DateTime LastUpdate { get; set; }
-
         public bool IsDeleted { get; set; }
     }
 }
