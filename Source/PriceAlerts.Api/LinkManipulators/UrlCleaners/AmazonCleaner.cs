@@ -4,19 +4,20 @@ using System.Text.RegularExpressions;
 
 using PriceAlerts.Common.Sources;
 
-namespace PriceAlerts.Api.UrlCleaners.Sources
+namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
 {
-    public class AmazonCleaner : BaseCleaner, ICleaner
+    public class AmazonCleaner : ICleaner
     {
         private readonly Regex _idExpression;
+        private readonly ISource _source;
 
         public AmazonCleaner(AmazonSource source)
-            : base(source)
         {
+            this._source = source;
             this._idExpression = new Regex(@"[a-zA-Z0-9]{10}(/{0,1})$", RegexOptions.Compiled);
         }
 
-        public override Uri CleanUrl(Uri originalUrl)
+        public Uri CleanUrl(Uri originalUrl)
         {
             var urlWithoutQueryString = new UriBuilder(originalUrl) { Query = string.Empty }.Uri;
             var cleanUrl = urlWithoutQueryString.AbsoluteUri;
@@ -49,7 +50,7 @@ namespace PriceAlerts.Api.UrlCleaners.Sources
                 }
             }
 
-            return new Uri(this.Source.Domain, newUrl);
+            return new Uri(this._source.Domain, newUrl);
         }
     }
 }

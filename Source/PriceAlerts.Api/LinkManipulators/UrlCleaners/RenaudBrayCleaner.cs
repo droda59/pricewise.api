@@ -7,19 +7,18 @@ using Microsoft.Extensions.Primitives;
 
 using PriceAlerts.Common.Sources;
 
-namespace PriceAlerts.Api.UrlCleaners.Sources
+namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
 {
-    internal class RenaudBrayCleaner : BaseCleaner, ICleaner
+    internal class RenaudBrayCleaner : ICleaner
     {
         private readonly Regex _idExpression;
 
         public RenaudBrayCleaner(RenaudBraySource source)
-            : base(source)
         {
             this._idExpression = new Regex(@"[0-9]{7}$", RegexOptions.Compiled);
         }
 
-        public override Uri CleanUrl(Uri originalUrl)
+        public Uri CleanUrl(Uri originalUrl)
         {
             var id = StringValues.Empty;
             var queryParameters = QueryHelpers.ParseQuery(originalUrl.Query);

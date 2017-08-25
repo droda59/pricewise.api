@@ -4,19 +4,20 @@ using System.Text.RegularExpressions;
 
 using PriceAlerts.Common.Sources;
 
-namespace PriceAlerts.Api.UrlCleaners.Sources
+namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
 {
-    internal class BestBuyCleaner : BaseCleaner, ICleaner
+    internal class BestBuyCleaner : ICleaner
     {
         private readonly Regex _idExpression;
+        private readonly ISource _source;
 
         public BestBuyCleaner(BestBuySource source)
-            : base(source)
         {
+            this._source = source;
             this._idExpression = new Regex(@"[a-zA-Z0-9]{8}(.aspx)", RegexOptions.Compiled);
         }
 
-        public override Uri CleanUrl(Uri originalUrl)
+        public Uri CleanUrl(Uri originalUrl)
         {
             var urlWithoutQueryString = new UriBuilder(originalUrl) { Query = string.Empty }.Uri;
 
@@ -50,7 +51,7 @@ namespace PriceAlerts.Api.UrlCleaners.Sources
                 }
             }
 
-            return new Uri(this.Source.Domain, newUrl);
+            return new Uri(this._source.Domain, newUrl);
         }
     }
 }

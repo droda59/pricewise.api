@@ -12,6 +12,8 @@ namespace PriceAlerts.Api.SourceHandlers
 
         Uri HandleCleanUrl(Uri url);
 
+        Uri HandleManipulateUrl(Uri url);
+
         Task<SitePriceInfo> HandleParse(Uri url);
 
         Task<IEnumerable<Uri>> HandleSearch(string searchTerm);

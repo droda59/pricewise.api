@@ -2,8 +2,7 @@ using System;
 
 using Autofac;
 
-using PriceAlerts.Api.UrlCleaners;
-using PriceAlerts.Api.UrlCleaners.Sources;
+using PriceAlerts.Api.LinkManipulators.UrlCleaners;
 using PriceAlerts.Common;
 using PriceAlerts.Common.Parsers.SourceParsers;
 using PriceAlerts.Common.Searchers.SourceSearchers;

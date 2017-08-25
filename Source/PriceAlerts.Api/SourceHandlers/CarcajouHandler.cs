@@ -1,4 +1,4 @@
-using PriceAlerts.Api.UrlCleaners.Sources;
+using PriceAlerts.Api.LinkManipulators.UrlCleaners;
 using PriceAlerts.Common.Parsers.SourceParsers;
 using PriceAlerts.Common.Searchers.SourceSearchers;
 using PriceAlerts.Common.Sources;

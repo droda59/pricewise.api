@@ -1,6 +1,6 @@
 using System;
 
-namespace PriceAlerts.Api.UrlCleaners
+namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
 {
     internal class EmptyQueryStringCleaner : ICleaner
     {

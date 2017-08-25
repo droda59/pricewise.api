@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 
 using Autofac;
 
-using PriceAlerts.Api.UrlCleaners;
+using PriceAlerts.Api.LinkManipulators;
+using PriceAlerts.Api.LinkManipulators.UrlCleaners;
 using PriceAlerts.Common.Parsers;
 using PriceAlerts.Common.Parsers.Models;
 using PriceAlerts.Common.Searchers;
@@ -16,26 +17,37 @@ namespace PriceAlerts.Api.SourceHandlers
     {
         private readonly ISource _source;
 
-        public BaseHandler(ISource source, ICleaner cleaner, IParser parser, ISearcher searcher)
+        protected BaseHandler(ISource source, ICleaner manipulator, IParser parser, ISearcher searcher)
         {
             this._source = source;
 
-            this.Cleaner = cleaner;
             this.Parser = parser;
             this.Searcher = searcher;
+            this.Manipulator = manipulator;
         }
 
         Uri IHandler.Domain => this._source.Domain;
-
-        protected ICleaner Cleaner { get; }
 
         protected IParser Parser { get; }
 
         protected ISearcher Searcher { get; }
 
+        protected ICleaner Manipulator { get; }
+
         public virtual Uri HandleCleanUrl(Uri url)
         {
-            return this.Cleaner.CleanUrl(url);
+            return this.Manipulator.CleanUrl(url);
+        }
+
+        public virtual Uri HandleManipulateUrl(Uri url)
+        {
+            var manipulator = this.Manipulator as ILinkManipulator;
+            if (manipulator != null)
+            {
+                return manipulator.ManipulateLink(url);
+            }
+
+            return url;
         }
 
         public virtual async Task<SitePriceInfo> HandleParse(Uri url)

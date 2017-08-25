@@ -7,23 +7,18 @@ using Microsoft.Extensions.Primitives;
 
 using PriceAlerts.Common.Sources;
 
-namespace PriceAlerts.Api.UrlCleaners.Sources
+namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
 {
-    internal class CarcajouCleaner : BaseCleaner, ICleaner
+    internal class TigerDirectCleaner : ICleaner
     {
-        public CarcajouCleaner(CarcajouSource source)
-            : base(source)
-        {
-        }
-
-        public override Uri CleanUrl(Uri originalUrl)
+        public Uri CleanUrl(Uri originalUrl)
         {
             StringValues sku = StringValues.Empty;
             var queryParameters = QueryHelpers.ParseQuery(originalUrl.Query);
-            if (queryParameters.TryGetValue("prod_id", out sku))
+            if (queryParameters.TryGetValue("sku", out sku))
             {
                 var urlWithoutQueryString = new UriBuilder(originalUrl) { Query = string.Empty };
-                var urlWithQueryString = QueryHelpers.AddQueryString(urlWithoutQueryString.Uri.AbsoluteUri, "prod_id", sku);
+                var urlWithQueryString = QueryHelpers.AddQueryString(urlWithoutQueryString.Uri.AbsoluteUri, "sku", sku);
 
                 return new Uri(urlWithQueryString);
             }

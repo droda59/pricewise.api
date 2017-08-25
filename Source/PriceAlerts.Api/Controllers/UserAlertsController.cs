@@ -119,8 +119,8 @@ namespace PriceAlerts.Api.Controllers
                 var alertProducts = new List<MonitoredProduct>();
                 await Task.WhenAll(alert.Entries.Select(async entry => 
                 {
-                    var productUri = new Uri(entry.Uri);
-                    var existingProduct = await ForceGetProduct(productUri);
+                    var productUrl = new Uri(entry.OriginalUrl);
+                    var existingProduct = await ForceGetProduct(productUrl);
 
                     lock (lockObject) 
                     {
