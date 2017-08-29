@@ -73,17 +73,7 @@ namespace PriceAlerts.Api.Controllers
                     }
                 }));
 
-                var allProducts = knownProducts.Concat(newProducts).Select(
-                    product => 
-                        new ProductInfo
-                        {
-                            Url = product.Uri,
-                            Title = product.Title,
-                            Price = product.PriceHistory.LastOf(y => y.ModifiedAt).Price,
-                            LastUpdate = product.PriceHistory.LastOf(y => y.ModifiedAt).ModifiedAt,
-                            ImageUrl = product.ImageUrl,
-                            ProductIdentifier = product.ProductIdentifier
-                        });
+                var allProducts = knownProducts.Concat(newProducts).Select(this.CreateProductInfo);
 
                 return this.Ok(allProducts);
             }
@@ -91,6 +81,22 @@ namespace PriceAlerts.Api.Controllers
             {
                 return this.BadRequest(e.Message);
             }
+        }
+
+        private ProductInfo CreateProductInfo(MonitoredProduct product)
+        {
+            var originalUrl = new Uri(product.Uri);
+            var handler = this._handlerFactory.CreateHandler(originalUrl);
+            return new ProductInfo
+            {
+                OriginalUrl = originalUrl.AbsoluteUri,
+                ProductUrl = handler.HandleManipulateUrl(originalUrl).AbsoluteUri,
+                Title = product.Title,
+                Price = product.PriceHistory.LastOf(y => y.ModifiedAt).Price,
+                LastUpdate = product.PriceHistory.LastOf(y => y.ModifiedAt).ModifiedAt,
+                ImageUrl = product.ImageUrl,
+                ProductIdentifier = product.ProductIdentifier
+            };
         }
     }
 }
