@@ -4,7 +4,7 @@ using PriceAlerts.Api.LinkManipulators.UrlCleaners;
 
 namespace PriceAlerts.Api.LinkManipulators
 {
-    public interface ILinkManipulator : ICleaner
+    public interface ILinkManipulator
     {
         Uri ManipulateLink(Uri originalUrl);
     }
