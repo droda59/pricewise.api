@@ -7,7 +7,7 @@ namespace PriceAlerts.Api.SourceHandlers
 {
     internal class ToysRUsHandler : BaseHandler, IHandler
     {
-        public ToysRUsHandler(ToysRUsSource source, ReturnOriginalCleaner cleaner, ToysRUsParser parser, EmptySearcher searcher)
+        public ToysRUsHandler(ToysRUsSource source, ToysRUsCleaner cleaner, ToysRUsParser parser, EmptySearcher searcher)
             : base(source, cleaner, parser, searcher)
         {
         }
