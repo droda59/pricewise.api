@@ -68,6 +68,11 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
             {
                 priceNode = doc.GetElementbyId("priceblock_dealprice");
             }
+            
+            if (priceNode == null)
+            {
+                priceNode = doc.GetElementbyId("priceblock_saleprice");
+            }
 
             if (priceNode == null)
             {
@@ -85,10 +90,18 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
                     return smallestPrice;
                 }
             }
+            
+            if (priceNode == null)
+            {
+                priceNode = doc
+                    .GetElementbyId("olp_feature_div")
+                    .SelectSingleNode(".//span[contains(@class, 'a-color-price')]");
+            }
 
             // For format selection
             if (priceNode == null)
             {
+                Console.WriteLine("in twister");
                 priceNode = doc
                     .GetElementbyId("twisterContainer")
                     .SelectSingleNode(".//ul[contains(@class, 'a-button-toggle-group')]")
