@@ -1,7 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Models;
 using PriceAlerts.Common.Parsers;
@@ -23,13 +24,13 @@ namespace PriceAlerts.PriceCheckJob.Jobs
         {
             var allProducts = await this._productRepository.GetAllAsync();
 
-            await Task.WhenAll(allProducts.Select(async product => 
-            {
-                try 
-                {
-                    Console.WriteLine("Starting product " + product.Id);
+            var errorDick = new Dictionary<string, ParseInfo>();
 
-                    var productUri = new Uri(product.Uri);
+            foreach (var product in allProducts)
+            {
+                var productUri = new Uri(product.Uri);
+                try
+                {
                     var siteInfo = await this._parserFactory.CreateParser(productUri).GetSiteInfo(productUri);
 
                     product.PriceHistory.Add(
@@ -40,16 +41,32 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                         });
 
                     await this._productRepository.UpdateAsync(product.Id, product);
+
+                    if (!errorDick.ContainsKey(productUri.Authority))
+                        errorDick.Add(productUri.Authority, new ParseInfo());
+
+                    errorDick[productUri.Authority].Success++;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Console.WriteLine("Found error on product " + product.Id + ": " + e.Message);
+                    if (!errorDick.ContainsKey(productUri.Authority))
+                        errorDick.Add(productUri.Authority, new ParseInfo());
+
+                    errorDick[productUri.Authority].Errors++;
                 }
-                finally
-                {
-                    Console.WriteLine("Finished product " + product.Id);
-                }
-            }));
+            }
+            
+            Console.WriteLine("Found " + errorDick.Values.Select(x => x.Success).Sum() + " successes.");
+            Console.WriteLine("Found " + errorDick.Values.Select(x => x.Errors).Sum() + " errors.");
+            
+            foreach (var domain in errorDick)
+                Console.WriteLine("Found " + domain.Value.Errors + " errors and " + domain.Value.Success + " success on " + domain.Key);
+        }
+
+        private class ParseInfo
+        {
+            public int Errors { get; set; }
+            public int Success { get; set; }
         }
     }
 }

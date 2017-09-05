@@ -30,7 +30,7 @@ namespace PriceAlerts.Common.Parsers
             string title;
             string imageUrl;
             decimal price;
-            Uri productUrl = url;
+            var productUrl = url;
 
             var document = await this._documentLoader.LoadDocument(productUrl, this.Source.CustomHeaders);
 
@@ -40,13 +40,18 @@ namespace PriceAlerts.Common.Parsers
                 document = await this._documentLoader.LoadDocument(productUrl, this.Source.CustomHeaders);
             }
 
+            if (document == null)
+            {
+                throw new ParseException("Error parsing the document", productUrl);                
+            }
+
             try
             {
                 title = this.GetTitle(document);
             }
             catch (Exception e)
             {
-                throw new ParseException("Error parsing the title", e, productUrl);
+                throw new ParseException("Error parsing the title: " + e.Message, e, productUrl);
             }
             
             try
@@ -55,7 +60,7 @@ namespace PriceAlerts.Common.Parsers
             }
             catch (Exception e)
             {
-                throw new ParseException("Error parsing the image", e, productUrl);
+                throw new ParseException("Error parsing the image: " + e.Message, e, productUrl);
             }
             
             try
@@ -64,7 +69,7 @@ namespace PriceAlerts.Common.Parsers
             }
             catch (Exception e)
             {
-                throw new ParseException("Error parsing the price", e, productUrl);
+                throw new ParseException("Error parsing the price: " + e.Message, e, productUrl);
             }
 
             try
@@ -73,7 +78,7 @@ namespace PriceAlerts.Common.Parsers
             }
             catch (Exception e)
             {
-                throw new ParseException("Error parsing the product identifier", e, productUrl);
+                throw new ParseException("Error parsing the product identifier: " + e.Message, e, productUrl);
             }
 
             var sitePriceInfo = new SitePriceInfo

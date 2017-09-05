@@ -17,7 +17,7 @@ namespace PriceAlerts.PriceCheckJob
             MainAsync().Wait();
         }
 
-        static async Task MainAsync()
+        private static async Task MainAsync()
         {
             MongoDBConfig.RegisterClassMaps();
             
@@ -29,7 +29,7 @@ namespace PriceAlerts.PriceCheckJob
             
             while (true)
             {
-                Stopwatch sw = Stopwatch.StartNew();
+                var sw = Stopwatch.StartNew();
 
                 var updatePricesJob = container.Resolve<UpdatePricesJob>();
                 await updatePricesJob.UpdatePrices();

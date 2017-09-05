@@ -101,7 +101,6 @@ namespace PriceAlerts.Common.Parsers.SourceParsers
             // For format selection
             if (priceNode == null)
             {
-                Console.WriteLine("in twister");
                 priceNode = doc
                     .GetElementbyId("twisterContainer")
                     .SelectSingleNode(".//ul[contains(@class, 'a-button-toggle-group')]")
