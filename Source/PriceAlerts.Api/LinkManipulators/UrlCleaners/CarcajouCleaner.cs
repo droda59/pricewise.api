@@ -9,7 +9,7 @@ namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
     {
         public Uri CleanUrl(Uri originalUrl)
         {
-            StringValues sku = StringValues.Empty;
+            StringValues sku;
             var queryParameters = QueryHelpers.ParseQuery(originalUrl.Query);
             if (queryParameters.TryGetValue("prod_id", out sku))
             {

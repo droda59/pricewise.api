@@ -1,6 +1,4 @@
 using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 using PriceAlerts.Common.Sources;
 
@@ -8,13 +6,11 @@ namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
 {
     public class AmazonCleaner : ICleaner
     {
-        private readonly Regex _idExpression;
-        private readonly ISource _source;
+        private readonly AmazonSource _source;
 
         public AmazonCleaner(AmazonSource source)
         {
             this._source = source;
-            this._idExpression = new Regex(@"[a-zA-Z0-9]{10}(/{0,1})$", RegexOptions.Compiled);
         }
 
         public Uri CleanUrl(Uri originalUrl)
@@ -43,7 +39,7 @@ namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
                     continue;
                 }
 
-                if (this._idExpression.IsMatch(segment))
+                if (this._source.AsinExpression.IsMatch(segment))
                 {
                     newUrl += segment;
                     break;

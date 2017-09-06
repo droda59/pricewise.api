@@ -1,11 +1,7 @@
 using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
-
-using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
 {
@@ -13,7 +9,7 @@ namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
     {
         public Uri CleanUrl(Uri originalUrl)
         {
-            StringValues sku = StringValues.Empty;
+            StringValues sku;
             var queryParameters = QueryHelpers.ParseQuery(originalUrl.Query);
             if (queryParameters.TryGetValue("sku", out sku))
             {

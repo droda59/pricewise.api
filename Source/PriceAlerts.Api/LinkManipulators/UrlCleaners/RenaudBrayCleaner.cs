@@ -1,6 +1,4 @@
 using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
@@ -11,18 +9,18 @@ namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
 {
     internal class RenaudBrayCleaner : ICleaner
     {
-        private readonly Regex _idExpression;
+        private readonly RenaudBraySource _source;
 
         public RenaudBrayCleaner(RenaudBraySource source)
         {
-            this._idExpression = new Regex(@"[0-9]{7}$", RegexOptions.Compiled);
+            _source = source;
         }
 
         public Uri CleanUrl(Uri originalUrl)
         {
-            var id = StringValues.Empty;
+            StringValues id;
             var queryParameters = QueryHelpers.ParseQuery(originalUrl.Query);
-            if (queryParameters.TryGetValue("id", out id) && this._idExpression.IsMatch(id))
+            if (queryParameters.TryGetValue("id", out id) && this._source.IdExpression.IsMatch(id))
             {
                 var urlWithoutQueryString = new UriBuilder(originalUrl) { Query = string.Empty };
                 var urlWithQueryString = QueryHelpers.AddQueryString(urlWithoutQueryString.Uri.AbsoluteUri, "id", id);

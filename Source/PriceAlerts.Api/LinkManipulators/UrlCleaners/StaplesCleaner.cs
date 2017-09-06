@@ -1,6 +1,4 @@
 using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 using PriceAlerts.Common.Sources;
 
@@ -8,13 +6,11 @@ namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
 {
     internal class StaplesCleaner : ICleaner
     {
-        private readonly Regex _idExpression;
-        private readonly ISource _source;
+        private readonly StaplesSource _source;
 
         public StaplesCleaner(StaplesSource source)
         {
             this._source = source;
-            this._idExpression = new Regex(@"product_[0-9]+_", RegexOptions.Compiled);
         }
 
         public Uri CleanUrl(Uri originalUrl)
@@ -31,7 +27,7 @@ namespace PriceAlerts.Api.LinkManipulators.UrlCleaners
                     continue;
                 }
 
-                if (this._idExpression.IsMatch(segment))
+                if (this._source.IdExpression.IsMatch(segment))
                 {
                     newUrl += segment;
                     break;
