@@ -12,7 +12,7 @@ namespace PriceAlerts.Api.SourceHandlers
 {
     internal class AmazonHandler : BaseHandler, IHandler
     {
-        public AmazonHandler(AmazonSource source, AmazonLinkManipulator cleaner, AmazonParser parser, AmazonSearcher searcher)
+        public AmazonHandler(AmazonSource source, AmazonLinkManipulator cleaner, AmazonApiParser parser, AmazonSearcher searcher)
             : base(source, cleaner, parser, searcher)
         {
         }

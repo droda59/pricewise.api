@@ -6,6 +6,7 @@ using Autofac;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Parsers;
+using PriceAlerts.Common.Parsers.SourceParsers;
 using PriceAlerts.Common.Searchers;
 using PriceAlerts.Common.Sources;
 
@@ -25,6 +26,7 @@ namespace PriceAlerts.Common
 
             builder.RegisterAssemblyTypes(this.ThisAssembly)
                 .Where(x => x.GetInterfaces().Contains(typeof(IParser)) && x.Name.EndsWith("Parser"))
+                .Except<AmazonHtmlParser>()
                 .AsSelf()
                 .As<IParser>()
                 .SingleInstance();

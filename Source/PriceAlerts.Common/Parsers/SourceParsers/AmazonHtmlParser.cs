@@ -1,17 +1,15 @@
 using System;
 using System.Linq;
-
 using HtmlAgilityPack;
-
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Parsers.SourceParsers
 {
-    public class AmazonParser : BaseParser, IParser
+    public class AmazonHtmlParser : BaseParser, IParser
     {
-        public AmazonParser(IDocumentLoader documentLoader)
-            : base(documentLoader, new AmazonSource())
+        public AmazonHtmlParser(IDocumentLoader documentLoader, AmazonSource source)
+            : base(documentLoader, source)
         {
         }
         

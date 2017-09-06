@@ -81,7 +81,7 @@ namespace PriceAlerts.Common.Parsers
                 throw new ParseException("Error parsing the product identifier: " + e.Message, e, productUrl);
             }
 
-            var sitePriceInfo = new SitePriceInfo
+            return new SitePriceInfo
             {
                 ProductIdentifier = productIdentifier, 
                 Uri = productUrl.AbsoluteUri,
@@ -89,8 +89,6 @@ namespace PriceAlerts.Common.Parsers
                 ImageUrl = imageUrl,
                 Price = price
             };
-
-            return sitePriceInfo;
         }
 
         protected abstract string GetTitle(HtmlDocument doc);

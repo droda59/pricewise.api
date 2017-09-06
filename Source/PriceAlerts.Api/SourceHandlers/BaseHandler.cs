@@ -53,8 +53,8 @@ namespace PriceAlerts.Api.SourceHandlers
         public virtual async Task<SitePriceInfo> HandleParse(Uri url)
         {
             var cleanUrl = this.HandleCleanUrl(url);
-            
-            var siteInfo = await this.Parser.GetSiteInfo(cleanUrl);
+
+            var siteInfo = await this.Parser.GetSiteInfo(cleanUrl);                
             siteInfo.Uri = cleanUrl.AbsoluteUri;
 
             return siteInfo;

@@ -12,7 +12,7 @@ using PriceAlerts.Common.Tests.Parsers;
 
 namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
-    internal class AmazonTestParser : AmazonParser, ITestParser
+    internal class AmazonTestParser : AmazonHtmlParser, ITestParser
     {
         private readonly IDocumentLoader _documentLoader;
 
