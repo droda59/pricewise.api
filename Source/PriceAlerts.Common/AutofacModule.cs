@@ -26,7 +26,6 @@ namespace PriceAlerts.Common
 
             builder.RegisterAssemblyTypes(this.ThisAssembly)
                 .Where(x => x.GetInterfaces().Contains(typeof(IParser)) && x.Name.EndsWith("Parser"))
-                .Except<AmazonHtmlParser>()
                 .AsSelf()
                 .As<IParser>()
                 .SingleInstance();

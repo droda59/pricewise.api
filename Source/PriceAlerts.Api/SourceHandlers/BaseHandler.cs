@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Autofac;
-
 using PriceAlerts.Api.LinkManipulators;
 using PriceAlerts.Api.LinkManipulators.UrlCleaners;
 using PriceAlerts.Common.Parsers;
@@ -16,32 +14,34 @@ namespace PriceAlerts.Api.SourceHandlers
     internal abstract class BaseHandler : IHandler
     {
         private readonly ISource _source;
+        private readonly ICleaner _manipulator;
+        private readonly ISearcher _searcher;
+        private readonly IParser[] _parsers;
 
         protected BaseHandler(ISource source, ICleaner manipulator, IParser parser, ISearcher searcher)
+            : this(source, manipulator, new[] { parser }, searcher)
+        {
+        }
+
+        protected BaseHandler(ISource source, ICleaner manipulator, IParser[] parsers, ISearcher searcher)
         {
             this._source = source;
-
-            this.Parser = parser;
-            this.Searcher = searcher;
-            this.Manipulator = manipulator;
+            
+            this._parsers = parsers;
+            this._searcher = searcher;
+            this._manipulator = manipulator;
         }
 
         Uri IHandler.Domain => this._source.Domain;
 
-        protected IParser Parser { get; }
-
-        protected ISearcher Searcher { get; }
-
-        protected ICleaner Manipulator { get; }
-
         public virtual Uri HandleCleanUrl(Uri url)
         {
-            return this.Manipulator.CleanUrl(url);
+            return this._manipulator.CleanUrl(url);
         }
 
         public virtual Uri HandleManipulateUrl(Uri url)
         {
-            var manipulator = this.Manipulator as ILinkManipulator;
+            var manipulator = this._manipulator as ILinkManipulator;
             if (manipulator != null)
             {
                 return manipulator.ManipulateLink(url);
@@ -52,10 +52,20 @@ namespace PriceAlerts.Api.SourceHandlers
 
         public virtual async Task<SitePriceInfo> HandleParse(Uri url)
         {
+            SitePriceInfo siteInfo = null;
             var cleanUrl = this.HandleCleanUrl(url);
 
-            var siteInfo = await this.Parser.GetSiteInfo(cleanUrl);                
-            siteInfo.Uri = cleanUrl.AbsoluteUri;
+            var currentIndex = 0;
+            while (siteInfo == null && currentIndex < this._parsers.Length)
+            {
+                siteInfo = await this._parsers[currentIndex].GetSiteInfo(cleanUrl);
+                currentIndex++;
+            }
+
+            if (siteInfo != null)
+            {
+                siteInfo.Uri = cleanUrl.AbsoluteUri;
+            }
 
             return siteInfo;
         }
@@ -63,7 +73,7 @@ namespace PriceAlerts.Api.SourceHandlers
         public virtual async Task<IEnumerable<Uri>> HandleSearch(string searchTerm)
         {
             var productUrls = new List<Uri>();
-            var searchResults = await this.Searcher.GetProductsUrls(searchTerm);
+            var searchResults = await this._searcher.GetProductsUrls(searchTerm);
             foreach (var searchResult in searchResults)
             {
                 productUrls.Add(this.HandleCleanUrl(searchResult));
