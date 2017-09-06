@@ -18,7 +18,7 @@ namespace PriceAlerts.Common
             builder.RegisterType<HttpClient>().As<IRequestClient>().SingleInstance();
             builder.RegisterType<DocumentLoader>().As<IDocumentLoader>().SingleInstance();
 
-            builder.RegisterAssemblyTypes(typeof(ISource).GetTypeInfo().Assembly)
+            builder.RegisterAssemblyTypes(this.ThisAssembly)
                 .Where(x => x.GetInterfaces().Contains(typeof(ISource)) && x.Name.EndsWith("Source"))
                 .AsSelf()
                 .SingleInstance();
