@@ -43,21 +43,10 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var item = result.Items.Item.FirstOrDefault();
             if (item == null)
             {
-                Console.WriteLine($"No price available for {url}");
                 return null;
             }
 
-            decimal minPrice = 0m;
             var prices = new List<Price>();
-
-            Console.WriteLine();
-            Console.WriteLine($"Prices for {url}");
-
-            // if (item.ItemAttributes.ListPrice != null && !string.IsNullOrEmpty(item.ItemAttributes.ListPrice.Amount))
-            // {
-            //     prices.Add(item.ItemAttributes.ListPrice);
-            //     Console.WriteLine($"List: {item.ItemAttributes.ListPrice.Amount}, {item.ItemAttributes.ListPrice.FormattedPrice}");
-            // }
 
             if (item.Offers.Offer.Any())
             {
@@ -65,64 +54,34 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 {
                     foreach (var listing in offer.OfferListing)
                     {
-                        if (listing.Price != null && !string.IsNullOrEmpty(listing.Price.Amount))
+                        if (!string.IsNullOrEmpty(listing.Price?.Amount))
                         {
                             prices.Add(listing.Price);
-                            Console.WriteLine($"Listing price: {listing.Price.Amount}, {listing.Price.FormattedPrice}");
                         }
 
-                        if (listing.SalePrice != null && !string.IsNullOrEmpty(listing.SalePrice.Amount))
+                        if (!string.IsNullOrEmpty(listing.SalePrice?.Amount))
                         {
                             prices.Add(listing.SalePrice);
-                            Console.WriteLine($"Lowest New: {listing.SalePrice.Amount}, {listing.SalePrice.FormattedPrice}");
                         }
                     }
                 }
             }
-            else if (item.OfferSummary.LowestNewPrice != null && !string.IsNullOrEmpty(item.OfferSummary.LowestNewPrice.Amount))
+
+            if (!prices.Any())
             {
-                prices.Add(item.OfferSummary.LowestNewPrice);
-                Console.WriteLine($"Lowest New: {item.OfferSummary.LowestNewPrice.Amount}, {item.OfferSummary.LowestNewPrice.FormattedPrice}");
+                return null;
             }
-            else if (item.OfferSummary.LowestUsedPrice != null && !string.IsNullOrEmpty(item.OfferSummary.LowestUsedPrice.Amount))
+            
+            var minPrice = prices.Min(x => x.FormattedPrice.ExtractDecimal());
+            
+            return new SitePriceInfo
             {
-                prices.Add(item.OfferSummary.LowestUsedPrice);
-                Console.WriteLine($"Lowest Used: {item.OfferSummary.LowestUsedPrice.Amount}, {item.OfferSummary.LowestUsedPrice.FormattedPrice}");
-            }
-
-            // if (item.OfferSummary.LowestRefurbishedPrice != null && !string.IsNullOrEmpty(item.OfferSummary.LowestRefurbishedPrice.Amount))
-            // {
-            //     prices.Add(item.OfferSummary.LowestRefurbishedPrice);
-            //     Console.WriteLine($"Lowest Refurbished: {item.OfferSummary.LowestRefurbishedPrice.Amount}, {item.OfferSummary.LowestRefurbishedPrice.FormattedPrice}");
-            // }
-
-            // if (item.OfferSummary.LowestCollectiblePrice != null && !string.IsNullOrEmpty(item.OfferSummary.LowestCollectiblePrice.Amount))
-            // {
-            //     prices.Add(item.OfferSummary.LowestCollectiblePrice);
-            //     Console.WriteLine($"Lowest Collectible: {item.OfferSummary.LowestCollectiblePrice.Amount}, {item.OfferSummary.LowestCollectiblePrice.FormattedPrice}");
-            // }
-
-            if (prices.Any())
-            {
-                minPrice = prices.Min(x => x.FormattedPrice.ExtractDecimal());
-                Console.WriteLine($"Min price {minPrice}");
-            }
-
-            Console.WriteLine();
-
-            if (prices.Any())
-            {
-                return new SitePriceInfo
-                {
-                    ProductIdentifier = item.ASIN, 
-                    Uri = url.AbsoluteUri,
-                    Title = item.ItemAttributes.Title,
-                    ImageUrl = item.MediumImage.URL,
-                    Price = minPrice
-                };
-            }
-
-            return null;
+                ProductIdentifier = item.ASIN, 
+                Uri = url.AbsoluteUri,
+                Title = item.ItemAttributes.Title,
+                ImageUrl = item.MediumImage.URL,
+                Price = minPrice
+            };
         }
     }
 }
