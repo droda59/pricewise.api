@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
-using PriceAlerts.Common;
 using PriceAlerts.Common.Commands.Searchers;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Extensions;
@@ -43,7 +41,7 @@ namespace PriceAlerts.Api.Controllers
                 return this.NoContent();
             }
 
-            var lockObject = new Object();
+            var lockObject = new object();
 
             try
             {
@@ -71,6 +69,7 @@ namespace PriceAlerts.Api.Controllers
                             }
                             catch (Exception)
                             {
+                                // ignored
                             }
                         }));
                     }

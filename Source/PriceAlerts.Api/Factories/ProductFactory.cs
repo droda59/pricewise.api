@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Factories;
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Models;
 
 namespace PriceAlerts.Api.Factories
@@ -22,6 +23,11 @@ namespace PriceAlerts.Api.Factories
         {
             var handler = this._handlerFactory.CreateHandler(url);
             var siteInfo = await handler.HandleGetInfo(url);
+            
+            if (siteInfo == null)
+            {
+                throw new ParseException("PriceWise was unable to get the product information.", url);
+            }
 
             var monitoredProduct = new MonitoredProduct
             {
