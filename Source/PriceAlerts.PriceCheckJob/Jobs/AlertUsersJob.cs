@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Models;
 using PriceAlerts.PriceCheckJob.Emails;
 using PriceAlerts.PriceCheckJob.Models;
@@ -41,8 +42,6 @@ namespace PriceAlerts.PriceCheckJob.Jobs
             {
                 try 
                 {
-                    Console.WriteLine("Starting user " + user.UserId);
-
                     var alertsInUse = user.Alerts.Where(x => !x.IsDeleted && x.IsActive).ToList();
                     foreach (var alert in alertsInUse)
                     {
@@ -55,7 +54,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                         if (alert.BestCurrentDeal.Price != newBestDeal.Item2.Price)
                         {
                             var changePrice = Math.Abs(alert.BestCurrentDeal.Price - newBestDeal.Item2.Price);
-                            var changeAcceptationThreshold = (user.Settings.ChangePercentage * alert.BestCurrentDeal.Price);
+                            var changeAcceptationThreshold = user.Settings.ChangePercentage * alert.BestCurrentDeal.Price;
 
                             // Console.WriteLine($"Price changed for alert {alert.Id} from {alert.BestCurrentDeal.Price} to {newBestDeal.Item2.Price}");
                             // Console.WriteLine($"A change of {changePrice} over a {changeAcceptationThreshold} threshold");
@@ -86,17 +85,13 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                             alert.BestCurrentDeal = new Deal { ProductId = newBestDeal.Item1.Id, Price = newBestDeal.Item2.Price, ModifiedAt = newBestDeal.Item2.ModifiedAt };
 
                             // This makes one more database call since in the Update method we Get the user from the DB
-                            var updateTask = this._alertRepository.UpdateAsync(user.UserId, alert);
+                            await this._alertRepository.UpdateAsync(user.UserId, alert);
                         }
                     }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("Found error on user " + user.UserId + ": " + e.Message);
-                }
-                finally
-                {
-                    Console.WriteLine("Finished user " + user.UserId);
                 }
             }));
 

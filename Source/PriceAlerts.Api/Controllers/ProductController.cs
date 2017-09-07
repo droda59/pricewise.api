@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
 using PriceAlerts.Common;
+using PriceAlerts.Common.Commands.Searchers;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Models;
@@ -22,14 +24,14 @@ namespace PriceAlerts.Api.Controllers
         private readonly IProductRepository _productRepository;
         private readonly IProductFactory _productFactory;
         private readonly IHandlerFactory _handlerFactory;
-        private readonly ISearcherFactory _searcherFactory;
+        private readonly ISearcher[] _searchers;
 
-        public ProductController(IProductRepository productRepository, IProductFactory productFactory, IHandlerFactory handlerFactory, ISearcherFactory searcherFactory)
+        public ProductController(IProductRepository productRepository, IProductFactory productFactory, IHandlerFactory handlerFactory, ISearcher[] searchers)
         {
             this._productRepository = productRepository;
             this._productFactory = productFactory;
             this._handlerFactory = handlerFactory;
-            this._searcherFactory = searcherFactory;
+            this._searchers = searchers;
         }
 
         [HttpGet("{productidentifier}")]
@@ -51,7 +53,7 @@ namespace PriceAlerts.Api.Controllers
 
                 var newProducts = new List<MonitoredProduct>();
 
-                await Task.WhenAll(this._searcherFactory.Searchers.Select(async searcher => 
+                await Task.WhenAll(this._searchers.Select(async searcher => 
                 {
                     // Skip all sources for which we already have the product identifier
                     if (searcher.Source != null && !knownProductsSources.Contains(searcher.Source.Domain.Authority))
@@ -88,6 +90,7 @@ namespace PriceAlerts.Api.Controllers
         {
             var originalUrl = new Uri(product.Uri);
             var handler = this._handlerFactory.CreateHandler(originalUrl);
+            
             return new ProductInfo
             {
                 OriginalUrl = originalUrl.AbsoluteUri,

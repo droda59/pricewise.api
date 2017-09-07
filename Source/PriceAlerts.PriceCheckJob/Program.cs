@@ -22,8 +22,8 @@ namespace PriceAlerts.PriceCheckJob
             MongoDBConfig.RegisterClassMaps();
             
 			var builder = new ContainerBuilder();
-            builder.RegisterModule(new PriceAlerts.Common.AutofacModule());
-            builder.RegisterModule(new PriceAlerts.PriceCheckJob.AutofacModule());
+            builder.RegisterModule(new Common.AutofacModule());
+            builder.RegisterModule(new AutofacModule());
 
             var container = builder.Build();
             

@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using HtmlAgilityPack;
-
+using PriceAlerts.Common.Commands.Inspectors.Sources;
 using PriceAlerts.Common.Infrastructure;
-using PriceAlerts.Common.Parsers.SourceParsers;
 using PriceAlerts.Common.Sources;
-using PriceAlerts.Common.Tests.Parsers;
 
 namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {

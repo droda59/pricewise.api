@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PriceAlerts.Common
+namespace PriceAlerts.Common.Extensions
 {
     public static class EnumerableExtensions
     {

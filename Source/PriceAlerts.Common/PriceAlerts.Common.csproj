@@ -11,4 +11,13 @@
     <PackageReference Include="Nager.AmazonProductAdvertising" Version="1.0.26" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Commands\LinkManipulators\UrlCleaners\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="Commands\LinkManipulators\UrlCleaners\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Commands\LinkManipulators\UrlCleaners\**" />
+  </ItemGroup>
 </Project>

@@ -7,11 +7,9 @@ using HtmlAgilityPack;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
+using PriceAlerts.Common.Commands.Inspectors.Sources;
 using PriceAlerts.Common.Infrastructure;
-using PriceAlerts.Common.Parsers.SourceParsers;
 using PriceAlerts.Common.Sources;
-using PriceAlerts.Common.Tests.Parsers;
 
 namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
@@ -20,7 +18,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
         private readonly IDocumentLoader _documentLoader;
 
         public IkeaTestParser(IDocumentLoader documentLoader)
-            : base(documentLoader)
+            : base(documentLoader, new IkeaSource())
         {
             this._documentLoader = documentLoader;
         }
@@ -75,9 +73,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 
                     if (script != null)
                     {
-                        var startOfJavascript = script.IndexOf("bestsellerTool(");
+                        var startOfJavascript = script.IndexOf("bestsellerTool(", StringComparison.Ordinal);
                         var lengthOfStart = "bestsellerTool(".Length;
-                        var endOfJavascript = script.LastIndexOf("}") + 1;
+                        var endOfJavascript = script.LastIndexOf("}", StringComparison.Ordinal) + 1;
 
                         var json = script.Substring(startOfJavascript + lengthOfStart, endOfJavascript - startOfJavascript - lengthOfStart);
                         dynamic jsonResult = JsonConvert.DeserializeObject(json);

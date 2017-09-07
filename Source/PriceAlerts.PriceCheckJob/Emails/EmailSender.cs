@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -39,8 +40,8 @@ namespace PriceAlerts.PriceCheckJob.Emails
                 { "to", alert.EmailAddress },
                 { "merge_firstname" , alert.FirstName },
                 { "merge_productName" , alert.AlertTitle },
-                { "merge_previousPrice" , alert.PreviousPrice.ToString() },
-                { "merge_newPrice" , alert.NewPrice.ToString() },
+                { "merge_previousPrice" , alert.PreviousPrice.ToString(CultureInfo.InvariantCulture) },
+                { "merge_newPrice" , alert.NewPrice.ToString(CultureInfo.InvariantCulture) },
                 { "merge_productUrl" , alert.ProductUri.AbsoluteUri },
                 { "merge_productDomain", alert.ProductUri.Authority },
                 { "merge_imageUrl", alert.ImageUrl }, 
@@ -56,7 +57,7 @@ namespace PriceAlerts.PriceCheckJob.Emails
 
             var stringResponse = await response.Content.ReadAsStringAsync();
 
-            var jsonResponse = JsonConvert.DeserializeObject<Emails.ApiResponse<ApiTypes.EmailSend>>(stringResponse);
+            var jsonResponse = JsonConvert.DeserializeObject<ApiResponse<ApiTypes.EmailSend>>(stringResponse);
             
             return jsonResponse.Data;
         }

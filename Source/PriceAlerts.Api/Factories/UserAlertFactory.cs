@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using PriceAlerts.Api.Models;
 using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Models;
 

@@ -4,20 +4,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Extensions;
+using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Models;
-using PriceAlerts.Common.Parsers;
 
 namespace PriceAlerts.PriceCheckJob.Jobs
 {
     internal class UpdatePricesJob
     {
         private readonly IProductRepository _productRepository;
-        private readonly IParserFactory _parserFactory;
+        private readonly IHandlerFactory _handlerFactory;
 
-        public UpdatePricesJob(IProductRepository productRepository, IParserFactory parserFactory)
+        public UpdatePricesJob(IProductRepository productRepository, IHandlerFactory handlerFactory)
         {
             this._productRepository = productRepository;
-            this._parserFactory = parserFactory;
+            this._handlerFactory = handlerFactory;
         }
         
         public async Task UpdatePrices()
@@ -31,8 +32,17 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                 var productUri = new Uri(product.Uri);
                 try
                 {
-                    var siteInfo = await this._parserFactory.CreateParser(productUri).GetSiteInfo(productUri);
+                    var handler = this._handlerFactory.CreateHandler(productUri);
+                    var siteInfo = await handler.HandleGetInfo(productUri);
 
+                    var lastPrice = product.PriceHistory.LastOf(x => x.ModifiedAt).Price;
+                    var newPrice = siteInfo.Price;
+
+                    if (lastPrice != newPrice)
+                    {
+                        Console.WriteLine($"Price changed from {lastPrice} to {newPrice} for item {product.Uri}");
+                    }
+                    
                     product.PriceHistory.Add(
                         new PriceChange
                         {

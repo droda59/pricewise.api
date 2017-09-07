@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-using PriceAlerts.Common.Parsers;
-using PriceAlerts.Common.Parsers.Models;
+using PriceAlerts.Common.Commands.Inspectors;
 
 namespace PriceAlerts.Common.Tests.Parsers
 {
-    public interface ITestParser : IParser
+    internal interface ITestParser : IInspector
     {
         Task<IEnumerable<Uri>> GetTestProductsUrls();
     }

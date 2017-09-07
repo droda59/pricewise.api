@@ -21,7 +21,7 @@ namespace PriceAlerts.Api.Factories
         public async Task<MonitoredProduct> CreateProduct(Uri url)
         {
             var handler = this._handlerFactory.CreateHandler(url);
-            var siteInfo = await handler.HandleParse(url);
+            var siteInfo = await handler.HandleGetInfo(url);
 
             var monitoredProduct = new MonitoredProduct
             {

@@ -1,5 +1,4 @@
-using System;
-
+using PriceAlerts.Common.Extensions;
 using Xunit;
 
 namespace PriceAlerts.Common.Tests

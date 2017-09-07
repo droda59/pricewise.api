@@ -13,8 +13,8 @@ namespace PriceAlerts.Api
         {
 			var builder = new ContainerBuilder();
 
-            builder.RegisterModule(new PriceAlerts.Api.AutofacModule());
-            builder.RegisterModule(new PriceAlerts.Common.AutofacModule());
+            builder.RegisterModule(new Api.AutofacModule());
+            builder.RegisterModule(new Common.AutofacModule());
 
             builder.Populate(services);
             

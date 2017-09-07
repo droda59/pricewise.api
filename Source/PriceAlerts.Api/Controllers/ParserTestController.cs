@@ -4,9 +4,8 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using PriceAlerts.Common.CommandHandlers;
 using PriceAlerts.Common.Factories;
-using PriceAlerts.Common.SourceHandlers;
 
 namespace PriceAlerts.Api.Controllers
 {
@@ -24,18 +23,18 @@ namespace PriceAlerts.Api.Controllers
         [HttpPost("parse")]
         public async Task<IActionResult> ParseAsync([FromBody]Uri uri)
         {
-            IHandler handler = null;
+            ICommandHandler commandHandler;
 
             try
             {
-                handler = this._handlerFactory.CreateHandler(uri);
+                commandHandler = this._handlerFactory.CreateHandler(uri);
             }
             catch (KeyNotFoundException)
             {
                 return new NotFoundResult();
             }
 
-            var parsedContent = await handler.HandleParse(uri);
+            var parsedContent = await commandHandler.HandleGetInfo(uri);
 
             return new ObjectResult(parsedContent);
         }

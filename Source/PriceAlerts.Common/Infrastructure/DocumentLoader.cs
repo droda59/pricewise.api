@@ -55,7 +55,7 @@ namespace PriceAlerts.Common.Infrastructure
                 var content = await data.Content.ReadAsStringAsync();
 
                 var document = new HtmlDocument();
-                document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
+                document.LoadHtml(WebUtility.HtmlDecode(content));
 
                 return document;
             }

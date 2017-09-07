@@ -10,6 +10,7 @@ using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
 using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Models;
@@ -63,7 +64,7 @@ namespace PriceAlerts.Api.Controllers
             }));
 
             var deals = alertProducts
-                .Select(x => new Models.ProductHistory
+                .Select(x => new ProductHistory
                 {
                     Title = x.Title,
                     Url = x.Uri,
