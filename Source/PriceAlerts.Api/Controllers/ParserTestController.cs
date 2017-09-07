@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using PriceAlerts.Api.Factories;
-using PriceAlerts.Api.SourceHandlers;
+using PriceAlerts.Common.Factories;
+using PriceAlerts.Common.SourceHandlers;
 
 namespace PriceAlerts.Api.Controllers
 {

@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Models;
 
 namespace PriceAlerts.Api.Factories

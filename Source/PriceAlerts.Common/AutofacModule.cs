@@ -2,12 +2,14 @@ using System.Linq;
 using System.Reflection;
 
 using Autofac;
-
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.LinkManipulators;
+using PriceAlerts.Common.LinkManipulators.UrlCleaners;
 using PriceAlerts.Common.Parsers;
-using PriceAlerts.Common.Parsers.SourceParsers;
 using PriceAlerts.Common.Searchers;
+using PriceAlerts.Common.SourceHandlers;
 using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common
@@ -18,6 +20,22 @@ namespace PriceAlerts.Common
         {
             builder.RegisterType<HttpClient>().As<IRequestClient>().SingleInstance();
             builder.RegisterType<DocumentLoader>().As<IDocumentLoader>().SingleInstance();
+            builder.RegisterType<HandlerFactory>().As<IHandlerFactory>().SingleInstance();
+            
+            builder.RegisterAssemblyTypes(this.ThisAssembly)
+                .Where(x => x.GetInterfaces().Contains(typeof(IHandler)) && x.Name.EndsWith("Handler"))
+                .As<IHandler>()
+                .SingleInstance();
+            
+            builder.RegisterAssemblyTypes(this.ThisAssembly)
+                .Where(x => x.GetInterfaces().Contains(typeof(ICleaner)) && x.Name.EndsWith("Cleaner"))
+                .AsSelf()
+                .SingleInstance();
+            
+            builder.RegisterAssemblyTypes(this.ThisAssembly)
+                .Where(x => x.GetInterfaces().Contains(typeof(ILinkManipulator)) && x.Name.EndsWith("LinkManipulator"))
+                .AsSelf()
+                .SingleInstance();
 
             builder.RegisterAssemblyTypes(this.ThisAssembly)
                 .Where(x => x.GetInterfaces().Contains(typeof(ISource)) && x.Name.EndsWith("Source"))

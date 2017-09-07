@@ -17,7 +17,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
         private readonly IDocumentLoader _documentLoader;
 
         public AmazonTestParser(IDocumentLoader documentLoader)
-            : base(documentLoader)
+            : base(documentLoader, new AmazonSource())
         {
             this._documentLoader = documentLoader;
         }

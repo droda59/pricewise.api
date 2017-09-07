@@ -10,6 +10,7 @@ using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
 using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Models;
 
