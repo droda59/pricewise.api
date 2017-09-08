@@ -38,7 +38,7 @@ namespace PriceAlerts.Common.Commands.Cleaners.Sources
                     continue;
                 }
 
-                if (this._source.AsinExpression.IsMatch(segment))
+                if (this._source.ExactAsinExpression.IsMatch(segment))
                 {
                     newUrl += segment;
                     break;

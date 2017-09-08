@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -36,7 +35,7 @@ namespace PriceAlerts.Api.Controllers
 
             var userDto = CreateDto(repoUser);
 
-            var lockObject = new Object();
+            var lockObject = new object();
             var notDeletedAlerts = repoUser.Alerts.Where(x => !x.IsDeleted).ToList();
             await Task.WhenAll(notDeletedAlerts.Select(async repoUserAlert => 
             {
@@ -55,7 +54,7 @@ namespace PriceAlerts.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]UserDto user)
         {
-            var repoUser = new User()
+            var repoUser = new User
             {
                 UserId = user.UserId,
                 FirstName = user.FirstName,
@@ -111,7 +110,7 @@ namespace PriceAlerts.Api.Controllers
 
         private static UserDto CreateDto(User repoUser)
         {
-            return new UserDto()
+            return new UserDto
             {
                 UserId = repoUser.UserId,
                 FirstName = repoUser.FirstName,

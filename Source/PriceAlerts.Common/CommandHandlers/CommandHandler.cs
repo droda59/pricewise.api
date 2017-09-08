@@ -46,18 +46,8 @@ namespace PriceAlerts.Common.CommandHandlers
             var parsers = this.Commands.OfType<IInspector>().ToList();
             while (siteInfo == null && currentIndex < parsers.Count)
             {
-                try 
-                {
-                    siteInfo = await parsers[currentIndex].GetSiteInfo(cleanUrl);
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-                finally
-                {
-                    currentIndex++;
-                }
+                siteInfo = await parsers[currentIndex].GetSiteInfo(cleanUrl);
+                currentIndex++;
             }
 
             if (siteInfo != null)

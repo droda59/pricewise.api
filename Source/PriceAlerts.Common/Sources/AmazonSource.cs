@@ -11,10 +11,13 @@ namespace PriceAlerts.Common.Sources
         {
             this.Domain = new Uri("https://www.amazon.ca/");
             this.CustomHeaders = Enumerable.Empty<KeyValuePair<string, string>>();
+            this.ExactAsinExpression = new Regex(@"^[a-zA-Z0-9]{10}(/{0,1})$", RegexOptions.Compiled);
             this.AsinExpression = new Regex(@"[a-zA-Z0-9]{10}(/{0,1})$", RegexOptions.Compiled);
         }
 
         public Uri Domain { get; }
+        
+        public Regex ExactAsinExpression { get; }
         
         public Regex AsinExpression { get; }
 
