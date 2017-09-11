@@ -98,6 +98,7 @@ namespace PriceAlerts.Api.Controllers
             repoUser.Settings.AlertOnPriceRaise = userSettings.AlertOnPriceRaise;
             repoUser.Settings.SpecifyChangePercentage = userSettings.SpecifyChangePercentage;
             repoUser.Settings.ChangePercentage = userSettings.ChangePercentage;
+            repoUser.Settings.CorrespondenceLanguage = userSettings.CorrespondenceLanguage;
 
             var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
             if (updatedUser != null)
