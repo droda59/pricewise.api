@@ -79,6 +79,7 @@ namespace PriceAlerts.Api.Controllers
             repoUser.FirstName = user.FirstName;
             repoUser.LastName = user.LastName;
             repoUser.Email = user.Email;
+            repoUser.Settings.CorrespondenceLanguage = user.Settings.CorrespondenceLanguage;
 
             var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
             if (updatedUser != null)
