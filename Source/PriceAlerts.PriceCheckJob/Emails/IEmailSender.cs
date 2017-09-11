@@ -1,13 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-
-using PriceAlerts.PriceCheckJob.Models;
 
 namespace PriceAlerts.PriceCheckJob.Emails
 {
     public interface IEmailSender : IDisposable
     {
-        Task<ApiTypes.EmailSend> SendEmail(PriceChangeAlert alert);
+        Task<ApiTypes.EmailSend> SendEmail(string emailAddress, IDictionary<string, string> parameters, string templateName);
 
         void Initialize();
     }

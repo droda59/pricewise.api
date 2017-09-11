@@ -39,8 +39,10 @@ namespace PriceAlerts.PriceCheckJob
                 Console.WriteLine();
                 sw.Restart();
 
-                var alertUsersJob = container.Resolve<AlertUsersJob>();
-                await alertUsersJob.SendAlerts();
+                using (var alertUsersJob = container.Resolve<AlertUsersJob>())
+                {
+                    await alertUsersJob.SendAlerts();
+                }
 
                 sw.Stop();
                 Console.WriteLine("Took " + TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds).ToString(@"dd\.hh\:mm\:ss\.fff") + " to process alerts.");
