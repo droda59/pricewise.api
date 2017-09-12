@@ -79,6 +79,10 @@ namespace PriceAlerts.Api.Controllers
             repoUser.FirstName = user.FirstName;
             repoUser.LastName = user.LastName;
             repoUser.Email = user.Email;
+            repoUser.Settings.AlertOnPriceDrop = user.Settings.AlertOnPriceDrop;
+            repoUser.Settings.AlertOnPriceRaise = user.Settings.AlertOnPriceRaise;
+            repoUser.Settings.SpecifyChangePercentage = user.Settings.SpecifyChangePercentage;
+            repoUser.Settings.ChangePercentage = user.Settings.ChangePercentage;
             repoUser.Settings.CorrespondenceLanguage = user.Settings.CorrespondenceLanguage;
 
             var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
@@ -87,26 +91,6 @@ namespace PriceAlerts.Api.Controllers
                 return this.Ok(CreateDto(updatedUser));
             }
 
-            return this.BadRequest();
-        }
-
-        [Authorize]
-        [HttpPut("{userId}/settings")]
-        public async Task<IActionResult> UpdateSettings(string userId, [FromBody]Settings userSettings)
-        {
-            var repoUser = await this._userRepository.GetAsync(userId);
-            repoUser.Settings.AlertOnPriceDrop = userSettings.AlertOnPriceDrop;
-            repoUser.Settings.AlertOnPriceRaise = userSettings.AlertOnPriceRaise;
-            repoUser.Settings.SpecifyChangePercentage = userSettings.SpecifyChangePercentage;
-            repoUser.Settings.ChangePercentage = userSettings.ChangePercentage;
-            repoUser.Settings.CorrespondenceLanguage = userSettings.CorrespondenceLanguage;
-
-            var updatedUser = await this._userRepository.UpdateAsync(userId, repoUser);
-            if (updatedUser != null)
-            {
-                return this.Ok(updatedUser.Settings);
-            }
-            
             return this.BadRequest();
         }
 
