@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using PriceAlerts.Api.Models;
-using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Factories;
@@ -45,7 +44,7 @@ namespace PriceAlerts.Api.Factories
                 }
             };
 
-            var lockObject = new Object();
+            var lockObject = new object();
             var notDeletedEntries = repoAlert.Entries.Where(x => !x.IsDeleted).ToList();
             await Task.WhenAll(notDeletedEntries.Select(async entry => 
             {

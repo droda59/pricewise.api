@@ -83,9 +83,13 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                 Console.WriteLine($"Sending email to user {user.Id} for alert {alert.Id}");
 
                                 var productUrl = new Uri(newBestDeal.Item1.Uri);
-                                var cleanUrl = this._handlerFactory.CreateHandler(productUrl).HandleCleanUrl(productUrl);
+                                var commandHandler = this._handlerFactory.CreateHandler(productUrl);
+                                var cleanUrl = commandHandler.HandleCleanUrl(productUrl);
+                                var manipulatedUrl = commandHandler.HandleManipulateUrl(cleanUrl);
 
-                                var subject = alert.Title ?? string.Empty;
+                                var subject = alert.Title ?? (user.Settings.CorrespondenceLanguage == "en" 
+                                    ? "one of your products"
+                                    : "l'un de vos produits");
                                 if (subject.Length > 30)
                                 {
                                     subject = subject.Trim().Substring(0, 30) + "...";
@@ -102,7 +106,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                     { "merge_previousPrice" , alert.BestCurrentDeal.Price.ToString(CultureInfo.InvariantCulture) },
                                     { "merge_newPrice" , newBestDeal.Item2.Price.ToString(CultureInfo.InvariantCulture) },
                                     { "merge_alertId", alert.Id },
-                                    { "merge_productUrl" , cleanUrl.AbsoluteUri },
+                                    { "merge_productUrl" , manipulatedUrl.AbsoluteUri },
                                     { "merge_productDomain", productUrl.Authority },
                                     { "merge_imageUrl", alert.ImageUrl.IsBase64Url() ? string.Empty : alert.ImageUrl }
                                 };
