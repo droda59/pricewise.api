@@ -1,5 +1,8 @@
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace PriceAlerts.Common.Models
 {
+    [BsonIgnoreExtraElements]
     public class Settings
     {
         public Settings()

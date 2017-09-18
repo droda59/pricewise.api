@@ -1,7 +1,9 @@
 using System;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace PriceAlerts.Common.Models
 {
+    [BsonIgnoreExtraElements]
     public class Deal
     {
         public decimal Price { get; set; }

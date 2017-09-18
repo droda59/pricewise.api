@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace PriceAlerts.Common.Models
 {
+    [BsonIgnoreExtraElements]
     public class MonitoredProduct : Document
     {
         public MonitoredProduct()
