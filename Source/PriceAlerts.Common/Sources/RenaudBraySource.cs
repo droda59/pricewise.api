@@ -11,7 +11,7 @@ namespace PriceAlerts.Common.Sources
         {
             this.Domain = new Uri("http://www.renaud-bray.com/");
             this.CustomHeaders = Enumerable.Empty<KeyValuePair<string, string>>();
-            this.IdExpression = new Regex(@"[0-9]{7}$", RegexOptions.Compiled);
+            this.IdExpression = new Regex(@"[0-9]{0,7}$", RegexOptions.Compiled);
         }
 
         public Uri Domain { get; }
