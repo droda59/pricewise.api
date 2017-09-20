@@ -9,7 +9,7 @@ namespace PriceAlerts.Common.Models
         {
             this.AlertOnPriceDrop = true;
             this.AlertOnPriceRaise = false;
-            this.SpecifyChangePercentage = false;
+            this.SpecifyChangePercentage = true;
             this.ChangePercentage = 0.1m;
             this.CorrespondenceLanguage = "en";
         }
