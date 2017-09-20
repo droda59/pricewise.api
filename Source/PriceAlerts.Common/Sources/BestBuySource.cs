@@ -9,7 +9,7 @@ namespace PriceAlerts.Common.Sources
     {   
         public BestBuySource()
         {
-            this.Domain = new Uri("http://www.bestbuy.ca/");
+            this.Domain = new Uri("https://www.bestbuy.ca/");
             this.CustomHeaders = Enumerable.Empty<KeyValuePair<string, string>>();
             this.IdExpression = new Regex(@"[a-zA-Z0-9]{8}(.aspx)", RegexOptions.Compiled);
         }
