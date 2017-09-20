@@ -1,10 +1,8 @@
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Models;
@@ -15,12 +13,10 @@ namespace PriceAlerts.Api.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepository;
-        private readonly IUserAlertFactory _userAlertFactory;
 
-        public UserController(IUserRepository userRepository, IUserAlertFactory userAlertFactory)
+        public UserController(IUserRepository userRepository)
         {
             this._userRepository = userRepository;
-            this._userAlertFactory = userAlertFactory;
         }
 
         [Authorize]
@@ -34,18 +30,6 @@ namespace PriceAlerts.Api.Controllers
             }
 
             var userDto = CreateDto(repoUser);
-
-            var lockObject = new object();
-            var notDeletedAlerts = repoUser.Alerts.Where(x => !x.IsDeleted).ToList();
-            await Task.WhenAll(notDeletedAlerts.Select(async repoUserAlert => 
-            {
-                var alert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
-
-                lock(lockObject)
-                {
-                    userDto.Alerts.Add(alert);
-                }  
-            }));
 
             return this.Ok(userDto);
         }

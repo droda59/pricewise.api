@@ -70,5 +70,31 @@ namespace PriceAlerts.Api.Factories
 
             return userAlert;
         }
+
+        public async Task<UserAlertSummaryDto> CreateUserAlertSummary(UserAlert repoAlert)
+        {
+            var bestDealProduct = await this._productRepository.GetAsync(repoAlert.BestCurrentDeal.ProductId);
+
+            var bestDealUrl = new Uri(bestDealProduct.Uri);
+            var bestDealHandler = this._handlerFactory.CreateHandler(bestDealUrl);
+
+            var userAlertSummary = new UserAlertSummaryDto
+            {
+                Id = repoAlert.Id,
+                Title = repoAlert.Title,
+                ImageUrl = repoAlert.ImageUrl,
+                IsActive = repoAlert.IsActive,
+                BestCurrentDeal = new DealDto 
+                {
+                    Price = repoAlert.BestCurrentDeal.Price,
+                    Title = bestDealProduct.Title,
+                    ModifiedAt = repoAlert.BestCurrentDeal.ModifiedAt,
+                    OriginalUrl = bestDealProduct.Uri,
+                    ProductUrl = bestDealHandler.HandleManipulateUrl(bestDealUrl).AbsoluteUri
+                }
+            };
+
+            return userAlertSummary;
+        }
     }
 }
