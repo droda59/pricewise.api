@@ -17,10 +17,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override string GetTitle(HtmlDocument doc)
         {
-            var titleNode = doc.DocumentNode
-                .SelectSingleNode(".//div[@class='product-info']")
-                .SelectSingleNode(".//h1");
-
+            var titleNode = doc.DocumentNode.SelectSingleNode(".//h1[contains(@class, 'product-description__title') and contains(@class, 'title')]");
             if (titleNode == null)
             {
                 titleNode = doc.DocumentNode
@@ -35,9 +32,9 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override string GetImageUrl(HtmlDocument doc)
         {
-            var imageNode = doc.DocumentNode.SelectSingleNode("//link[@rel='image_src']");
+            var imageNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
                 
-            var extractedValue = imageNode.Attributes["href"].Value;
+            var extractedValue = imageNode.Attributes["content"].Value;
 
             return extractedValue;
         }
@@ -45,35 +42,33 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         protected override decimal GetPrice(HtmlDocument doc)
         {
             var priceNodes = doc.DocumentNode
-                .SelectNodes(".//p[@class='our-price']/text()");
+                .SelectNodes(".//div[contains(@class, 'product-price__total')]")
+                .Where(x => !string.IsNullOrEmpty(x.InnerText))
+                .ToList();
 
-            if (priceNodes == null || !priceNodes.Any())
+            if (priceNodes.Any())
             {
-                priceNodes = doc.DocumentNode
-                    .SelectNodes(".//p[@class='listed-price']/text()");
+                var content = priceNodes.First().InnerText;
+                var decimalValue = content.ExtractDecimal();
+
+                return decimalValue;
             }
 
-            var sb  = new StringBuilder();
-            foreach(var node in priceNodes)
-            {
-                sb.Append(node.InnerText);
-            }
-
-            var content = sb.ToString();
-            var decimalValue = content.ExtractDecimal();
-
-            return decimalValue;
+            return 0;
         }
 
         protected override string GetProductIdentifier(HtmlDocument doc)
         {
-            var keywordsNode = doc.DocumentNode.SelectSingleNode("//meta[@name='keywords']");
-            var keywordsValue = keywordsNode.Attributes["content"].Value;
-
-            var firstKeyword = keywordsValue.Split(',').First();
-            if (ISBNHelper.ISBN13Expression.IsMatch(firstKeyword))
+            var propertiesNode = doc.GetElementbyId("outerDivProperties");
+            var properties = propertiesNode.SelectNodes(".//div[@class='block-description__row']");
+            foreach (var property in properties)
             {
-                return ISBNHelper.ISBN13Expression.Match(firstKeyword).Value;
+                var category = property.SelectSingleNode(".//div[@class='block-description__row-category']");
+                var value = property.SelectSingleNode(".//div[@class='block-description__row-value']");
+                if (category.InnerText == "ISBN" && ISBNHelper.ISBN13Expression.IsMatch(value.InnerText))
+                {
+                    return ISBNHelper.ISBN13Expression.Match(value.InnerText).Value;
+                }
             }
 
             return string.Empty;
