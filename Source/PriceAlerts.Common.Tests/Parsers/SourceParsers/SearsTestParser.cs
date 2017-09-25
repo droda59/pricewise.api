@@ -36,7 +36,6 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 
             foreach (var pageUrl in pagesToBrowse)
             {
-                Console.WriteLine("loading " + pageUrl.AbsoluteUri);
                 var page = await this._documentLoader.LoadDocument(pageUrl, this.Source.CustomHeaders);
                 if (page.GetElementbyId("search-result-items") != null)
                 {
