@@ -51,7 +51,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var priceNode = doc.GetElementbyId("price-sales-container").SelectSingleNode(".//p[contains(@class, 'price-sales')]");
+            var priceNode = doc.GetElementbyId("price-sales-container").SelectSingleNode(".//*[contains(@class, 'price-sales')]");
 
             var decimalValue = priceNode.InnerText.ExtractDecimal();
 

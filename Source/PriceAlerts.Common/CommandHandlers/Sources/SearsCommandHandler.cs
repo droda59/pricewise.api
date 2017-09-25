@@ -7,11 +7,13 @@ namespace PriceAlerts.Common.CommandHandlers.Sources
     internal class SearsCommandHandler : CommandHandler
     {
         public SearsCommandHandler(SearsSource source, 
-            EmptyQueryStringCleaner cleaner, 
+            AnchorCleaner anchorCleaner, 
+            EmptyQueryStringCleaner queryStringCleaner, 
             SearsParser parser)
             : base(source)
         {
-            this.Commands.Add(cleaner);
+            this.Commands.Add(anchorCleaner);
+            this.Commands.Add(queryStringCleaner);
             this.Commands.Add(parser);
         }
     }
