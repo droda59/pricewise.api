@@ -14,7 +14,7 @@ namespace PriceAlerts.Common.CommandHandlers.Sources
             : base(source)
         {
             this.Commands.Add(cleaner);
-//            this.Commands.Add(manipulator);
+            this.Commands.Add(manipulator);
             this.Commands.Add(parser);
         }
     }
