@@ -8,7 +8,7 @@ namespace PriceAlerts.Common.Sources
     {
         public BraultMartineauSource()
         {
-            this.Domain = new Uri("http://www.braultetmartineau.com/");
+            this.Domain = new Uri("https://www.braultetmartineau.com/");
             this.CustomHeaders = Enumerable.Empty<KeyValuePair<string, string>>();
         }
 
