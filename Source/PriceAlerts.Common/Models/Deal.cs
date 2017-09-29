@@ -2,6 +2,7 @@ using System;
 
 namespace PriceAlerts.Common.Models
 {
+    [BsonIgnoreExtraElements]
     public class Deal
     {
         public decimal Price { get; set; }

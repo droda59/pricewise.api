@@ -1,5 +1,6 @@
 namespace PriceAlerts.Common.Models
 {
+    [BsonIgnoreExtraElements]
     public class Settings
     {
         public Settings()

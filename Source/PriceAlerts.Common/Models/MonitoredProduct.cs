@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 namespace PriceAlerts.Common.Models
 {
+    [BsonIgnoreExtraElements]
     public class MonitoredProduct : Document
     {
         public MonitoredProduct()

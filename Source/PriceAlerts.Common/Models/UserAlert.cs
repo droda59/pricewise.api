@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace PriceAlerts.Common.Models
 {
+    [BsonIgnoreExtraElements]
     public class UserAlert : Document
     {
         public UserAlert()
