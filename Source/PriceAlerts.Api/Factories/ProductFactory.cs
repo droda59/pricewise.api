@@ -37,7 +37,7 @@ namespace PriceAlerts.Api.Factories
                 ImageUrl = siteInfo.ImageUrl
             };
 
-            monitoredProduct.PriceHistory.Add(new PriceChange { Price = siteInfo.Price, ModifiedAt = DateTime.Now.ToUniversalTime() });
+            monitoredProduct.PriceHistory.Add(new PriceChange { Price = siteInfo.Price, ModifiedAt = DateTime.UtcNow });
             monitoredProduct = await this._productRepository.InsertAsync(monitoredProduct);
 
             return monitoredProduct;

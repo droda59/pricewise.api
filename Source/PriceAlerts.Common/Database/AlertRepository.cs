@@ -44,7 +44,7 @@ namespace PriceAlerts.Common.Database
             repoUserAlert.BestCurrentDeal = data.BestCurrentDeal;
             repoUserAlert.Entries = data.Entries;
             repoUserAlert.IsActive = data.IsActive;
-            repoUserAlert.LastModifiedAt = DateTime.Now;
+            repoUserAlert.LastModifiedAt = DateTime.UtcNow;
 
             await this._userRepository.UpdateAsync(userId, repoUser);
             var updatedAlert = await this.GetAsync(userId, data.Id);
@@ -55,7 +55,7 @@ namespace PriceAlerts.Common.Database
         public async Task<UserAlert> InsertAsync(string userId, UserAlert data)
         {
             data.Id = ObjectId.GenerateNewId().ToString();
-            data.LastModifiedAt = DateTime.Now;
+            data.LastModifiedAt = DateTime.UtcNow;
 
             var repoUser = await this._userRepository.GetAsync(userId);
             repoUser.Alerts.Add(data);
@@ -77,7 +77,7 @@ namespace PriceAlerts.Common.Database
 
             repoUserAlert.IsDeleted = true;
             repoUserAlert.IsActive = false;
-            repoUserAlert.LastModifiedAt = DateTime.Now;
+            repoUserAlert.LastModifiedAt = DateTime.UtcNow;
 
             await this._userRepository.UpdateAsync(userId, repoUser);
 
