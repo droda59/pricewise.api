@@ -38,7 +38,14 @@ namespace PriceAlerts.CleaningJob
                 Console.WriteLine("Took " + TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds).ToString(@"dd\.hh\:mm\:ss\.fff") + " to clean urls.");
                 Console.WriteLine();
 
-                Thread.Sleep(TimeSpan.FromHours(24));
+                var cleanHistoryJob = container.Resolve<CleanHistoryJob>();
+                await cleanHistoryJob.ExecuteJob();
+
+                sw.Stop();
+                Console.WriteLine("Took " + TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds).ToString(@"dd\.hh\:mm\:ss\.fff") + " to clean history.");
+                Console.WriteLine();
+
+                Thread.Sleep(TimeSpan.FromDays(7));
             }
         }
     }

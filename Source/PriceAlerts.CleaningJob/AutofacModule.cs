@@ -8,6 +8,7 @@ namespace PriceAlerts.CleaningJob
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<CleanUrlsJob>().AsSelf();
+            builder.RegisterType<CleanHistoryJob>().AsSelf();
         }
     }
 }
