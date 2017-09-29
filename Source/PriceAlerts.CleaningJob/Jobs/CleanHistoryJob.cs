@@ -5,7 +5,7 @@ using PriceAlerts.Common.Database;
 
 namespace PriceAlerts.CleaningJob.Jobs
 {
-    internal class CleanHistoryJob
+    internal class CleanHistoryJob : IJob
     {
         private readonly IProductRepository _productRepository;
 

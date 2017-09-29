@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
-using PriceAlerts.Common.CommandHandlers;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Factories;
 
 namespace PriceAlerts.CleaningJob.Jobs
 {
-    internal class CleanUrlsJob
+    internal class CleanUrlsJob : IJob
     {
         private readonly IProductRepository _productRepository;
         private readonly IHandlerFactory _handlerFactory;

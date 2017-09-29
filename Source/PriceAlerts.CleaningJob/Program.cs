@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,7 +7,6 @@ using System.Threading.Tasks;
 using Autofac;
 
 using PriceAlerts.Common.Database;
-using PriceAlerts.CleaningJob.Jobs;
 
 namespace PriceAlerts.CleaningJob
 {
@@ -29,22 +29,19 @@ namespace PriceAlerts.CleaningJob
             
             while (true)
             {
-                var sw = Stopwatch.StartNew();
+                var jobs = container.Resolve<IEnumerable<IJob>>();
+                foreach (var job in jobs)
+                {
+                    Console.WriteLine($"Starting {job.GetType().Name} job.");
+                    var sw = Stopwatch.StartNew();
 
-                var cleanUrlsJob = container.Resolve<CleanUrlsJob>();
-                await cleanUrlsJob.ExecuteJob();
+                    await job.ExecuteJob();
 
-                sw.Stop();
-                Console.WriteLine("Took " + TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds).ToString(@"dd\.hh\:mm\:ss\.fff") + " to clean urls.");
-                Console.WriteLine();
-
-                var cleanHistoryJob = container.Resolve<CleanHistoryJob>();
-                await cleanHistoryJob.ExecuteJob();
-
-                sw.Stop();
-                Console.WriteLine("Took " + TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds).ToString(@"dd\.hh\:mm\:ss\.fff") + " to clean history.");
-                Console.WriteLine();
-
+                    sw.Stop();
+                    Console.WriteLine($"Took {TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds):dd\\.hh\\:mm\\:ss\\.fff} to execute {job.GetType().Name} job.");
+                    Console.WriteLine();
+                }
+                
                 Thread.Sleep(TimeSpan.FromDays(7));
             }
         }
