@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Models;
 
@@ -28,39 +29,47 @@ namespace PriceAlerts.PriceCheckJob.Jobs
             foreach (var product in allProducts)
             {
                 var productUri = new Uri(product.Uri);
+                if (!errorDick.ContainsKey(productUri.Authority))
+                {
+                    errorDick.Add(productUri.Authority, new ParseInfo());
+                }
+
                 try
                 {
                     var handler = this._handlerFactory.CreateHandler(productUri);
                     var siteInfo = await handler.HandleGetInfo(productUri);
                     if (siteInfo != null)
                     {
+                        var lastEntry = product.PriceHistory.LastOf(x => x.ModifiedAt);
+                        
                         var newPrice = siteInfo.Price;
-//                        var lastPrice = product.PriceHistory.LastOf(x => x.ModifiedAt).Price;
-//                        if (lastPrice != newPrice)
-//                        {
-//                            Console.WriteLine($"Price changed from {lastPrice} to {newPrice} for item {product.Uri}");
-//                        }
+                        var lastPrice = lastEntry.Price;
 
-                        product.PriceHistory.Add(
-                            new PriceChange
-                            {
-                                Price = newPrice,
-                                ModifiedAt = DateTime.Now.ToUniversalTime()
-                            });
+                        var currentDate = DateTime.UtcNow.Date;
+                        var lastDate = lastEntry.ModifiedAt.Date;
+                        
+                        if (newPrice == lastPrice && currentDate == lastDate)
+                        {
+                            errorDick[productUri.Authority].Unhandled++;
+                        }
+                        else
+                        {
+                            product.PriceHistory.Add(
+                                new PriceChange
+                                {
+                                    Price = newPrice,
+                                    ModifiedAt = DateTime.UtcNow
+                                });
+                         
+                            await this._productRepository.UpdateAsync(product.Id, product);   
 
-                        await this._productRepository.UpdateAsync(product.Id, product);
+                            errorDick[productUri.Authority].Success++;
+                        }
 
-                        if (!errorDick.ContainsKey(productUri.Authority))
-                            errorDick.Add(productUri.Authority, new ParseInfo());
-
-                        errorDick[productUri.Authority].Success++;
                     }
                 }
                 catch (Exception)
                 {
-                    if (!errorDick.ContainsKey(productUri.Authority))
-                        errorDick.Add(productUri.Authority, new ParseInfo());
-
                     errorDick[productUri.Authority].Errors++;
                 }
             }
