@@ -65,9 +65,9 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             return price;
         }
 
-        protected override string GetProductIdentifier(HtmlDocument doc)
-        {
-            var productIdentifier = string.Empty;
+//        protected override string GetProductIdentifier(HtmlDocument doc)
+//        {
+//            var productIdentifier = string.Empty;
 
             // var sku = doc.DocumentNode.SelectSingleNode(".//div[@class='sku-selectors__fieldset-wrapper']").Attributes["data-sku"].Value.Substring(0, 7);
             // var infoJson = this.GetProductInfo(sku);
@@ -76,9 +76,9 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             //     var productEntry = infoJson.First();
             //     productIdentifier = productEntry.PartNumber;
             // }
-
-            return productIdentifier;
-        }
+//
+//            return productIdentifier;
+//        }
 
         private IEnumerable<dynamic> GetProductInfo(string sku)
         {

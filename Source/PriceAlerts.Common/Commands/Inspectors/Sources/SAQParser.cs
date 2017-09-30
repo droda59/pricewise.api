@@ -44,13 +44,13 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
             return decimalValue;
         }
-
-        protected override string GetProductIdentifier(HtmlDocument doc)
-        {
-            var productIdNode = doc.DocumentNode.SelectSingleNode("//div[@class='product-description-row2']");
-            var text = productIdNode.InnerText.Split(':')[2].Replace("\r\n", String.Empty).Trim();
-
-            return text;
-        }
+//
+//        protected override string GetProductIdentifier(HtmlDocument doc)
+//        {
+//            var productIdNode = doc.DocumentNode.SelectSingleNode("//div[@class='product-description-row2']");
+//            var text = productIdNode.InnerText.Split(':')[2].Replace("\r\n", String.Empty).Trim();
+//
+//            return text;
+//        }
     }
 }
