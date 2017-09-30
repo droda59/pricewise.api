@@ -8,7 +8,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Searchers
 {
-    internal abstract class BaseSearcher : ISearcher, IDisposable
+    public abstract class BaseSearcher : ISearcher, IDisposable
     {
         private readonly IRequestClient _requestClient;
 

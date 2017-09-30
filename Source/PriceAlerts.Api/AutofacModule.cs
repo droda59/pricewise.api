@@ -1,8 +1,10 @@
-using System.Linq;
+using System.Reflection;
 using Autofac;
 
 using PriceAlerts.Api.Factories;
 using PriceAlerts.Common.Commands.Searchers;
+using PriceAlerts.Common.Commands.Searchers.Sources;
+using Module = Autofac.Module;
 
 namespace PriceAlerts.Api
 {
@@ -13,10 +15,10 @@ namespace PriceAlerts.Api
             builder.RegisterType<UserAlertFactory>().As<IUserAlertFactory>().SingleInstance();
             builder.RegisterType<ProductFactory>().As<IProductFactory>().SingleInstance();
             
-            builder.RegisterAssemblyTypes(this.ThisAssembly)
-                .Where(x => x.GetInterfaces().Contains(typeof(ISearcher)) && x.Name.EndsWith("Searcher"))
-                .AsSelf()
-                .As<ISearcher>()
+            builder.RegisterAssemblyTypes(Assembly.GetAssembly(typeof(ISearcher)))
+                .AssignableTo<ISearcher>()
+                .Except<AmazonSearcher>()
+                .AsImplementedInterfaces()
                 .SingleInstance();
         }
     }
