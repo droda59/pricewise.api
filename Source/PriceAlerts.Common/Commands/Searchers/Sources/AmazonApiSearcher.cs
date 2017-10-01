@@ -32,6 +32,11 @@ namespace PriceAlerts.Common.Commands.Searchers.Sources
         {
             var result = await this._apiWwrapper.SearchAsync(searchTerm, AmazonSearchIndex.All, AmazonResponseGroup.ItemAttributes);
 
+            if (result == null)
+            {
+                return Enumerable.Empty<Uri>();
+            }
+            
             var item = result.Items.Item.Take(maxResultCount);
             
             return item.Select(x => new Uri(x.DetailPageURL));

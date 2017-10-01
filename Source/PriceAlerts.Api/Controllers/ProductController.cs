@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
-using PriceAlerts.Common.Commands.Searchers;
+using PriceAlerts.Common.CommandHandlers;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Factories;
@@ -22,14 +22,14 @@ namespace PriceAlerts.Api.Controllers
         private readonly IProductRepository _productRepository;
         private readonly IProductFactory _productFactory;
         private readonly IHandlerFactory _handlerFactory;
-        private readonly IEnumerable<ISearcher> _searchers;
+        private readonly IEnumerable<ICommandHandler> _handlers;
 
-        public ProductController(IProductRepository productRepository, IProductFactory productFactory, IHandlerFactory handlerFactory, IEnumerable<ISearcher> searchers)
+        public ProductController(IProductRepository productRepository, IProductFactory productFactory, IHandlerFactory handlerFactory, IEnumerable<ICommandHandler> handlers)
         {
             this._productRepository = productRepository;
             this._productFactory = productFactory;
             this._handlerFactory = handlerFactory;
-            this._searchers = searchers;
+            this._handlers = handlers;
         }
 
         [HttpPost]
@@ -40,6 +40,8 @@ namespace PriceAlerts.Api.Controllers
             {
                 return this.NoContent();
             }
+            
+            var lockObject = new object();
 
             try
             {
@@ -49,24 +51,32 @@ namespace PriceAlerts.Api.Controllers
                 {
                     // Get all products with the product identifier from the database
                     var productIdentifierProducts = (await this._productRepository.GetAllByProductIdentifierAsync(productIdentifier)).ToList();
+                    var knownProductsSources = productIdentifierProducts.Select(x => new Uri(x.Uri).Authority).ToList();
+                    
                     knownProducts.AddRange(productIdentifierProducts);
 
-                    foreach (var searcher in this._searchers)
+                    await Task.WhenAll(this._handlers.Select(async handler =>
                     {
-                        var newProductsUrls = await searcher.GetProductsUrls(productIdentifier);
-                        foreach (var url in newProductsUrls.ToList())
+                        if (!knownProductsSources.Contains(handler.Domain.Authority))
                         {
-                            try
+                            var newProductsUrls = await handler.HandleSearch(productIdentifier);
+                            foreach (var url in newProductsUrls)
                             {
-                                var newProduct = await this.ForceGetProduct(url);
-                                newProducts.Add(newProduct);
-                            }
-                            catch (Exception)
-                            {
-                                // ignored
+                                try
+                                {
+                                    var newProduct = await this._productFactory.CreateProduct(url);
+                                    lock (lockObject)
+                                    {
+                                        newProducts.Add(newProduct);
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    // ignored
+                                }
                             }
                         }
-                    }
+                    }));
                 }
 
                 var allProducts = knownProducts.Concat(newProducts).DistinctBy(x => x.Uri).Select(this.CreateProductInfo);
@@ -94,18 +104,6 @@ namespace PriceAlerts.Api.Controllers
                 ImageUrl = product.ImageUrl,
                 ProductIdentifier = product.ProductIdentifier
             };
-        }
-        
-        private async Task<MonitoredProduct> ForceGetProduct(Uri url)
-        {
-            var cleanUrl = this._handlerFactory.CreateHandler(url).HandleCleanUrl(url);
-            var existingProduct = await this._productRepository.GetByUrlAsync(cleanUrl.AbsoluteUri);
-            if (existingProduct == null)
-            {
-                existingProduct = await this._productFactory.CreateProduct(url);
-            }
-
-            return existingProduct;
         }
     }
 }
