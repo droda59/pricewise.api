@@ -7,7 +7,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Searchers.Sources
 {
-    internal class AmazonSearcher : BaseSearcher
+    public class AmazonSearcher : BaseSearcher
     {
         public AmazonSearcher(IRequestClient requestClient, AmazonSource source)
             : base(requestClient, source)

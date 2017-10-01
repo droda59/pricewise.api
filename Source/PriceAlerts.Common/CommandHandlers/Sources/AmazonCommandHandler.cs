@@ -13,7 +13,7 @@ namespace PriceAlerts.Common.CommandHandlers.Sources
             AmazonCleaner cleaner,
             AmazonApiInspector apiInspector, 
             AmazonHtmlParser htmlParser, 
-            AmazonSearcher searcher)
+            AmazonApiSearcher searcher)
             : base(source)
         {
             this.Commands.Add(manipulator);
