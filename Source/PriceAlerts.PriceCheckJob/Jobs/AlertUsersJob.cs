@@ -21,10 +21,10 @@ namespace PriceAlerts.PriceCheckJob.Jobs
         private readonly IEmailSender _emailSender;
 
         public AlertUsersJob(
-            IProductRepository productRepository, 
-            IUserRepository userRepository, 
+            IProductRepository productRepository,
+            IUserRepository userRepository,
             IAlertRepository alertRepository,
-            IHandlerFactory handlerFactory, 
+            IHandlerFactory handlerFactory,
             IEmailSender emailSender)
         {
             this._productRepository = productRepository;
@@ -33,7 +33,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
             this._handlerFactory = handlerFactory;
             this._emailSender = emailSender;
         }
-        
+
         public async Task SendAlerts()
         {
             this._emailSender.Initialize();
@@ -54,7 +54,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
 
         private void CheckUserAlerts(User user, IDictionary<string, MonitoredProduct> allProducts)
         {
-            try 
+            try
             {
                 var alertsInUse = user.Alerts.Where(x => !x.IsDeleted && x.IsActive).ToList();
                 foreach (var alert in alertsInUse)
@@ -74,7 +74,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                         // Console.WriteLine($"Price changed for alert {alert.Id} from {alert.BestCurrentDeal.Price} to {newBestDeal.Item2.Price}");
                         // Console.WriteLine($"A change of {changePrice} over a {changeAcceptationThreshold} threshold");
 
-                        if (!user.Settings.SpecifyChangePercentage || 
+                        if (!user.Settings.SpecifyChangePercentage ||
                             user.Settings.SpecifyChangePercentage && changePrice > changeAcceptationThreshold)
                         {
                             if (alert.BestCurrentDeal.Price < newBestDeal.Item2.Price && user.Settings.AlertOnPriceRaise
@@ -87,19 +87,19 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                 var cleanUrl = commandHandler.HandleCleanUrl(productUrl);
                                 var manipulatedUrl = commandHandler.HandleManipulateUrl(cleanUrl);
 
-                                var subject = alert.Title ?? (user.Settings.CorrespondenceLanguage == "en" 
+                                var subject = alert.Title ?? (user.Settings.CorrespondenceLanguage == "en"
                                     ? "one of your products"
                                     : "l'un de vos produits");
                                 if (subject.Length > 30)
                                 {
                                     subject = subject.Trim().Substring(0, 30) + "...";
                                 }
-                                
-                                var parameters = new Dictionary<string, string> 
-                                { 
-                                    { "subject", user.Settings.CorrespondenceLanguage == "en" 
-                                        ? $"Price Alert from PriceWise: The price of {subject} changed!"
-                                        : $"Alert de Prix de PriceWise: Le prix de {subject} a changé!"
+
+                                var parameters = new Dictionary<string, string>
+                                {
+                                    { "subject", user.Settings.CorrespondenceLanguage == "en"
+                                        ? $"Price alert from PriceWise: The price of {subject} changed!"
+                                        : $"Alerte de prix de PriceWise: Le prix de {subject} a changé!"
                                     },
                                     { "merge_firstname" , user.FirstName ?? string.Empty },
                                     { "merge_productName" , alert.Title ?? string.Empty },
@@ -111,7 +111,13 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                     { "merge_imageUrl", alert.ImageUrl.IsBase64Url() ? string.Empty : alert.ImageUrl }
                                 };
 
-                                var sendEmailTask = this._emailSender.SendEmail(user.Email, parameters, $"PriceChange_{user.Settings.CorrespondenceLanguage}");
+                                var templateName = "Drop";
+                                if(alert.BestCurrentDeal.Price < newBestDeal.Item2.Price)
+                                {
+                                    templateName = "Raise";
+                                }
+
+                                var sendEmailTask = this._emailSender.SendEmail(user.Email, parameters, $"Price{templateName}_{user.Settings.CorrespondenceLanguage}");
                                 tasksToRun.Add(sendEmailTask);
                             }
                         }
