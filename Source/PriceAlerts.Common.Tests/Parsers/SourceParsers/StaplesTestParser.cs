@@ -2,13 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using HtmlAgilityPack;
-
+using PriceAlerts.Common.Commands.Inspectors.Sources;
 using PriceAlerts.Common.Infrastructure;
-using PriceAlerts.Common.Parsers.SourceParsers;
 using PriceAlerts.Common.Sources;
-using PriceAlerts.Common.Tests.Parsers;
 
 namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
@@ -17,34 +13,19 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
         private readonly IDocumentLoader _documentLoader;
 
         public StaplesTestParser(IDocumentLoader documentLoader)
-            : base(documentLoader)
+            : base(documentLoader, new StaplesSource())
         {
             this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
         {
-            var productUrls = new List<Uri>();
-
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
             
-            // productUrls.AddRange(document.GetElementbyId("trendingProductsSection")
-            //     .SelectNodes(".//div[contains(@class,'stp--new-product-tile-container')]//div[contains(@class, 'product-details')]//a")
-            //     .Take(6)
-            //     .Select(x => x.Attributes["href"].Value)
-            //     .Select(x => new Uri(this.Source.Domain, x)));
-
-            productUrls.AddRange(document.GetElementbyId("newProductsSection")
+            return document.GetElementbyId("newProductsSection")
                 .SelectNodes(".//div[contains(@class,'stp--new-product-tile-container')]//div[contains(@class, 'product-details')]/a")
                 .Select(x => x.Attributes["href"].Value)
-                .Select(x => new Uri(this.Source.Domain, x)));
-            
-            // productUrls.AddRange(document.GetElementbyId("recommendedProductsSection")
-            //     .SelectNodes(".//div[contains(@class,'stp--new-product-tile-container')]//div[contains(@class, 'product-details')]/a")
-            //     .Select(x => x.Attributes["href"].Value)
-            //     .Select(x => new Uri(this.Source.Domain, x)));
-
-            return productUrls;
+                .Select(x => new Uri(this.Source.Domain, x));
         }
     }
 }

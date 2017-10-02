@@ -9,8 +9,9 @@ namespace PriceAlerts.Common.Models
         {
             this.AlertOnPriceDrop = true;
             this.AlertOnPriceRaise = false;
-            this.SpecifyChangePercentage = false;
+            this.SpecifyChangePercentage = true;
             this.ChangePercentage = 0.1m;
+            this.CorrespondenceLanguage = "en";
         }
 
         public bool AlertOnPriceDrop { get; set; }
@@ -20,5 +21,7 @@ namespace PriceAlerts.Common.Models
         public bool SpecifyChangePercentage { get; set; }
 
         public decimal ChangePercentage { get; set; }
+
+        public string CorrespondenceLanguage { get; set; }
     }
 }

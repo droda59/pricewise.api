@@ -1,9 +1,8 @@
 using System;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
-namespace PriceAlerts.Common
+namespace PriceAlerts.Common.Extensions
 {
     public static class StringExtensions
     {

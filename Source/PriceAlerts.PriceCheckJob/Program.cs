@@ -17,19 +17,19 @@ namespace PriceAlerts.PriceCheckJob
             MainAsync().Wait();
         }
 
-        static async Task MainAsync()
+        private static async Task MainAsync()
         {
             MongoDBConfig.RegisterClassMaps();
             
 			var builder = new ContainerBuilder();
-            builder.RegisterModule(new PriceAlerts.Common.AutofacModule());
-            builder.RegisterModule(new PriceAlerts.PriceCheckJob.AutofacModule());
+            builder.RegisterModule(new Common.AutofacModule());
+            builder.RegisterModule(new AutofacModule());
 
             var container = builder.Build();
             
             while (true)
             {
-                Stopwatch sw = Stopwatch.StartNew();
+                var sw = Stopwatch.StartNew();
 
                 var updatePricesJob = container.Resolve<UpdatePricesJob>();
                 await updatePricesJob.UpdatePrices();
@@ -39,8 +39,10 @@ namespace PriceAlerts.PriceCheckJob
                 Console.WriteLine();
                 sw.Restart();
 
-                var alertUsersJob = container.Resolve<AlertUsersJob>();
-                await alertUsersJob.SendAlerts();
+                using (var alertUsersJob = container.Resolve<AlertUsersJob>())
+                {
+                    await alertUsersJob.SendAlerts();
+                }
 
                 sw.Stop();
                 Console.WriteLine("Took " + TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds).ToString(@"dd\.hh\:mm\:ss\.fff") + " to process alerts.");

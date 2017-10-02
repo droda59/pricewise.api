@@ -2,13 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using HtmlAgilityPack;
-
+using PriceAlerts.Common.Commands.Inspectors.Sources;
 using PriceAlerts.Common.Infrastructure;
-using PriceAlerts.Common.Parsers.SourceParsers;
 using PriceAlerts.Common.Sources;
-using PriceAlerts.Common.Tests.Parsers;
 
 namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
@@ -17,14 +13,13 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
         private readonly IDocumentLoader _documentLoader;
 
         public SearsTestParser(IDocumentLoader documentLoader)
-            : base(documentLoader)
+            : base(documentLoader, new SearsSource())
         {
             this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
         {
-            var lockObject = new object();
             var productUrls = new List<Uri>();
 
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
@@ -32,19 +27,23 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var pagesToBrowse = new List<Uri>();
             pagesToBrowse.AddRange(
                 document.DocumentNode
-                    .SelectNodes(".//a[contains(@href, 'search?')]")
-                    .Select(x => new Uri(x.Attributes["href"].Value)));
+                    .SelectNodes(".//a[contains(@href, 'search?') and (starts-with(@href, 'http'))]")
+                    .Select(x => x.Attributes["href"].Value)
+                    .Distinct()
+                    .OrderBy(elem => Guid.NewGuid())
+                    .Take(10)
+                    .Select(x => new Uri(x)));
 
-            await Task.WhenAll(pagesToBrowse.Select(async pageUrl => 
+            foreach (var pageUrl in pagesToBrowse)
             {
                 var page = await this._documentLoader.LoadDocument(pageUrl, this.Source.CustomHeaders);
                 if (page.GetElementbyId("search-result-items") != null)
                 {
                     var urls = page.GetElementbyId("search-result-items")
-                                .SelectNodes(".//li//a[contains(@class, 'product-tile-name-link')]")
-                                .Select(x => x.Attributes["href"].Value)
-                                .Distinct()
-                                .Take(4);
+                        .SelectNodes(".//li//a[contains(@class, 'product-tile-name-link')]")
+                        .Select(x => x.Attributes["href"].Value)
+                        .Distinct()
+                        .Take(4);
 
                     foreach (var item in urls)
                     {
@@ -58,13 +57,10 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                             location = new Uri(this.Source.Domain, item);
                         }
 
-                        lock(lockObject)
-                        {
-                            productUrls.Add(location);
-                        }
+                        productUrls.Add(location);
                     }
                 }
-            }));
+            }
 
             return productUrls;
         }

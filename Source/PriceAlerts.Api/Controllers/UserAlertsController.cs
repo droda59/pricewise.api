@@ -8,8 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
-using PriceAlerts.Common;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Extensions;
+using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Models;
 
@@ -19,19 +20,46 @@ namespace PriceAlerts.Api.Controllers
     [Route("api/[controller]")]
     public class UserAlertsController : Controller
     {
+        private readonly IUserRepository _userRepository;
         private readonly IProductRepository _productRepository;
         private readonly IAlertRepository _alertRepository;
         private readonly IUserAlertFactory _userAlertFactory;
         private readonly IProductFactory _productFactory;
         private readonly IHandlerFactory _handlerFactory;
 
-        public UserAlertsController(IProductRepository productRepository, IAlertRepository alertRepository, IUserAlertFactory userAlertFactory, IProductFactory productFactory, IHandlerFactory handlerFactory)
+        public UserAlertsController(IUserRepository userRepository, IProductRepository productRepository, IAlertRepository alertRepository, IUserAlertFactory userAlertFactory, IProductFactory productFactory, IHandlerFactory handlerFactory)
         {
+            this._userRepository = userRepository;
             this._productRepository = productRepository;
             this._alertRepository = alertRepository;
             this._userAlertFactory = userAlertFactory;
             this._productFactory = productFactory;
             this._handlerFactory = handlerFactory;
+        }
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetSummaries(string userId)
+        {
+            var repoUser = await this._userRepository.GetAsync(userId);
+            if (repoUser == null)
+            {
+                return this.NotFound();
+            }
+
+            var alertSummaries = new List<UserAlertSummaryDto>();
+            var lockObject = new object();
+            var notDeletedAlerts = repoUser.Alerts.Where(x => !x.IsDeleted).ToList();
+            await Task.WhenAll(notDeletedAlerts.Select(async repoUserAlert => 
+            {
+                var alert = await this._userAlertFactory.CreateUserAlertSummary(repoUserAlert);
+
+                lock(lockObject)
+                {
+                    alertSummaries.Add(alert);
+                }  
+            }));
+
+            return this.Ok(alertSummaries);
         }
 
         [HttpGet("{userId}/{alertId}")]
@@ -44,12 +72,22 @@ namespace PriceAlerts.Api.Controllers
             return userAlert;
         }
 
+        [HttpGet("{userId}/{alertId}/summary")]
+        public async Task<UserAlertSummaryDto> GetSummary(string userId, string alertId)
+        {
+            var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
+
+            var userAlert = await this._userAlertFactory.CreateUserAlertSummary(repoUserAlert);
+
+            return userAlert;
+        }
+
         [HttpGet("{userId}/{alertId}/history")]
         public async Task<IEnumerable<ProductHistory>> GetHistory(string userId, string alertId)
         {
             var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
 
-            var lockObject = new Object();
+            var lockObject = new object();
             var alertProducts = new List<MonitoredProduct>();
             await Task.WhenAll(repoUserAlert.Entries.Where(x => !x.IsDeleted).Select(async entry => 
             {
@@ -62,7 +100,7 @@ namespace PriceAlerts.Api.Controllers
             }));
 
             var deals = alertProducts
-                .Select(x => new Models.ProductHistory
+                .Select(x => new ProductHistory
                 {
                     Title = x.Title,
                     Url = x.Uri,
@@ -91,7 +129,87 @@ namespace PriceAlerts.Api.Controllers
 
                 newAlert = await this._alertRepository.InsertAsync(userId, newAlert);
 
-                var userAlert = await this._userAlertFactory.CreateUserAlert(newAlert);
+                var userAlert = await this._userAlertFactory.CreateUserAlertSummary(newAlert);
+
+                return this.Ok(userAlert);
+            }
+            catch (KeyNotFoundException)
+            {
+                return this.NotFound("The specified source is not yet supported.");
+            }
+            catch (ParseException e)
+            {
+                return this.BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("{userId}/{alertId}/entry")]
+        public async Task<IActionResult> CreateAlertEntry(string userId, string alertId, [FromBody]Uri uri)
+        {
+            try 
+            {
+                var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
+                var existingProduct = await ForceGetProduct(uri);
+
+                repoUserAlert.Entries.Add(new UserAlertEntry { MonitoredProductId = existingProduct.Id });
+
+                var lastProductHistoryEntry = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
+                if (lastProductHistoryEntry.Price < repoUserAlert.BestCurrentDeal.Price)
+                {
+                    repoUserAlert.BestCurrentDeal = new Deal
+                    {
+                        ProductId = existingProduct.Id, 
+                        Price = lastProductHistoryEntry.Price, 
+                        ModifiedAt = lastProductHistoryEntry.ModifiedAt
+                    };
+                }
+
+                repoUserAlert = await this._alertRepository.UpdateAsync(userId, repoUserAlert);
+
+                var userAlert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
+
+                return this.Ok(userAlert);
+            }
+            catch (KeyNotFoundException)
+            {
+                return this.NotFound("The specified source is not yet supported.");
+            }
+            catch (ParseException e)
+            {
+                return this.BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("{userId}/{alertId}/activate")]
+        public async Task<IActionResult> ActivateAlert(string userId, string alertId, [FromBody]bool isActive)
+        {
+            try
+            {
+                var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
+                repoUserAlert.IsActive = isActive;
+
+                await this._alertRepository.UpdateAsync(userId, repoUserAlert);
+
+                return this.Ok(true);
+            }
+            catch (Exception e)
+            {
+                return this.BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("{userId}/summary")]
+        public async Task<IActionResult> UpdateAlertSummary(string userId, [FromBody]UserAlertSummaryDto alert)
+        {
+            try
+            {
+                var repoUserAlert = await this._alertRepository.GetAsync(userId, alert.Id);
+                repoUserAlert.IsActive = alert.IsActive;
+                repoUserAlert.Title = alert.Title;
+                
+                repoUserAlert = await this._alertRepository.UpdateAsync(userId, repoUserAlert);
+
+                var userAlert = await this._userAlertFactory.CreateUserAlertSummary(repoUserAlert);
 
                 return this.Ok(userAlert);
             }
@@ -115,12 +233,12 @@ namespace PriceAlerts.Api.Controllers
                 repoUserAlert.Title = alert.Title;
                 repoUserAlert.Entries.Clear();
 
-                var lockObject = new Object();
+                var lockObject = new object();
                 var alertProducts = new List<MonitoredProduct>();
                 await Task.WhenAll(alert.Entries.Select(async entry => 
                 {
-                    var productUri = new Uri(entry.Uri);
-                    var existingProduct = await ForceGetProduct(productUri);
+                    var productUrl = new Uri(entry.OriginalUrl);
+                    var existingProduct = await ForceGetProduct(productUrl);
 
                     lock (lockObject) 
                     {

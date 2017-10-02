@@ -4,15 +4,15 @@ namespace PriceAlerts.Api.Models
 {
     public class UserAlertEntryDto
     {
-        public string Uri { get; set; }
+        public string OriginalUrl { get; set; }
+
+        public string ProductUrl { get; set; }
 
         public string Title { get; set; }
         
         public decimal LastPrice { get; set; }
 
         public string ProductIdentifier { get; set; }
-
-        public DateTime LastUpdate { get; set; }
 
         public bool IsDeleted { get; set; }
     }

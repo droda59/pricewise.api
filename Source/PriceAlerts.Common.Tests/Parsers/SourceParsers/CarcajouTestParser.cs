@@ -2,11 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using HtmlAgilityPack;
-
+using PriceAlerts.Common.Commands.Inspectors.Sources;
 using PriceAlerts.Common.Infrastructure;
-using PriceAlerts.Common.Parsers.SourceParsers;
 using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
@@ -16,7 +13,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
         private readonly IDocumentLoader _documentLoader;
 
         public CarcajouTestParser(IDocumentLoader documentLoader)
-            : base(documentLoader)
+            : base(documentLoader, new CarcajouSource())
         {
             this._documentLoader = documentLoader;
         }

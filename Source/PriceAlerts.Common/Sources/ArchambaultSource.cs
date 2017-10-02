@@ -8,7 +8,7 @@ namespace PriceAlerts.Common.Sources
     {
         public ArchambaultSource()
         {
-            this.Domain = new Uri("http://www.archambault.ca/");
+            this.Domain = new Uri("https://www.archambault.ca/");
             this.CustomHeaders = Enumerable.Empty<KeyValuePair<string, string>>();
         }
 

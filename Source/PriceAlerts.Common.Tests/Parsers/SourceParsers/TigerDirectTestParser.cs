@@ -2,11 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using HtmlAgilityPack;
-
+using PriceAlerts.Common.Commands.Inspectors.Sources;
 using PriceAlerts.Common.Infrastructure;
-using PriceAlerts.Common.Parsers.SourceParsers;
 using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
@@ -16,23 +13,19 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
         private readonly IDocumentLoader _documentLoader;
 
         public TigerDirectTestParser(IDocumentLoader documentLoader)
-            : base(documentLoader)
+            : base(documentLoader, new TigerDirectSource())
         {
             this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
         {
-            var productUrls = new List<Uri>();
-
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
             
-            productUrls.AddRange(document.GetElementbyId("homeFeatured")
+            return document.GetElementbyId("homeFeatured")
                     .SelectNodes(".//div[contains(@class, 'product')]//div[contains(@class, 'productInfo')]//a")
                     .Select(x => x.Attributes["href"].Value)
-                    .Select(x => new Uri(this.Source.Domain, x)));
-
-            return productUrls;
+                    .Select(x => new Uri(this.Source.Domain, x));
         }
     }
 }

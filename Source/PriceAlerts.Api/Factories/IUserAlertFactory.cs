@@ -8,5 +8,7 @@ namespace PriceAlerts.Api.Factories
     public interface IUserAlertFactory
     {
         Task<UserAlertDto> CreateUserAlert(UserAlert repoAlert);
+
+        Task<UserAlertSummaryDto> CreateUserAlertSummary(UserAlert repoAlert);
     }
 }

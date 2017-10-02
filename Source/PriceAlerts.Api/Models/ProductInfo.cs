@@ -5,7 +5,9 @@ namespace PriceAlerts.Api.Models
 {
     public class ProductInfo
     {
-        public string Url { get; set; }
+        public string OriginalUrl { get; set; }
+
+        public string ProductUrl { get; set; }
 
         public string Title { get; set; }
 

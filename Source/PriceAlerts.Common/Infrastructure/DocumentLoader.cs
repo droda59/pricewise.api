@@ -11,7 +11,7 @@ namespace PriceAlerts.Common.Infrastructure
 {
     internal class DocumentLoader : IDocumentLoader, IDisposable
     {
-        private IRequestClient _requestClient;
+        private readonly IRequestClient _requestClient;
 
         public DocumentLoader(IRequestClient requestClient)
         {
@@ -45,7 +45,7 @@ namespace PriceAlerts.Common.Infrastructure
                         location = new Uri(domain, data.Headers.Location);
                     }
 
-                    Console.WriteLine("Redirect: " + location.AbsoluteUri);
+//                    Console.WriteLine("Redirect: " + location.AbsoluteUri);
 
                     return await this.LoadDocument(location, customHeaders);
                 }
@@ -55,7 +55,7 @@ namespace PriceAlerts.Common.Infrastructure
                 var content = await data.Content.ReadAsStringAsync();
 
                 var document = new HtmlDocument();
-                document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
+                document.LoadHtml(WebUtility.HtmlDecode(content));
 
                 return document;
             }

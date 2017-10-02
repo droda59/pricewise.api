@@ -8,7 +8,7 @@ namespace PriceAlerts.Common.Sources
     {
         public SAQSource()
         {
-            this.Domain = new Uri("http://www.saq.com/");
+            this.Domain = new Uri("https://www.saq.com/");
             this.CustomHeaders = Enumerable.Empty<KeyValuePair<string, string>>();
         }
 
