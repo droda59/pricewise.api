@@ -40,7 +40,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 | AmazonResponseGroup.ItemAttributes 
                 | AmazonResponseGroup.Medium);
 
-            var item = result.Items.Item.FirstOrDefault();
+            var item = result?.Items.Item.FirstOrDefault();
             if (item == null)
             {
                 return null;
