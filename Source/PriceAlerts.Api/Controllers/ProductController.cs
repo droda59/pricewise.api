@@ -64,7 +64,7 @@ namespace PriceAlerts.Api.Controllers
                             {
                                 try
                                 {
-                                    var newProduct = await this._productFactory.CreateProduct(url);
+                                    var newProduct = await this.ForceGetProduct(handler, url);
                                     lock (lockObject)
                                     {
                                         newProducts.Add(newProduct);
@@ -104,6 +104,18 @@ namespace PriceAlerts.Api.Controllers
                 ImageUrl = product.ImageUrl,
                 ProductIdentifier = product.ProductIdentifier
             };
+        }
+
+        private async Task<MonitoredProduct> ForceGetProduct(ICommandHandler handler, Uri url)
+        {
+            var cleanUrl = handler.HandleCleanUrl(url);
+            var existingProduct = await this._productRepository.GetByUrlAsync(cleanUrl.AbsoluteUri);
+            if (existingProduct == null)
+            {
+                existingProduct = await this._productFactory.CreateProduct(url);
+            }
+
+            return existingProduct;
         }
     }
 }
