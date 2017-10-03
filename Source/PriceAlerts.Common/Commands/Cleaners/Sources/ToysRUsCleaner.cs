@@ -18,7 +18,7 @@ namespace PriceAlerts.Common.Commands.Cleaners.Sources
                 return new Uri(urlWithQueryString);
             }
 
-            return null;
+            return originalUrl;
         }
     }
 }

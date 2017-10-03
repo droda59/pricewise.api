@@ -23,7 +23,7 @@ namespace PriceAlerts.Common.Commands.Cleaners.Sources
                 return new Uri(QueryHelpers.AddQueryString(urlWithoutQueryString.Uri.AbsoluteUri, "id", sku));
             }
 
-            return null;
+            return originalUrl;
         }
     }
 }

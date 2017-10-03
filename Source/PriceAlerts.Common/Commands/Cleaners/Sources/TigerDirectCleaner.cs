@@ -10,6 +10,14 @@ namespace PriceAlerts.Common.Commands.Cleaners.Sources
         {
             StringValues sku;
             var queryParameters = QueryHelpers.ParseQuery(originalUrl.Query);
+            if (queryParameters.TryGetValue("EdpNo", out sku))
+            {
+                var urlWithoutQueryString = new UriBuilder(originalUrl) { Query = string.Empty };
+                var urlWithQueryString = QueryHelpers.AddQueryString(urlWithoutQueryString.Uri.AbsoluteUri, "EdpNo", sku);
+
+                return new Uri(urlWithQueryString);
+            }
+            
             if (queryParameters.TryGetValue("sku", out sku))
             {
                 var urlWithoutQueryString = new UriBuilder(originalUrl) { Query = string.Empty };
@@ -17,8 +25,8 @@ namespace PriceAlerts.Common.Commands.Cleaners.Sources
 
                 return new Uri(urlWithQueryString);
             }
-
-            return null;
+            
+            return originalUrl;
         }
     }
 }
