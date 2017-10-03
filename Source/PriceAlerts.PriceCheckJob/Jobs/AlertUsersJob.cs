@@ -80,8 +80,6 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                             if (alert.BestCurrentDeal.Price < newBestDeal.Item2.Price && user.Settings.AlertOnPriceRaise
                             || alert.BestCurrentDeal.Price > newBestDeal.Item2.Price && user.Settings.AlertOnPriceDrop)
                             {
-                                Console.WriteLine($"Sending email to user {user.Id} for alert {alert.Id}");
-
                                 var productUrl = new Uri(newBestDeal.Item1.Uri);
                                 var commandHandler = this._handlerFactory.CreateHandler(productUrl);
                                 var cleanUrl = commandHandler.HandleCleanUrl(productUrl);
@@ -116,8 +114,11 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                 {
                                     templateName = "Raise";
                                 }
+                                var emailTemplate = $"Price{templateName}_{user.Settings.CorrespondenceLanguage}";
 
-                                var sendEmailTask = this._emailSender.SendEmail(user.Email, parameters, $"Price{templateName}_{user.Settings.CorrespondenceLanguage}");
+                                Console.WriteLine($"Sending email {emailTemplate} to user {user.Id} for alert {alert.Id}");
+                                
+                                var sendEmailTask = this._emailSender.SendEmail(user.Email, parameters, emailTemplate);
                                 tasksToRun.Add(sendEmailTask);
                             }
                         }
