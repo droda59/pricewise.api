@@ -90,3 +90,5 @@ crashlytics-build.properties
 /Source/**/*.csproj.user
 
 project.lock.json
+.vscode/launch.json
+.vscode/tasks.json
