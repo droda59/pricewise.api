@@ -22,6 +22,8 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
         {
             var document = await this._documentLoader.LoadDocument(new Uri(this.Source.Domain, "https://www.ncix.com/category/computer-cases-53-104.htm"), this.Source.CustomHeaders);
 
+            return new List<Uri>{new Uri("https://www.ncix.com/detail/evga-geforce-gtx-1070-sc-00-134666.htm?promoid=2329")};
+
             return document.DocumentNode
                 .SelectNodes("//span[@class='listing'] //a")
                 .Select(x => x.Attributes["href"].Value)

@@ -32,9 +32,18 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var priceContent = doc.DocumentNode
-                            .SelectSingleNode(".//span[@itemprop='price']")
-                            .InnerText;
+            var priceNodes = doc.DocumentNode
+                            .SelectNodes(".//span[@itemprop='price']");
+
+            string priceContent;
+            if(priceNodes.Count > 1)
+            {
+                // Mail-In rebate
+                priceContent = priceNodes[1].InnerText;
+            }
+            else{
+                priceContent = priceNodes[0].InnerText;
+            }
 
             var decimalValue = priceContent.ExtractDecimal();
 
