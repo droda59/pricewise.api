@@ -1,6 +1,7 @@
 using System.Linq;
 
 using Autofac;
+using Autofac.Extras.DynamicProxy;
 using PriceAlerts.Common.CommandHandlers;
 using PriceAlerts.Common.Commands;
 using PriceAlerts.Common.Database;
@@ -13,7 +14,7 @@ namespace PriceAlerts.Common
     public class AutofacModule : Module
     {
         protected override void Load(ContainerBuilder builder)
-        {
+        {   
             builder.RegisterType<HttpClient>().As<IRequestClient>().SingleInstance();
             builder.RegisterType<DocumentLoader>().As<IDocumentLoader>().SingleInstance();
             builder.RegisterType<HandlerFactory>().As<IHandlerFactory>().SingleInstance();
@@ -34,9 +35,27 @@ namespace PriceAlerts.Common
                 .As<ICommand>()
                 .SingleInstance();
             
-            builder.RegisterType<MonitoredProductRepository>().As<IProductRepository>().SingleInstance();
-            builder.RegisterType<UserRepository>().As<IUserRepository>().SingleInstance();
-            builder.RegisterType<AlertRepository>().As<IAlertRepository>().SingleInstance();
+            builder.RegisterType<AlertRepository>()
+                .As<IAlertRepository>()
+                .SingleInstance()
+                .EnableInterfaceInterceptors()
+                .InterceptedBy(typeof(LoggerInterceptor));
+            
+            builder.RegisterType<UserRepository>()
+                .As<IUserRepository>()
+                .SingleInstance()
+                .EnableInterfaceInterceptors()
+                .InterceptedBy(typeof(LoggerInterceptor));
+            
+            builder.RegisterType<MonitoredProductRepository>()
+                .As<IProductRepository>()
+                .SingleInstance()
+                .EnableInterfaceInterceptors()
+                .InterceptedBy(typeof(LoggerInterceptor));
+
+//            builder.RegisterType<TraceLogger>().As<ILogger>().SingleInstance();
+            builder.RegisterType<ConsoleLogger>().As<ILogger>().SingleInstance();
+            builder.Register(c => new LoggerInterceptor(c.Resolve<ILogger>()));
         }
     }
 }

@@ -25,5 +25,21 @@ namespace PriceAlerts.Common.Models
         public Deal BestCurrentDeal { get; set; }
 
         public IList<UserAlertEntry> Entries { get; set; }
+
+        public override string ToString()
+        {
+            if (string.IsNullOrEmpty(this.Id))
+            {
+                return "New alert";
+            }
+            
+            var title = this.Title;
+            if (title.Length > 30)
+            {
+                title = title.Trim().Substring(0, 30) + "...";
+            }
+            
+            return $"{this.Id}: {title}";
+        }
     }
 }

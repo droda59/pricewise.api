@@ -23,5 +23,12 @@ namespace PriceAlerts.Common.Models
         public Settings Settings { get; set; }
 
         public IList<UserAlert> Alerts { get; set; }
+
+        public override string ToString()
+        {
+            return string.IsNullOrEmpty(this.Id) 
+                ? "New user" 
+                : $"{this.Id}: {this.FirstName} {this.LastName}";
+        }
     }
 }

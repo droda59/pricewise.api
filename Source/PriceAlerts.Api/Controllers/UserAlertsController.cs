@@ -20,16 +20,14 @@ namespace PriceAlerts.Api.Controllers
     [Route("api/[controller]")]
     public class UserAlertsController : Controller
     {
-        private readonly IUserRepository _userRepository;
         private readonly IProductRepository _productRepository;
         private readonly IAlertRepository _alertRepository;
         private readonly IUserAlertFactory _userAlertFactory;
         private readonly IProductFactory _productFactory;
         private readonly IHandlerFactory _handlerFactory;
 
-        public UserAlertsController(IUserRepository userRepository, IProductRepository productRepository, IAlertRepository alertRepository, IUserAlertFactory userAlertFactory, IProductFactory productFactory, IHandlerFactory handlerFactory)
+        public UserAlertsController(IProductRepository productRepository, IAlertRepository alertRepository, IUserAlertFactory userAlertFactory, IProductFactory productFactory, IHandlerFactory handlerFactory)
         {
-            this._userRepository = userRepository;
             this._productRepository = productRepository;
             this._alertRepository = alertRepository;
             this._userAlertFactory = userAlertFactory;
@@ -38,28 +36,26 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetSummaries(string userId)
+        public async Task<IEnumerable<UserAlertSummaryDto>> GetSummaries(string userId)
         {
-            var repoUser = await this._userRepository.GetAsync(userId);
-            if (repoUser == null)
-            {
-                return this.NotFound();
-            }
-
             var alertSummaries = new List<UserAlertSummaryDto>();
             var lockObject = new object();
-            var notDeletedAlerts = repoUser.Alerts.Where(x => !x.IsDeleted).ToList();
-            await Task.WhenAll(notDeletedAlerts.Select(async repoUserAlert => 
+            
+            var userAlerts = await this._alertRepository.GetAllAsync(userId);
+            await Task.WhenAll(userAlerts.Select(async repoUserAlert => 
             {
-                var alert = await this._userAlertFactory.CreateUserAlertSummary(repoUserAlert);
-
-                lock(lockObject)
+                if (!repoUserAlert.IsDeleted)
                 {
-                    alertSummaries.Add(alert);
-                }  
+                    var alert = await this._userAlertFactory.CreateUserAlertSummary(repoUserAlert);
+
+                    lock(lockObject)
+                    {
+                        alertSummaries.Add(alert);
+                    }  
+                }
             }));
 
-            return this.Ok(alertSummaries);
+            return alertSummaries;
         }
 
         [HttpGet("{userId}/{alertId}")]

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using MongoDB.Driver;
-
 using PriceAlerts.Common.Models;
 
 namespace PriceAlerts.Common.Database

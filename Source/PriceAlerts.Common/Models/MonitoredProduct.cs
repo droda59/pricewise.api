@@ -20,5 +20,18 @@ namespace PriceAlerts.Common.Models
         public string ImageUrl { get; set; }
         
         public IList<PriceChange> PriceHistory { get; set; }
+
+        public override string ToString()
+        {
+            var title = this.Title;
+            if (title.Length > 30)
+            {
+                title = title.Trim().Substring(0, 30) + "...";
+            }
+            
+            return string.IsNullOrEmpty(this.Id) 
+                ? "New product" 
+                : $"{this.Id}: {title}";
+        }
     }
 }
