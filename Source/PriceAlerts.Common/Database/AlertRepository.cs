@@ -4,19 +4,25 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using MongoDB.Bson;
-using MongoDB.Driver;
 
 using PriceAlerts.Common.Models;
 
 namespace PriceAlerts.Common.Database
 {
-    internal class AlertRepository : EntityRepository<UserAlert>, IAlertRepository
+    internal class AlertRepository : IAlertRepository
     {
         private readonly IUserRepository _userRepository;
 
         public AlertRepository(IUserRepository userRepository)
         {
             this._userRepository = userRepository;
+        }
+
+        public async Task<IEnumerable<UserAlert>> GetAllAsync(string userId)
+        {
+            var repoUser = await this._userRepository.GetAsync(userId);
+
+            return repoUser.Alerts;
         }
 
         public async Task<UserAlert> GetAsync(string userId, string alertId)
