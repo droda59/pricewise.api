@@ -7,7 +7,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Searchers.Sources
 {
-    internal class ArchambaultSearcher : BaseSearcher
+    public class ArchambaultSearcher : BaseSearcher
     {
         public ArchambaultSearcher(IRequestClient requestClient, ArchambaultSource source)
             : base(requestClient, source)

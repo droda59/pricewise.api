@@ -3,7 +3,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Cleaners.Sources
 {
-    internal class BestBuyCleaner : ICleaner
+    public class BestBuyCleaner : BaseCleaner, ICleaner
     {
         private readonly BestBuySource _source;
 
@@ -12,7 +12,7 @@ namespace PriceAlerts.Common.Commands.Cleaners.Sources
             this._source = source;
         }
 
-        public Uri CleanUrl(Uri originalUrl)
+        public override Uri CleanUrl(Uri originalUrl)
         {
             var urlWithoutQueryString = new UriBuilder(originalUrl) { Query = string.Empty }.Uri;
 

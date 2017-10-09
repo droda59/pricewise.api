@@ -7,7 +7,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class LegoParser : BaseHtmlParser
+    public class LegoParser : BaseHtmlParser
     {
         public LegoParser(IDocumentLoader documentLoader, LegoSource source)
             : base(documentLoader, source)

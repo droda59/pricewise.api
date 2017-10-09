@@ -7,7 +7,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Searchers.Sources
 {
-    internal class CarcajouSearcher : BaseSearcher
+    public class CarcajouSearcher : BaseSearcher
     {
         public CarcajouSearcher(IRequestClient requestClient, CarcajouSource source)
             : base(requestClient, source)

@@ -4,7 +4,7 @@ using PriceAlerts.Common.Models;
 
 namespace PriceAlerts.Common.Commands.Inspectors
 {
-    internal interface IInspector : ICommand
+    public interface IInspector : ICommand
     {
         Task<SitePriceInfo> GetSiteInfo(Uri url);
     }

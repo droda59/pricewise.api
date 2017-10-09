@@ -7,7 +7,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Searchers.Sources
 {
-    internal class IndigoSearcher : BaseSearcher
+    public class IndigoSearcher : BaseSearcher
     {
         public IndigoSearcher(IRequestClient requestClient, IndigoSource source)
             : base(requestClient, source)

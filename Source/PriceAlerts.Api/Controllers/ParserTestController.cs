@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PriceAlerts.Common.CommandHandlers;
 using PriceAlerts.Common.Factories;
+using PriceAlerts.Common.Infrastructure;
 
 namespace PriceAlerts.Api.Controllers
 {
@@ -21,7 +22,8 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpPost("parse")]
-        public async Task<IActionResult> ParseAsync([FromBody]Uri uri)
+        [LoggingDescription("Parsing url")]
+        public virtual async Task<IActionResult> ParseAsync([FromBody]Uri uri)
         {
             ICommandHandler commandHandler;
 

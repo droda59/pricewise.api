@@ -7,7 +7,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class AmazonHtmlParser : BaseHtmlParser
+    public class AmazonHtmlParser : BaseHtmlParser
     {
         public AmazonHtmlParser(IDocumentLoader documentLoader, AmazonSource source)
             : base(documentLoader, source)

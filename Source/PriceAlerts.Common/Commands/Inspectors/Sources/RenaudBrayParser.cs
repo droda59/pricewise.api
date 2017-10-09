@@ -7,7 +7,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class RenaudBrayParser : BaseHtmlParser
+    public class RenaudBrayParser : BaseHtmlParser
     {
         public RenaudBrayParser(IDocumentLoader documentLoader, RenaudBraySource source)
             : base(documentLoader, source)

@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using Nager.AmazonProductAdvertising;
 using Nager.AmazonProductAdvertising.Model;
 using PriceAlerts.Common.Extensions;
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Models;
 using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class AmazonApiInspector : IInspector
+    public class AmazonApiInspector : IInspector
     {
         private const string AccessKey = "AKIAIBE5OUZPPCBIESVA";
         private const string SecretKey = "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";
@@ -31,6 +32,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             this._apiWwrapper = new AmazonWrapper(authentication, AmazonEndpoint.CA);
         }
 
+        [LoggingDescription("Parsing API")]
         public async Task<SitePriceInfo> GetSiteInfo(Uri url)
         {
             var asin = this._source.AsinExpression.Match(url.AbsoluteUri).Value;

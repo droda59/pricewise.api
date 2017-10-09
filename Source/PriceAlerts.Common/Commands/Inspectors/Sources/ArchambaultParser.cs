@@ -8,7 +8,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class ArchambaultParser : BaseHtmlParser
+    public class ArchambaultParser : BaseHtmlParser
     {
         public ArchambaultParser(IDocumentLoader documentLoader, ArchambaultSource source)
             : base(documentLoader, source)

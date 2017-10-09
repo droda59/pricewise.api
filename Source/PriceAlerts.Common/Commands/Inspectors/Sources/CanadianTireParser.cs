@@ -8,7 +8,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class CanadianTireParser : BaseHtmlParser
+    public class CanadianTireParser : BaseHtmlParser
     {
         private readonly IRequestClient _requestClient;
 

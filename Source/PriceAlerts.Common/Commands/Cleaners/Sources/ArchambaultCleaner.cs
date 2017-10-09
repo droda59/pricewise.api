@@ -4,9 +4,9 @@ using Microsoft.Extensions.Primitives;
 
 namespace PriceAlerts.Common.Commands.Cleaners.Sources
 {
-    internal class ArchambaultCleaner : ICleaner
+    public class ArchambaultCleaner : BaseCleaner, ICleaner
     {
-        public Uri CleanUrl(Uri originalUrl)
+        public override Uri CleanUrl(Uri originalUrl)
         {
             StringValues sku;
             var queryParameters = QueryHelpers.ParseQuery(originalUrl.Query);

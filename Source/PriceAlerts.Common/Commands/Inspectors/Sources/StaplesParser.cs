@@ -6,7 +6,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class StaplesParser : BaseHtmlParser
+    public class StaplesParser : BaseHtmlParser
     {
         public StaplesParser(IDocumentLoader documentLoader, StaplesSource source)
             : base(documentLoader, source)

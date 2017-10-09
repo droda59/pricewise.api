@@ -6,7 +6,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class ToysRUsParser : BaseHtmlParser
+    public class ToysRUsParser : BaseHtmlParser
     {
         public ToysRUsParser(IDocumentLoader documentLoader, ToysRUsSource source)
             : base(documentLoader, source)

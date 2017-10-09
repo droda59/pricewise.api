@@ -7,7 +7,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors
 {
-    internal abstract class BaseHtmlParser : IInspector
+    public abstract class BaseHtmlParser : IInspector
     {
         private readonly IDocumentLoader _documentLoader;
 
@@ -20,7 +20,8 @@ namespace PriceAlerts.Common.Commands.Inspectors
 
         protected ISource Source { get; }
 
-        public async Task<SitePriceInfo> GetSiteInfo(Uri url)
+        [LoggingDescription("Parsing HTML")]
+        public virtual async Task<SitePriceInfo> GetSiteInfo(Uri url)
         {
             string productIdentifier;
             string title;

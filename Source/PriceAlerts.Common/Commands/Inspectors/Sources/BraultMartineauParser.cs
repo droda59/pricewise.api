@@ -6,7 +6,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class BraultMartineauParser : BaseHtmlParser
+    public class BraultMartineauParser : BaseHtmlParser
     {
         public BraultMartineauParser(IDocumentLoader documentLoader, BraultMartineauSource source)
             : base(documentLoader, source)

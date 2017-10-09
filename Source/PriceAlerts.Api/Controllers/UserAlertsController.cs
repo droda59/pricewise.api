@@ -298,7 +298,7 @@ namespace PriceAlerts.Api.Controllers
             var existingProduct = await this._productRepository.GetByUrlAsync(cleanUrl.AbsoluteUri);
             if (existingProduct == null)
             {
-                existingProduct = await this._productFactory.CreateProduct(url);
+                existingProduct = await this._productFactory.CreateProduct(cleanUrl);
             }
 
             return existingProduct;

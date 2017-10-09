@@ -4,9 +4,9 @@ using Microsoft.Extensions.Primitives;
 
 namespace PriceAlerts.Common.Commands.Cleaners.Sources
 {
-    internal class TigerDirectCleaner : ICleaner
+    public class TigerDirectCleaner : BaseCleaner, ICleaner
     {
-        public Uri CleanUrl(Uri originalUrl)
+        public override Uri CleanUrl(Uri originalUrl)
         {
             StringValues sku;
             var queryParameters = QueryHelpers.ParseQuery(originalUrl.Query);

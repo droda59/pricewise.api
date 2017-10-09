@@ -23,7 +23,8 @@ namespace PriceAlerts.Common.Models
 
         public override string ToString()
         {
-            if (string.IsNullOrEmpty(this.Id))
+            var id = this.Id;
+            if (string.IsNullOrEmpty(id))
             {
                 return "New product";
             }
@@ -32,7 +33,7 @@ namespace PriceAlerts.Common.Models
                 ? this.Title.Trim().Substring(0, 30) + "..." 
                 : this.Title;
             
-            return $"{this.Id}: {title}";
+            return $"{id}: {title}";
         }
     }
 }
