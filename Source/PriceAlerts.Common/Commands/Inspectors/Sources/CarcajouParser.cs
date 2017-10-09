@@ -6,7 +6,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class CarcajouParser : BaseHtmlParser
+    public class CarcajouParser : BaseHtmlParser
     {
         public CarcajouParser(IDocumentLoader documentLoader, CarcajouSource source)
             : base(documentLoader, source)

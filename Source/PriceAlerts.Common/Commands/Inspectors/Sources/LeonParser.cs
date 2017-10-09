@@ -6,7 +6,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class LeonParser : BaseHtmlParser
+    public class LeonParser : BaseHtmlParser
     {
         public LeonParser(IDocumentLoader documentLoader, LeonSource source)
             : base(documentLoader, source)

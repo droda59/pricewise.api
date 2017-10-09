@@ -2,7 +2,7 @@ using System;
 
 namespace PriceAlerts.Common.Commands.Cleaners
 {
-    internal interface ICleaner : ICommand
+    public interface ICleaner : ICommand
     {
         Uri CleanUrl(Uri originalUrl);
     }

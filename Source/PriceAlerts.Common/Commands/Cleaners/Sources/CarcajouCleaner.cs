@@ -4,9 +4,9 @@ using Microsoft.Extensions.Primitives;
 
 namespace PriceAlerts.Common.Commands.Cleaners.Sources
 {
-    internal class CarcajouCleaner : ICleaner
+    public class CarcajouCleaner : BaseCleaner, ICleaner
     {
-        public Uri CleanUrl(Uri originalUrl)
+        public override Uri CleanUrl(Uri originalUrl)
         {
             StringValues sku;
             var queryParameters = QueryHelpers.ParseQuery(originalUrl.Query);

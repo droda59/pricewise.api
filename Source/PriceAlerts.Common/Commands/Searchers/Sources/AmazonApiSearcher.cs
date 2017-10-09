@@ -4,11 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Nager.AmazonProductAdvertising;
 using Nager.AmazonProductAdvertising.Model;
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Searchers.Sources
 {
-    internal class AmazonApiSearcher : ISearcher
+    public class AmazonApiSearcher : ISearcher
     {
         private const string AccessKey = "AKIAIBE5OUZPPCBIESVA";
         private const string SecretKey = "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";
@@ -28,7 +29,8 @@ namespace PriceAlerts.Common.Commands.Searchers.Sources
             this._apiWwrapper = new AmazonWrapper(authentication, AmazonEndpoint.CA);
         }
 
-        public async Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm, int maxResultCount = 5)
+        [LoggingDescription("Searching API for URLs")]
+        public virtual async Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm, int maxResultCount = 5)
         {
             var result = await this._apiWwrapper.SearchAsync(searchTerm, AmazonSearchIndex.All, AmazonResponseGroup.ItemAttributes);
 

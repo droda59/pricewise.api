@@ -1,13 +1,14 @@
 using System.Linq;
-
 using Autofac;
 using Autofac.Extras.DynamicProxy;
+using Castle.DynamicProxy;
 using PriceAlerts.Common.CommandHandlers;
 using PriceAlerts.Common.Commands;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
+using Module = Autofac.Module;
 
 namespace PriceAlerts.Common
 {
@@ -27,28 +28,20 @@ namespace PriceAlerts.Common
             builder.RegisterAssemblyTypes(this.ThisAssembly)
                 .Where(x => x.GetInterfaces().Contains(typeof(ICommandHandler)) && x.Name.EndsWith("CommandHandler"))
                 .As<ICommandHandler>()
-                .SingleInstance();
+                .SingleInstance()
+                .EnableInterfaceInterceptors(new ProxyGenerationOptions(new MethodGenerationHook()))
+                .InterceptedBy(typeof(LoggerInterceptor));
             
             builder.RegisterAssemblyTypes(this.ThisAssembly)
                 .Where(x => x.GetInterfaces().Contains(typeof(ICommand)))
                 .AsSelf()
-                .As<ICommand>()
-                .SingleInstance();
-            
-            builder.RegisterType<AlertRepository>()
-                .As<IAlertRepository>()
                 .SingleInstance()
-                .EnableInterfaceInterceptors()
+                .EnableClassInterceptors(new ProxyGenerationOptions(new LoggingMethodGenerationHook()))
                 .InterceptedBy(typeof(LoggerInterceptor));
             
-            builder.RegisterType<UserRepository>()
-                .As<IUserRepository>()
-                .SingleInstance()
-                .EnableInterfaceInterceptors()
-                .InterceptedBy(typeof(LoggerInterceptor));
-            
-            builder.RegisterType<MonitoredProductRepository>()
-                .As<IProductRepository>()
+            builder.RegisterAssemblyTypes(this.ThisAssembly)
+                .Where(x => x.Name.EndsWith("Repository"))
+                .AsImplementedInterfaces()
                 .SingleInstance()
                 .EnableInterfaceInterceptors()
                 .InterceptedBy(typeof(LoggerInterceptor));

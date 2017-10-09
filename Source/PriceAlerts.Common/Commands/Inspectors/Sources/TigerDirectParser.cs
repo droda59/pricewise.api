@@ -6,7 +6,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class TigerDirectParser : BaseHtmlParser
+    public class TigerDirectParser : BaseHtmlParser
     {
         public TigerDirectParser(IDocumentLoader documentLoader, TigerDirectSource source)
             : base(documentLoader, source)

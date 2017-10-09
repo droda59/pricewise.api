@@ -15,21 +15,19 @@ namespace PriceAlerts.Common.Commands.Searchers
         protected BaseSearcher(IRequestClient requestClient, ISource source)
         {
             this._requestClient = requestClient;
-            if (this._requestClient != null)
-            {
-                this._requestClient.Initialize();
-            }
+            this._requestClient?.Initialize();
 
             this.Source = source;
         }
 
-        public ISource Source { get; }
+        protected ISource Source { get; }
 
         public void Dispose()
         {
             this._requestClient.Dispose();
         }
 
+        [LoggingDescription("Searching HTML for URLs")]
         public async Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm, int maxResultCount = 5)
         {
             var searchUrl = this.CreateSearchUri(searchTerm);

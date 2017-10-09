@@ -26,14 +26,23 @@ namespace PriceAlerts.Common.Infrastructure
                 
                 for (var i = 0; i < stringParameters.Length; i++)
                 {
-                    description += $"<{invocation.Method.GetParameters()[i].Name}: {stringParameters[i] ?? string.Empty}>, ";
+                    var parameterValue = stringParameters[i]?.ToString();
+                    
+                    if (!(stringParameters[i] is string) && stringParameters[i] is IEnumerable parameterValues)
+                    {
+                        parameterValue = string.Empty;
+                        foreach (var value in parameterValues)
+                        {
+                            parameterValue += $"{value}, ";
+                        }
+        
+                        parameterValue = RemoveLastComma(parameterValue);
+                    }
+                    
+                    description += $"<{invocation.Method.GetParameters()[i].Name}: {parameterValue ?? string.Empty}>, ";
                 }
             
-                var lastComa = description.LastIndexOf(", ", StringComparison.Ordinal);
-                if (lastComa >= 0)
-                {
-                    description = description.Substring(0, lastComa);
-                }
+                description = RemoveLastComma(description);
             }
             
             this._logger.LogMessage($"{DateTime.UtcNow.ToLongTimeString()}: {description}");
@@ -63,7 +72,7 @@ namespace PriceAlerts.Common.Infrastructure
                 
                 if (returnValue is IEnumerable returnValues)
                 {
-                    typeName = $"{returnValue.GetType().GetGenericArguments()[0].Name}[]";
+                    typeName = $"{returnValue.GetType().GetGenericArguments()[0]?.Name}[]";
                     returnValue = string.Empty;
                     
                     foreach (var value in returnValues)
@@ -71,15 +80,23 @@ namespace PriceAlerts.Common.Infrastructure
                         returnValue += $"{value}, ";
                     }
             
-                    var lastComa = ((string)returnValue).LastIndexOf(", ", StringComparison.Ordinal);
-                    if (lastComa >= 0)
-                    {
-                        returnValue = ((string)returnValue).Substring(0, lastComa);
-                    }
+                    returnValue = RemoveLastComma((string)returnValue);
                 }
             }
 
-            this._logger.LogMessage($"{DateTime.UtcNow.ToLongTimeString()}: Returned {typeName} <{returnValue}>");
+            this._logger.LogMessage($"{DateTime.UtcNow.ToLongTimeString()}: Returned from {invocation.TargetType.Name} with {typeName} <{returnValue}>");
+        }
+
+        private static string RemoveLastComma(string returnValue)
+        {
+            var valueWithoutComma = returnValue;
+            var lastComa = returnValue.LastIndexOf(", ", StringComparison.Ordinal);
+            if (lastComa >= 0)
+            {
+                valueWithoutComma = valueWithoutComma.Substring(0, lastComa);
+            }
+            
+            return valueWithoutComma;
         }
     }
 }

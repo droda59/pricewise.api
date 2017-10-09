@@ -2,9 +2,9 @@
 
 namespace PriceAlerts.Common.Commands.Cleaners
 {
-    internal class AnchorCleaner : ICleaner
+    public class AnchorCleaner : BaseCleaner, ICleaner
     {
-        public Uri CleanUrl(Uri originalUrl)
+        public override Uri CleanUrl(Uri originalUrl)
         {
             var urlWithoutAnchor = originalUrl.AbsoluteUri.Substring(0, originalUrl.AbsoluteUri.LastIndexOf("#", StringComparison.Ordinal));
 

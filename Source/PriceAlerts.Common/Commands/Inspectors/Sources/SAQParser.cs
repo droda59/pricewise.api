@@ -7,7 +7,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class SAQParser : BaseHtmlParser
+    public class SAQParser : BaseHtmlParser
     {
         public SAQParser(IDocumentLoader documentLoader, SAQSource source)
             : base(documentLoader, source)

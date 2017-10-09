@@ -8,7 +8,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class IndigoParser : BaseHtmlParser
+    public class IndigoParser : BaseHtmlParser
     {
         public IndigoParser(IDocumentLoader documentLoader, IndigoSource source)
             : base(documentLoader, source)

@@ -6,7 +6,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class IkeaParser : BaseHtmlParser
+    public class IkeaParser : BaseHtmlParser
     {
         public IkeaParser(IDocumentLoader documentLoader, IkeaSource source)
             : base(documentLoader, source)

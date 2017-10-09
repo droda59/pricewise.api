@@ -9,7 +9,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class SearsParser : BaseHtmlParser
+    public class SearsParser : BaseHtmlParser
     {
         public SearsParser(IDocumentLoader documentLoader, SearsSource source)
             : base(documentLoader, source)

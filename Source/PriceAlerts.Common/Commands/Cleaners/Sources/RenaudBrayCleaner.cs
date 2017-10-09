@@ -5,7 +5,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Cleaners.Sources
 {
-    internal class RenaudBrayCleaner : ICleaner
+    public class RenaudBrayCleaner : BaseCleaner, ICleaner
     {
         private readonly RenaudBraySource _source;
 
@@ -14,7 +14,7 @@ namespace PriceAlerts.Common.Commands.Cleaners.Sources
             _source = source;
         }
 
-        public Uri CleanUrl(Uri originalUrl)
+        public override Uri CleanUrl(Uri originalUrl)
         {
             StringValues id;
             var queryParameters = QueryHelpers.ParseQuery(originalUrl.Query);

@@ -7,7 +7,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Searchers.Sources
 {
-    internal class RenaudBraySearcher : BaseSearcher
+    public class RenaudBraySearcher : BaseSearcher
     {
         public RenaudBraySearcher(IRequestClient requestClient, RenaudBraySource source)
             : base(requestClient, source)

@@ -2,7 +2,7 @@ using System;
 
 namespace PriceAlerts.Common.Commands.LinkManipulators
 {
-    internal interface ILinkManipulator : ICommand
+    public interface ILinkManipulator : ICommand
     {
         Uri ManipulateLink(Uri originalUrl);
     }
