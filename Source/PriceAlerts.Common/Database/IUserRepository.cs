@@ -13,10 +13,10 @@ namespace PriceAlerts.Common.Database
         [LoggingDescription("Get user from database")]
         Task<User> GetAsync(string userId);
 
-        [LoggingDescription("Update database user")]
+        [LoggingDescription("Update user in database")]
         Task<User> UpdateAsync(string userId, User data);
 
-        [LoggingDescription("Create new database user")]
+        [LoggingDescription("Create new user in database")]
         Task<User> InsertAsync(User data);
     }
 }

@@ -33,7 +33,8 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> FindProductsByIdentifier([FromBody] string[] productIdentifiers)
+        [LoggingDescription("Request to find products")]
+        public virtual async Task<IActionResult> FindProductsByIdentifier([FromBody] string[] productIdentifiers)
         {
             // Do not search for an empty identifier
             if (!productIdentifiers.Any())

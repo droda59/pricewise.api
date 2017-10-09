@@ -19,10 +19,10 @@ namespace PriceAlerts.Common.Database
         [LoggingDescription("Get product from database")]
         Task<MonitoredProduct> GetByUrlAsync(string url);
 
-        [LoggingDescription("Update database product")]
+        [LoggingDescription("Update product in database")]
         Task<MonitoredProduct> UpdateAsync(string id, MonitoredProduct data);
 
-        [LoggingDescription("Create new database product")]
+        [LoggingDescription("Create new product in database")]
         Task<MonitoredProduct> InsertAsync(MonitoredProduct data);
     }
 }

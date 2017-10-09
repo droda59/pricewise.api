@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -47,22 +48,36 @@ namespace PriceAlerts.Common.Infrastructure
                 throw;
             }
 
-            var returnValue = invocation.ReturnValue;
             if (invocation.Method.ReturnType == typeof(void))
             {
                 return;
             }
-            
+
+            var typeName = invocation.Method.ReturnType.Name;
+            var returnValue = invocation.ReturnValue;
             if (invocation.Method.ReturnType.IsGenericType
                 && typeof(Task<>).IsAssignableFrom(invocation.Method.ReturnType.GetGenericTypeDefinition()))
             {
-                returnValue = invocation.ReturnValue.GetType().GetProperty("Result")
-                    .GetValue(invocation.ReturnValue);
+                returnValue = invocation.ReturnValue.GetType().GetProperty("Result").GetValue(invocation.ReturnValue);
+                typeName = invocation.Method.ReturnType.GetGenericArguments().First().Name;
+                
+                if (returnValue is IEnumerable returnValues)
+                {
+                    typeName = $"{returnValue.GetType().GetGenericArguments()[0].Name}[]";
+                    returnValue = string.Empty;
+                    
+                    foreach (var value in returnValues)
+                    {
+                        returnValue += $"{value}, ";
+                    }
+            
+                    var lastComa = ((string)returnValue).LastIndexOf(", ", StringComparison.Ordinal);
+                    if (lastComa >= 0)
+                    {
+                        returnValue = ((string)returnValue).Substring(0, lastComa);
+                    }
+                }
             }
-
-            var typeName = invocation.Method.ReturnType.IsGenericType 
-                ? invocation.Method.ReturnType.GetGenericArguments().First().Name 
-                : invocation.Method.ReturnType.Name;
 
             this._logger.LogMessage($"{DateTime.UtcNow.ToLongTimeString()}: Returned {typeName} <{returnValue}>");
         }

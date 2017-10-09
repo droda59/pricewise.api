@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PriceAlerts.Api.Models
+﻿namespace PriceAlerts.Api.Models
 {
     public class UserAlertSummaryDto
     {
@@ -13,5 +11,14 @@ namespace PriceAlerts.Api.Models
         public bool IsActive { get; set; }
 
         public DealDto BestCurrentDeal { get; set; }
+
+        public override string ToString()
+        {
+            var title = this.Title.Length > 30 
+                ? this.Title.Trim().Substring(0, 30) + "..." 
+                : this.Title;
+            
+            return $"{this.Id}: {title}";
+        }
     }
 }

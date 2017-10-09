@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace PriceAlerts.Api.Models
@@ -21,5 +20,14 @@ namespace PriceAlerts.Api.Models
         public DealDto BestCurrentDeal { get; set; }
 
         public IList<UserAlertEntryDto> Entries { get; set; }
+
+        public override string ToString()
+        {
+            var title = this.Title.Length > 30 
+                ? this.Title.Trim().Substring(0, 30) + "..." 
+                : this.Title;
+            
+            return $"{this.Id}: {title}";
+        }
     }
 }

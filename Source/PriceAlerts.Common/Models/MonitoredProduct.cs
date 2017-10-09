@@ -23,15 +23,16 @@ namespace PriceAlerts.Common.Models
 
         public override string ToString()
         {
-            var title = this.Title;
-            if (title.Length > 30)
+            if (string.IsNullOrEmpty(this.Id))
             {
-                title = title.Trim().Substring(0, 30) + "...";
+                return "New product";
             }
+
+            var title = this.Title.Length > 30 
+                ? this.Title.Trim().Substring(0, 30) + "..." 
+                : this.Title;
             
-            return string.IsNullOrEmpty(this.Id) 
-                ? "New product" 
-                : $"{this.Id}: {title}";
+            return $"{this.Id}: {title}";
         }
     }
 }
