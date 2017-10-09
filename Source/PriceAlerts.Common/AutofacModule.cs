@@ -46,8 +46,8 @@ namespace PriceAlerts.Common
                 .EnableInterfaceInterceptors()
                 .InterceptedBy(typeof(LoggerInterceptor));
 
-//            builder.RegisterType<TraceLogger>().As<ILogger>().SingleInstance();
-            builder.RegisterType<ConsoleLogger>().As<ILogger>().SingleInstance();
+            builder.RegisterType<TraceLogger>().As<ILogger>().SingleInstance();
+//            builder.RegisterType<ConsoleLogger>().As<ILogger>().SingleInstance();
             builder.Register(c => new LoggerInterceptor(c.Resolve<ILogger>()));
         }
     }
