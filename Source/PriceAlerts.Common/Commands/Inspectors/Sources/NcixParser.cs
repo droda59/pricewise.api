@@ -1,5 +1,4 @@
 using System;
-using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
@@ -7,7 +6,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    internal class NcixParser : BaseHtmlParser
+    public class NcixParser : BaseHtmlParser
     {
         public NcixParser(IDocumentLoader documentLoader, NcixSource source)
             : base(documentLoader, source)
