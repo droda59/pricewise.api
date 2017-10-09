@@ -18,5 +18,14 @@ namespace PriceAlerts.Api.Models
         public string ProductIdentifier { get; set; }
 
         public DateTime LastUpdate { get; set; }
+
+        public override string ToString()
+        {
+            var title = this.Title.Length > 30 
+                ? this.Title.Trim().Substring(0, 30) + "..." 
+                : this.Title;
+            
+            return $"{this.OriginalUrl}: {title}";
+        }
     }
 }

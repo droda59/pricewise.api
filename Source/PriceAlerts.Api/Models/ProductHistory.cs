@@ -17,5 +17,14 @@ namespace PriceAlerts.Api.Models
         public string Url { get; set; }
 
         public IEnumerable<PriceChange> PriceHistory { get; internal set; }
+
+        public override string ToString()
+        {
+            var title = this.Title.Length > 30 
+                ? this.Title.Trim().Substring(0, 30) + "..." 
+                : this.Title;
+            
+            return $"{this.Url}: {title}";
+        }
     }
 }

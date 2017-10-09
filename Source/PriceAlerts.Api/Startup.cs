@@ -1,5 +1,4 @@
 using System;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -42,6 +41,7 @@ namespace PriceAlerts.Api
                             .AllowCredentials());
                 })
                 .AddMvc()
+                .AddControllersAsServices()
                 .AddJsonOptions(options =>
                 {
                     var settings = options.SerializerSettings;

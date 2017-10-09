@@ -11,5 +11,10 @@ namespace PriceAlerts.Api.Models
         public string Email { get; set; }
 
         public Common.Models.Settings Settings { get; set; }
+
+        public override string ToString()
+        {
+            return $"{this.UserId}: {this.FirstName} {this.LastName}";
+        }
     }
 }

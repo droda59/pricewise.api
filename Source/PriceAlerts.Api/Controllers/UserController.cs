@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PriceAlerts.Api.Models;
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Models;
 
 namespace PriceAlerts.Api.Controllers
@@ -21,7 +22,8 @@ namespace PriceAlerts.Api.Controllers
 
         [Authorize]
         [HttpGet("{userId}")]
-        public async Task<IActionResult> Get(string userId)
+        [LoggingDescription("Request to get a user")]
+        public virtual async Task<IActionResult> Get(string userId)
         {
             var repoUser = await this._userRepository.GetAsync(userId);
             if (repoUser == null)
@@ -36,7 +38,8 @@ namespace PriceAlerts.Api.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]UserDto user)
+        [LoggingDescription("Request to create a user")]
+        public virtual async Task<IActionResult> Create([FromBody]UserDto user)
         {
             var repoUser = new User
             {
@@ -57,7 +60,8 @@ namespace PriceAlerts.Api.Controllers
 
         [Authorize]
         [HttpPut("{userId}")]
-        public async Task<IActionResult> Update(string userId, [FromBody]UserDto user)
+        [LoggingDescription("Request to update a user")]
+        public virtual async Task<IActionResult> Update(string userId, [FromBody]UserDto user)
         {
             var repoUser = await this._userRepository.GetAsync(userId);
             repoUser.FirstName = user.FirstName;
