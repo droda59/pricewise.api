@@ -26,23 +26,12 @@ namespace PriceAlerts.Common.Infrastructure
                 
                 for (var i = 0; i < stringParameters.Length; i++)
                 {
-                    var parameterValue = stringParameters[i]?.ToString();
-                    
-                    if (!(stringParameters[i] is string) && stringParameters[i] is IEnumerable parameterValues)
+                    description += GetParameterDescription(stringParameters[i], invocation.Method.GetParameters()[i]);
+                    if (i < stringParameters.Length - 1)
                     {
-                        parameterValue = string.Empty;
-                        foreach (var value in parameterValues)
-                        {
-                            parameterValue += $"{value}, ";
-                        }
-        
-                        parameterValue = RemoveLastComma(parameterValue);
+                        description += ", ";
                     }
-                    
-                    description += $"<{invocation.Method.GetParameters()[i].Name}: {parameterValue ?? string.Empty}>, ";
                 }
-            
-                description = RemoveLastComma(description);
             }
             
             this._logger.LogMessage($"{DateTime.UtcNow.ToLongTimeString()}: {description}");
@@ -69,34 +58,29 @@ namespace PriceAlerts.Common.Infrastructure
             {
                 returnValue = invocation.ReturnValue.GetType().GetProperty("Result").GetValue(invocation.ReturnValue);
                 typeName = invocation.Method.ReturnType.GetGenericArguments().First().Name;
-                
+
                 if (returnValue is IEnumerable returnValues)
                 {
-                    typeName = $"{returnValue.GetType().GetGenericArguments()[0]?.Name}[]";
-                    returnValue = string.Empty;
-                    
-                    foreach (var value in returnValues)
-                    {
-                        returnValue += $"{value}, ";
-                    }
-            
-                    returnValue = RemoveLastComma((string)returnValue);
+                    var objectValue = returnValues.Cast<object>().ToList();
+                    typeName = $"{objectValue.Count} {returnValue.GetType().GetGenericArguments()[0]?.Name}[]";
+
+                    returnValue = string.Join(", ", objectValue);
                 }
             }
 
             this._logger.LogMessage($"{DateTime.UtcNow.ToLongTimeString()}: Returned from {invocation.TargetType.Name} with {typeName} <{returnValue}>");
         }
 
-        private static string RemoveLastComma(string returnValue)
+        private static string GetParameterDescription(object stringParameter, ParameterInfo parameterInfo)
         {
-            var valueWithoutComma = returnValue;
-            var lastComa = returnValue.LastIndexOf(", ", StringComparison.Ordinal);
-            if (lastComa >= 0)
+            var parameterValue = stringParameter?.ToString();
+
+            if (!(stringParameter is string) && stringParameter is IEnumerable parameterValues)
             {
-                valueWithoutComma = valueWithoutComma.Substring(0, lastComa);
+                parameterValue = string.Join(", ", parameterValues);
             }
-            
-            return valueWithoutComma;
+
+            return $"<{parameterInfo.Name}: {parameterValue ?? string.Empty}>";
         }
     }
 }
