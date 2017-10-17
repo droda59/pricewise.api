@@ -47,5 +47,12 @@ namespace PriceAlerts.Common.Database
 
             return insertedEntry;
         }
+
+        public async Task<bool> DeleteAsync(string id)
+        {
+            var result = await this.Collection.DeleteOneAsync(x => x.Id == id);
+
+            return result.IsAcknowledged && result.DeletedCount > 0;
+        }
     }
 }

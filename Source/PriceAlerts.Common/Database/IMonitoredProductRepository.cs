@@ -24,5 +24,8 @@ namespace PriceAlerts.Common.Database
 
         [LoggingDescription("Create new product in database")]
         Task<MonitoredProduct> InsertAsync(MonitoredProduct data);
+
+        [LoggingDescription("Delete product from database")]
+        Task<bool> DeleteAsync(string id);
     }
 }

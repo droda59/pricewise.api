@@ -1,15 +1,12 @@
-﻿using System.Reflection;
-using Autofac;
+﻿using Autofac;
 
 namespace PriceAlerts.CleaningJob
 {
-    public class AutofacModule : Autofac.Module
+    public class AutofacModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
-            var dataAccess = Assembly.GetExecutingAssembly();
-
-            builder.RegisterAssemblyTypes(dataAccess)
+            builder.RegisterAssemblyTypes(this.ThisAssembly)
                 .AssignableTo<IJob>()
                 .AsImplementedInterfaces();
         }
