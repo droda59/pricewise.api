@@ -1,4 +1,5 @@
 using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -50,10 +51,23 @@ namespace PriceAlerts.Api
                     settings.NullValueHandling = NullValueHandling.Ignore;
                     settings.Formatting = Formatting.Indented;
                 });
+            
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 
-            services.AddAuthorization(options => 
+                })
+                .AddJwtBearer(jwt =>
+                {
+                    jwt.Audience = this.Configuration["Auth0:ApiIdentifier"];
+                    jwt.Authority = $"https://{this.Configuration["Auth0:Domain"]}/";
+                });
+            
+            services.AddAuthorization(auth =>
             {
-                options.AddPolicy("LocalOnly", policy => policy.Requirements.Add(new LocalAuthorizationOnlyRequirement()));
+                auth.AddPolicy("LocalOnly", policy => policy.Requirements.Add(new LocalAuthorizationOnlyRequirement()));
             });
 
             MongoDBConfig.RegisterClassMaps();
@@ -66,16 +80,9 @@ namespace PriceAlerts.Api
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
-            app.UseCors("CorsPolicy");
             
-            var options = new JwtBearerOptions
-            {
-                Audience = this.Configuration["Auth0:ApiIdentifier"],
-                Authority = $"https://{this.Configuration["Auth0:Domain"]}/"
-            };
-            app.UseJwtBearerAuthentication(options);
-
+            app.UseCors("CorsPolicy");
+            app.UseAuthentication();
             app.UseMvc();
         }
     }

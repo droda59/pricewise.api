@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
+using Microsoft.Extensions.Logging;
 
 namespace PriceAlerts.Common.Infrastructure
 {
@@ -11,9 +12,9 @@ namespace PriceAlerts.Common.Infrastructure
     {
         private readonly ILogger _logger;
 
-        public LoggerInterceptor(ILogger logger)
+        public LoggerInterceptor(ILoggerFactory loggerFactory)
         {
-            this._logger = logger;
+            this._logger = loggerFactory.CreateLogger<LoggerInterceptor>();
         }
 
         public void Intercept(IInvocation invocation)
@@ -34,7 +35,7 @@ namespace PriceAlerts.Common.Infrastructure
                 }
             }
             
-            this._logger.LogMessage($"{DateTime.UtcNow.ToLongTimeString()}: {description}");
+            this._logger.LogInformation($"{DateTime.UtcNow.ToLongTimeString()}: {description}");
 
             try
             {
@@ -42,7 +43,7 @@ namespace PriceAlerts.Common.Infrastructure
             }
             catch (Exception e)
             {
-                this._logger.LogError($"{DateTime.UtcNow.ToLongTimeString()}: !!! Logged Exception: {e.Message}");
+                this._logger.LogError(e, $"{DateTime.UtcNow.ToLongTimeString()}: !!! Logged Exception: {e.Message}");
                 throw;
             }
 
@@ -61,14 +62,17 @@ namespace PriceAlerts.Common.Infrastructure
 
                 if (returnValue is IEnumerable returnValues)
                 {
-                    var objectValue = returnValues.Cast<object>().ToList();
-                    typeName = $"{objectValue.Count} {returnValue.GetType().GetGenericArguments()[0]?.Name}[]";
-
-                    returnValue = string.Join(", ", objectValue);
+                    var objectValueCount = returnValues.Cast<object>().Count();
+                    typeName = $"{objectValueCount} {returnValue.GetType().GetGenericArguments()[0]?.Name}[]";
+                    returnValue = string.Empty;
+                }
+                else
+                {
+                    returnValue = $"<{returnValue}>";
                 }
             }
 
-            this._logger.LogMessage($"{DateTime.UtcNow.ToLongTimeString()}: Returned from {invocation.TargetType.Name} with {typeName} <{returnValue}>");
+            this._logger.LogInformation($"{DateTime.UtcNow.ToLongTimeString()}: Returned from {invocation.TargetType.Name} with {typeName} {returnValue}");
         }
 
         private static string GetParameterDescription(object stringParameter, ParameterInfo parameterInfo)
