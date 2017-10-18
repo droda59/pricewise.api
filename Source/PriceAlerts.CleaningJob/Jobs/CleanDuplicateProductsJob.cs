@@ -77,6 +77,11 @@ namespace PriceAlerts.CleaningJob.Jobs
                                     if (entry.MonitoredProductId == duplicateEntry.Id)
                                     {
                                         entry.MonitoredProductId = originalEntry.Id;
+                                        if (alert.BestCurrentDeal.ProductId == entry.MonitoredProductId)
+                                        {
+                                            alert.BestCurrentDeal.ProductId = originalEntry.Id;
+                                        }
+                                        
                                         isInUse = true;
                                         isInUseForAlert = true;
                                     }
