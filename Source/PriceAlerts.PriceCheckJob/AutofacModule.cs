@@ -1,5 +1,5 @@
 using Autofac;
-
+using Microsoft.Extensions.Logging;
 using PriceAlerts.PriceCheckJob.Emails;
 using PriceAlerts.PriceCheckJob.Jobs;
 
@@ -13,6 +13,8 @@ namespace PriceAlerts.PriceCheckJob
             builder.RegisterType<AlertUsersJob>().AsSelf();
 
             builder.RegisterType<EmailSender>().As<IEmailSender>().SingleInstance();
+
+            builder.Register<ILoggerFactory>(c => new LoggerFactory());
         }
     }
 }

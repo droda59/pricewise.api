@@ -1,5 +1,6 @@
 using Autofac;
 using Autofac.Extras.DynamicProxy;
+using Microsoft.Extensions.Logging;
 using PriceAlerts.Api.Factories;
 using PriceAlerts.Common.Infrastructure;
 
