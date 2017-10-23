@@ -25,24 +25,25 @@ namespace PriceAlerts.Common.Tests
         }
 
         [Theory]
-        //[InlineData(typeof(AmazonTestParser))]
-        //[InlineData(typeof(ArchambaultTestParser))]
-        //[InlineData(typeof(BestBuyTestParser))]
-        //[InlineData(typeof(BraultMartineauTestParser))]
-        //[InlineData(typeof(CanadianTireTestParser))]
-       // [InlineData(typeof(CarcajouTestParser))]
-        //[InlineData(typeof(IkeaTestParser))]
-        // [InlineData(typeof(IndigoTestParser))]
-       // [InlineData(typeof(LegoTestParser))]
-       // [InlineData(typeof(LeonTestParser))]
-       // [InlineData(typeof(MonoPriceTestParser))]
-       // [InlineData(typeof(RenaudBrayTestParser))]
-       // [InlineData(typeof(SAQTestParser))]
-       // [InlineData(typeof(SearsTestParser))]
-       // [InlineData(typeof(StaplesTestParser))]
-       // [InlineData(typeof(TigerDirectTestParser))]
-        // [InlineData(typeof(ToysRUsTestParser))]
+        [InlineData(typeof(AmazonTestParser))]
+        [InlineData(typeof(ArchambaultTestParser))]
+        [InlineData(typeof(BestBuyTestParser))]
+        [InlineData(typeof(BraultMartineauTestParser))]
+        [InlineData(typeof(CanadianTireTestParser))]
+        [InlineData(typeof(CarcajouTestParser))]
+        [InlineData(typeof(HomeDepotTestParser))]
+        [InlineData(typeof(IkeaTestParser))]
+        [InlineData(typeof(IndigoTestParser))]
+        [InlineData(typeof(LegoTestParser))]
+        [InlineData(typeof(LeonTestParser))]
+        [InlineData(typeof(MonoPriceTestParser))]
         [InlineData(typeof(NcixTestParser))]
+        [InlineData(typeof(RenaudBrayTestParser))]
+        [InlineData(typeof(SAQTestParser))]
+        [InlineData(typeof(SearsTestParser))]
+        [InlineData(typeof(StaplesTestParser))]
+        [InlineData(typeof(TigerDirectTestParser))]
+        [InlineData(typeof(ToysRUsTestParser))]
         public async Task GetSiteInfo_AlwaysReturnSiteInfo(Type parserType)
         {
             var parser = this.CreateTestParser(parserType);
@@ -64,11 +65,11 @@ namespace PriceAlerts.Common.Tests
                     Assert.NotNull(siteInfo.ProductIdentifier);
                     Assert.True(siteInfo.Price >= 0);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Console.WriteLine($"Failed test on {urlToTest}");
 
-                    throw e;
+                    throw;
                 }
             }
 
