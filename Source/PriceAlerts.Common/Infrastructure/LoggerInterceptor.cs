@@ -14,7 +14,7 @@ namespace PriceAlerts.Common.Infrastructure
 
         public LoggerInterceptor(ILoggerFactory loggerFactory)
         {
-            this._logger = loggerFactory.CreateLogger<LoggerInterceptor>();
+            this._logger = loggerFactory.CreateLogger("Logging");
         }
 
         public void Intercept(IInvocation invocation)
