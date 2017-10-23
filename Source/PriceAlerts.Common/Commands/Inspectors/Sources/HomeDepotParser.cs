@@ -34,11 +34,22 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 throw new ParseException("Error parsing the document", url);                
             }
             
-            var productInfo = this.GetProductInfo(document);
+            var sku = this.GetProductSku(document);
+            var productInfo = this.GetProductInfo(sku);
+            var priceInfo = this.GetProductPrice(sku);
             
             var title = productInfo.Name;
             var imageUrl = productInfo.Images.First().Url;
-            var price = productInfo.Price.Value;
+
+            var price = 0m;
+            if (priceInfo.OptimizedPrice.DisplayPrice != null)
+            {
+                price = priceInfo.OptimizedPrice.DisplayPrice.Value;
+            }
+            else
+            {
+                price = productInfo.Price.Value;
+            }
 
             return new SitePriceInfo
             {
@@ -50,9 +61,8 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             };
         }
 
-        private HomeDepotProductInfo GetProductInfo(HtmlDocument doc)
+        private HomeDepotProductInfo GetProductInfo(string sku)
         {
-            var sku = this.GetProductSku(doc);
             var priceUrl = new Uri(this._source.Domain, $"/homedepotcacommercewebservices/v2/homedepotca/products/{sku}/");
             var getInfoTask = this._requestClient.ReadHtmlAsync(priceUrl);
             getInfoTask.Wait();
@@ -60,6 +70,17 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var infoResult = getInfoTask.Result;
 
             return JsonConvert.DeserializeObject<HomeDepotProductInfo>(infoResult);
+        }
+
+        private HomeDepotProductPriceInfo GetProductPrice(string sku)
+        {
+            var priceUrl = new Uri(this._source.Domain, $"/homedepotcacommercewebservices/v2/homedepotca/products/{sku}/localized/7159/");
+            var getInfoTask = this._requestClient.ReadHtmlAsync(priceUrl);
+            getInfoTask.Wait();
+
+            var infoResult = getInfoTask.Result;
+
+            return JsonConvert.DeserializeObject<HomeDepotProductPriceInfo>(infoResult);
         }
 
         private string GetProductSku(HtmlDocument doc)
@@ -84,8 +105,8 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             public string Name { get; set; }
             
             public List<HomeDepotProductImageInfo> Images { get; set; }
-
-            public HomeDepotProductPriceInfo Price { get; set; }
+            
+            public HomeDepotPriceInfo Price { get; set; }
         }
 
         private class HomeDepotProductImageInfo
@@ -94,6 +115,16 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         }
 
         private class HomeDepotProductPriceInfo
+        {
+            public HomeDepotOptimizedPriceInfo OptimizedPrice { get; set; }
+        }
+
+        private class HomeDepotOptimizedPriceInfo
+        {
+            public HomeDepotPriceInfo DisplayPrice { get; set; }
+        }
+
+        private class HomeDepotPriceInfo
         {
             public decimal Value { get; set; }
         }
