@@ -9,5 +9,8 @@ namespace PriceAlerts.Api.Factories
     {
         [LoggingDescription("Create product model")]
         Task<MonitoredProduct> CreateProduct(Uri uri);
+
+        [LoggingDescription("Create updated product model")]
+        Task<MonitoredProduct> CreateUpdatedProduct(Uri url);
     }
 }

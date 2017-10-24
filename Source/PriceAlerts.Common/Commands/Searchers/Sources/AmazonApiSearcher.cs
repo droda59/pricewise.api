@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Nager.AmazonProductAdvertising;
 using Nager.AmazonProductAdvertising.Model;
 using PriceAlerts.Common.Infrastructure;
-using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Searchers.Sources
 {
@@ -15,9 +14,8 @@ namespace PriceAlerts.Common.Commands.Searchers.Sources
         private const string SecretKey = "OrmN1xqFtS0y7QZ5LUnQs9zlQCFtcI2ZqLoYK6Rh";
         
         private readonly AmazonWrapper _apiWwrapper;
-        private readonly AmazonSource _source;
-        
-        public AmazonApiSearcher(AmazonSource source)
+
+        public AmazonApiSearcher()
         {
             var authentication = new AmazonAuthentication
             {
@@ -25,7 +23,6 @@ namespace PriceAlerts.Common.Commands.Searchers.Sources
                 SecretKey = SecretKey
             };
 
-            this._source = source;
             this._apiWwrapper = new AmazonWrapper(authentication, AmazonEndpoint.CA);
         }
 
@@ -43,7 +40,5 @@ namespace PriceAlerts.Common.Commands.Searchers.Sources
             
             return item.Select(x => new Uri(x.DetailPageURL));
         }
-
-        public ISource Source => this._source;
     }
 }

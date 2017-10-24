@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
+using PriceAlerts.Common.CommandHandlers;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Factories;
@@ -24,7 +25,6 @@ namespace PriceAlerts.Api.Controllers
         private readonly IAlertRepository _alertRepository;
         private readonly IUserAlertFactory _userAlertFactory;
         private readonly IProductFactory _productFactory;
-        private readonly IHandlerFactory _handlerFactory;
 
         public UserAlertsController(IProductRepository productRepository, IAlertRepository alertRepository, IUserAlertFactory userAlertFactory, IProductFactory productFactory, IHandlerFactory handlerFactory)
         {
@@ -32,7 +32,6 @@ namespace PriceAlerts.Api.Controllers
             this._alertRepository = alertRepository;
             this._userAlertFactory = userAlertFactory;
             this._productFactory = productFactory;
-            this._handlerFactory = handlerFactory;
         }
 
         [HttpGet("{userId}")]
@@ -116,7 +115,7 @@ namespace PriceAlerts.Api.Controllers
         {
             try 
             {
-                var existingProduct = await ForceGetProduct(uri);
+                var existingProduct = await this._productFactory.CreateUpdatedProduct(uri);
                 var currentPrice = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
                 var newAlert = new UserAlert 
                 { 
@@ -151,7 +150,7 @@ namespace PriceAlerts.Api.Controllers
             try 
             {
                 var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
-                var existingProduct = await ForceGetProduct(uri);
+                var existingProduct = await this._productFactory.CreateUpdatedProduct(uri);
 
                 repoUserAlert.Entries.Add(new UserAlertEntry { MonitoredProductId = existingProduct.Id });
 
@@ -243,7 +242,7 @@ namespace PriceAlerts.Api.Controllers
                 await Task.WhenAll(alert.Entries.Select(async entry => 
                 {
                     var productUrl = new Uri(entry.OriginalUrl);
-                    var existingProduct = await ForceGetProduct(productUrl);
+                    var existingProduct = await this._productFactory.CreateProduct(productUrl);
 
                     lock (lockObject) 
                     {
@@ -290,18 +289,6 @@ namespace PriceAlerts.Api.Controllers
             var isDeleted = await this._alertRepository.DeleteAsync(userId, alertId);
 
             return isDeleted;
-        }
-
-        private async Task<MonitoredProduct> ForceGetProduct(Uri url)
-        {
-            var cleanUrl = this._handlerFactory.CreateHandler(url).HandleCleanUrl(url);
-            var existingProduct = await this._productRepository.GetByUrlAsync(cleanUrl.AbsoluteUri);
-            if (existingProduct == null)
-            {
-                existingProduct = await this._productFactory.CreateProduct(cleanUrl);
-            }
-
-            return existingProduct;
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 
 using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Models;
@@ -22,23 +23,75 @@ namespace PriceAlerts.Api.Factories
         public async Task<MonitoredProduct> CreateProduct(Uri url)
         {
             var handler = this._handlerFactory.CreateHandler(url);
-            var siteInfo = await handler.HandleGetInfo(url);
+            var cleanUrl = handler.HandleCleanUrl(url);
             
-            if (siteInfo == null)
+            var monitoredProduct = await this._productRepository.GetByUrlAsync(cleanUrl.AbsoluteUri);
+            if (monitoredProduct == null)
             {
-                throw new ParseException("PriceWise was unable to get the product information.", url);
+                var siteInfo = await handler.HandleGetInfo(cleanUrl);
+
+                if (siteInfo == null)
+                {
+                    throw new ParseException("PriceWise was unable to get the product information.", cleanUrl);
+                }
+
+                monitoredProduct = new MonitoredProduct
+                {
+                    ProductIdentifier = siteInfo.ProductIdentifier,
+                    Uri = siteInfo.Uri,
+                    Title = siteInfo.Title,
+                    ImageUrl = siteInfo.ImageUrl
+                };
+
+                monitoredProduct.PriceHistory.Add(new PriceChange {Price = siteInfo.Price, ModifiedAt = DateTime.UtcNow});
+                monitoredProduct = await this._productRepository.InsertAsync(monitoredProduct);
             }
 
-            var monitoredProduct = new MonitoredProduct
-            {
-                ProductIdentifier = siteInfo.ProductIdentifier, 
-                Uri = siteInfo.Uri,
-                Title = siteInfo.Title,
-                ImageUrl = siteInfo.ImageUrl
-            };
+            return monitoredProduct;
+        }
 
-            monitoredProduct.PriceHistory.Add(new PriceChange { Price = siteInfo.Price, ModifiedAt = DateTime.UtcNow });
-            monitoredProduct = await this._productRepository.InsertAsync(monitoredProduct);
+        public async Task<MonitoredProduct> CreateUpdatedProduct(Uri url)
+        {
+            var handler = this._handlerFactory.CreateHandler(url);
+            var cleanUrl = handler.HandleCleanUrl(url);
+            
+            var siteInfo = await handler.HandleGetInfo(cleanUrl);
+
+            if (siteInfo == null)
+            {
+                throw new ParseException("PriceWise was unable to get the product information.", cleanUrl);
+            }
+            
+            var monitoredProduct = await this._productRepository.GetByUrlAsync(cleanUrl.AbsoluteUri);
+            if (monitoredProduct == null)
+            {
+                monitoredProduct = new MonitoredProduct
+                {
+                    ProductIdentifier = siteInfo.ProductIdentifier,
+                    Uri = siteInfo.Uri,
+                    Title = siteInfo.Title,
+                    ImageUrl = siteInfo.ImageUrl
+                };
+
+                monitoredProduct.PriceHistory.Add(new PriceChange {Price = siteInfo.Price, ModifiedAt = DateTime.UtcNow});
+                monitoredProduct = await this._productRepository.InsertAsync(monitoredProduct);
+            }
+            else
+            {
+                var lastEntry = monitoredProduct.PriceHistory.LastOf(x => x.ModifiedAt);
+                        
+                var newPrice = siteInfo.Price;
+                var lastPrice = lastEntry.Price;
+
+                var currentDate = DateTime.UtcNow.Date;
+                var lastDate = lastEntry.ModifiedAt.Date;
+
+                if (newPrice != lastPrice || currentDate != lastDate)
+                {
+                    monitoredProduct.PriceHistory.Add(new PriceChange {Price = siteInfo.Price, ModifiedAt = DateTime.UtcNow});
+                    monitoredProduct = await this._productRepository.UpdateAsync(monitoredProduct.Id, monitoredProduct);
+                }
+            }
 
             return monitoredProduct;
         }
