@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceRoot}/PriceAlerts.Api/bin/Debug/netcoreapp1.0/PriceAlerts.Api.dll",
+            "program": "${workspaceRoot}/PriceAlerts.Api/bin/Debug/netcoreapp2.0/PriceAlerts.Api.dll",
             "args": [],
             "cwd": "${workspaceRoot}",
             "stopAtEntry": false,
