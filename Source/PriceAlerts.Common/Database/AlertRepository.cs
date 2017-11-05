@@ -50,6 +50,7 @@ namespace PriceAlerts.Common.Database
             repoUserAlert.BestCurrentDeal = data.BestCurrentDeal;
             repoUserAlert.Entries = data.Entries;
             repoUserAlert.IsActive = data.IsActive;
+            repoUserAlert.IsDeleted = data.IsDeleted;
             repoUserAlert.LastModifiedAt = DateTime.UtcNow;
 
             await this._userRepository.UpdateAsync(userId, repoUser);

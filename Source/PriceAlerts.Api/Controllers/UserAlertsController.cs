@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -113,9 +114,27 @@ namespace PriceAlerts.Api.Controllers
         [LoggingDescription("Request to create alert")]
         public virtual async Task<IActionResult> CreateAlert(string userId, [FromBody]Uri uri)
         {
-            try 
-            {
+            try
+            {   
                 var existingProduct = await this._productFactory.CreateUpdatedProduct(uri);
+                
+                // If the product already exists in an alert, redirect to the first existing alert
+                var allUserAlerts = await this._alertRepository.GetAllAsync(userId);
+                foreach (var alert in allUserAlerts)
+                {
+                    if (alert.Entries.Any(x => x.MonitoredProductId == existingProduct.Id))
+                    {
+                        if (alert.IsDeleted)
+                        {
+                            alert.IsDeleted = false;
+                            alert.IsActive = true;
+                            await this._alertRepository.UpdateAsync(userId, alert);
+                        }
+
+                        return this.Redirect($"{userId}/{alert.Id}");
+                    }
+                }
+
                 var currentPrice = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
                 var newAlert = new UserAlert 
                 { 
