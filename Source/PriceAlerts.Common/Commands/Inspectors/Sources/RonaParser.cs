@@ -41,7 +41,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var dollarsValue = priceContentNode.SelectSingleNode(".//span[contains(@class, 'integer')]");
             var centsValue = priceContentNode.SelectSingleNode(".//span[contains(@class, 'decimal')]");
 
-            var decimalDollarsValue = dollarsValue?.InnerText.ExtractDecimal() ?? 0m;
+            var decimalDollarsValue = dollarsValue?.InnerText.Replace(",", string.Empty).ExtractDecimal() ?? 0m;
             var decimalCentsValue = centsValue?.InnerText.ExtractDecimal() ?? 0m;
 
             return decimalDollarsValue + (decimalCentsValue / 100);
