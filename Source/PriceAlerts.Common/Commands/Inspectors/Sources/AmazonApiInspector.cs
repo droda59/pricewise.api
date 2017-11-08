@@ -35,6 +35,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         [LoggingDescription("Parsing API")]
         public async Task<SitePriceInfo> GetSiteInfo(Uri url)
         {
+            Item item;
             var asin = this._source.AsinExpression.Match(url.AbsoluteUri).Value;
             var result = await this._apiWwrapper.LookupAsync(asin, 
                 AmazonResponseGroup.OfferSummary
@@ -42,7 +43,15 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 | AmazonResponseGroup.ItemAttributes 
                 | AmazonResponseGroup.Medium);
 
-            var item = result?.Items.Item.FirstOrDefault();
+            try
+            {
+                item = result?.Items.Item.FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                item = null;
+            }
+            
             if (item == null)
             {
                 return null;
@@ -73,12 +82,12 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             {
                 return null;
             }
-            
+
             var minPrice = prices.Min(x => x.FormattedPrice.ExtractDecimal());
-            
+
             return new SitePriceInfo
             {
-                ProductIdentifier = item.ASIN, 
+                ProductIdentifier = item.ASIN,
                 Uri = url.AbsoluteUri,
                 Title = item.ItemAttributes.Title,
                 ImageUrl = item.MediumImage.URL,
