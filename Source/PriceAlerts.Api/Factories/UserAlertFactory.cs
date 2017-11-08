@@ -23,25 +23,13 @@ namespace PriceAlerts.Api.Factories
 
         public async Task<UserAlertDto> CreateUserAlert(UserAlert repoAlert)
         {
-            var bestDealProduct = await this._productRepository.GetAsync(repoAlert.BestCurrentDeal.ProductId);
-
-            var bestDealUrl = new Uri(bestDealProduct.Uri);
-            var bestDealHandler = this._handlerFactory.CreateHandler(bestDealUrl);
-
             var userAlert = new UserAlertDto
             {
                 Id = repoAlert.Id,
                 Title = repoAlert.Title,
                 ImageUrl = repoAlert.ImageUrl,
                 IsActive = repoAlert.IsActive,
-                BestCurrentDeal = new DealDto 
-                {
-                    Price = repoAlert.BestCurrentDeal.Price,
-                    Title = bestDealProduct.Title,
-                    ModifiedAt = repoAlert.BestCurrentDeal.ModifiedAt,
-                    OriginalUrl = bestDealProduct.Uri,
-                    ProductUrl = bestDealHandler.HandleManipulateUrl(bestDealUrl).AbsoluteUri
-                }
+                ModifiedAt = repoAlert.BestCurrentDeal.ModifiedAt,
             };
 
             var lockObject = new object();
@@ -58,7 +46,6 @@ namespace PriceAlerts.Api.Factories
                     OriginalUrl = entryProduct.Uri,
                     ProductUrl = handler.HandleManipulateUrl(productUrl).AbsoluteUri,
                     LastPrice = lastUpdate.Price,
-                    Title = entryProduct.Title,
                     ProductIdentifier = entryProduct.ProductIdentifier
                 };
 
@@ -87,7 +74,6 @@ namespace PriceAlerts.Api.Factories
                 BestCurrentDeal = new DealDto 
                 {
                     Price = repoAlert.BestCurrentDeal.Price,
-                    Title = bestDealProduct.Title,
                     ModifiedAt = repoAlert.BestCurrentDeal.ModifiedAt,
                     OriginalUrl = bestDealProduct.Uri,
                     ProductUrl = bestDealHandler.HandleManipulateUrl(bestDealUrl).AbsoluteUri

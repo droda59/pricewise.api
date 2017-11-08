@@ -8,8 +8,6 @@ namespace PriceAlerts.Api.Models
 
         public string ProductUrl { get; set; }
 
-        public string Title { get; set; }
-        
         public decimal LastPrice { get; set; }
 
         public string ProductIdentifier { get; set; }
