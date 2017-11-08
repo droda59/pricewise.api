@@ -39,40 +39,54 @@ namespace PriceAlerts.Common.Infrastructure
 
             try
             {
-                invocation.Proceed();                
+                invocation.Proceed();
+
+                if (invocation.Method.ReturnType == typeof(void))
+                {
+                    return;
+                }
+
+                var typeName = invocation.Method.ReturnType.Name;
+                var returnValue = invocation.ReturnValue;
+                if (invocation.Method.ReturnType.IsGenericType
+                    && typeof(Task<>).IsAssignableFrom(invocation.Method.ReturnType.GetGenericTypeDefinition()))
+                {
+                    var task = (Task)invocation.ReturnValue;
+                    task.ContinueWith(t => 
+                    {
+                        if (t.IsFaulted)
+                        {
+                            this._logger.LogError(t.Exception, $"{DateTime.UtcNow.ToLongTimeString()}: !!! Logged Exception: {t.Exception.Message}");
+                            throw t.Exception;
+                        }
+                        
+                        returnValue = t.GetType().GetProperty("Result").GetValue(invocation.ReturnValue);
+                        typeName = invocation.Method.ReturnType.GetGenericArguments().First().Name;
+
+                        if (returnValue is IEnumerable returnValues)
+                        {
+                            var objectValueCount = returnValues.Cast<object>().Count();
+                            typeName = $"{objectValueCount} {returnValue.GetType().GetGenericArguments()[0]?.Name}[]";
+                            returnValue = string.Empty;
+                        }
+                        else
+                        {
+                            returnValue = $"<{returnValue}>";
+                        }
+                    
+                        this._logger.LogInformation($"{DateTime.UtcNow.ToLongTimeString()}: Returned from {invocation.TargetType.Name} with {typeName} {returnValue}");
+                    });
+                }
+                else
+                {
+                    this._logger.LogInformation($"{DateTime.UtcNow.ToLongTimeString()}: Returned from {invocation.TargetType.Name} with {typeName} {returnValue}");
+                }
             }
             catch (Exception e)
             {
                 this._logger.LogError(e, $"{DateTime.UtcNow.ToLongTimeString()}: !!! Logged Exception: {e.Message}");
                 throw;
             }
-
-            if (invocation.Method.ReturnType == typeof(void))
-            {
-                return;
-            }
-
-            var typeName = invocation.Method.ReturnType.Name;
-            var returnValue = invocation.ReturnValue;
-            if (invocation.Method.ReturnType.IsGenericType
-                && typeof(Task<>).IsAssignableFrom(invocation.Method.ReturnType.GetGenericTypeDefinition()))
-            {
-                returnValue = invocation.ReturnValue.GetType().GetProperty("Result").GetValue(invocation.ReturnValue);
-                typeName = invocation.Method.ReturnType.GetGenericArguments().First().Name;
-
-                if (returnValue is IEnumerable returnValues)
-                {
-                    var objectValueCount = returnValues.Cast<object>().Count();
-                    typeName = $"{objectValueCount} {returnValue.GetType().GetGenericArguments()[0]?.Name}[]";
-                    returnValue = string.Empty;
-                }
-                else
-                {
-                    returnValue = $"<{returnValue}>";
-                }
-            }
-
-            this._logger.LogInformation($"{DateTime.UtcNow.ToLongTimeString()}: Returned from {invocation.TargetType.Name} with {typeName} {returnValue}");
         }
 
         private static string GetParameterDescription(object stringParameter, ParameterInfo parameterInfo)
