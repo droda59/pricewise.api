@@ -7,6 +7,8 @@ namespace PriceAlerts.Common.Models
     {
         public string MonitoredProductId { get; set; }
 
+        public string Note { get; set; }
+
         public bool IsDeleted { get; set; }
     }
 }

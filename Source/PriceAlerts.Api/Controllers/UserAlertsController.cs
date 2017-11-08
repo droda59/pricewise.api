@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
-using PriceAlerts.Common.CommandHandlers;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Factories;
@@ -274,6 +272,7 @@ namespace PriceAlerts.Api.Controllers
                             new UserAlertEntry 
                             {
                                 MonitoredProductId = existingProduct.Id,
+                                Note = entry.Note,
                                 IsDeleted = entry.IsDeleted
                             });
                     }

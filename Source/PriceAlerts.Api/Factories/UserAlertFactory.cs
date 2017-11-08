@@ -46,6 +46,7 @@ namespace PriceAlerts.Api.Factories
                     OriginalUrl = entryProduct.Uri,
                     ProductUrl = handler.HandleManipulateUrl(productUrl).AbsoluteUri,
                     LastPrice = lastUpdate.Price,
+                    Note = entry.Note,
                     ProductIdentifier = entryProduct.ProductIdentifier
                 };
 
