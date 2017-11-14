@@ -63,6 +63,10 @@ namespace PriceAlerts.Common.Commands.Inspectors
             try
             {
                 price = this.GetPrice(document);
+                if (price == 0)
+                {
+                    throw new Exception("Price not found.");
+                }
             }
             catch (Exception e)
             {
