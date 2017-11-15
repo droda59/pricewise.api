@@ -13,8 +13,8 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
     public class AmazonApiInspector : IInspector
     {
-        private const string AccessKey = "AKIAIBE5OUZPPCBIESVA";
-        private const string SecretKey = "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";
+        private const string AccessKey = "AKIAJ77TFJHVOREMTPCA";
+        private const string SecretKey = "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";
         
         private readonly AmazonWrapper _apiWwrapper;
         private readonly AmazonSource _source;
@@ -37,6 +37,11 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
             Item item;
             var asin = this._source.AsinExpression.Match(url.AbsoluteUri).Value;
+            if (asin.EndsWith('/'))
+            {
+                asin = asin.Replace("/", string.Empty);
+            }
+            
             var result = await this._apiWwrapper.LookupAsync(asin, 
                 AmazonResponseGroup.OfferSummary
                 | AmazonResponseGroup.Offers 
