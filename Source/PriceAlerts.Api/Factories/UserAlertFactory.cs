@@ -26,9 +26,6 @@ namespace PriceAlerts.Api.Factories
             var userAlert = new UserAlertDto
             {
                 Id = repoAlert.Id,
-                Title = repoAlert.Title,
-                ImageUrl = repoAlert.ImageUrl,
-                IsActive = repoAlert.IsActive,
                 ModifiedAt = repoAlert.BestCurrentDeal.ModifiedAt,
             };
 

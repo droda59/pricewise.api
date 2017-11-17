@@ -322,8 +322,6 @@ namespace PriceAlerts.Api.Controllers
             try
             {
                 var repoUserAlert = await this._alertRepository.GetAsync(userId, alert.Id);
-                repoUserAlert.IsActive = alert.IsActive;
-                repoUserAlert.Title = alert.Title;
                 repoUserAlert.Entries.Clear();
 
                 var lockObject = new object();
