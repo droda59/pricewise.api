@@ -1,3 +1,4 @@
+using System;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace PriceAlerts.Common.Models
@@ -10,5 +11,9 @@ namespace PriceAlerts.Common.Models
         public string Note { get; set; }
 
         public bool IsDeleted { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+        public decimal OriginalPrice { get; set; }
     }
 }

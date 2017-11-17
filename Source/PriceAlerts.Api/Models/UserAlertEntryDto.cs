@@ -15,5 +15,9 @@ namespace PriceAlerts.Api.Models
         public string ProductIdentifier { get; set; }
 
         public bool IsDeleted { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+        public decimal OriginalPrice { get; set; }
     }
 }

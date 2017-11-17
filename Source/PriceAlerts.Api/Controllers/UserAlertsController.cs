@@ -115,17 +115,43 @@ namespace PriceAlerts.Api.Controllers
             try
             {   
                 var existingProduct = await this._productFactory.CreateUpdatedProduct(uri);
+                var currentPrice = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
                 
                 // If the product already exists in an alert, redirect to the first existing alert
                 var allUserAlerts = await this._alertRepository.GetAllAsync(userId);
                 foreach (var alert in allUserAlerts)
                 {
-                    if (alert.Entries.Any(x => x.MonitoredProductId == existingProduct.Id))
+                    var existingEntry = alert.Entries.FirstOrDefault(x => x.MonitoredProductId == existingProduct.Id);
+                    if (existingEntry != null)
                     {
+                        var mustUpdate = false;
+                        
+                        if (currentPrice.Price < alert.BestCurrentDeal.Price)
+                        {
+                            alert.BestCurrentDeal = new Deal
+                            {
+                                ProductId = existingProduct.Id, 
+                                Price = currentPrice.Price, 
+                                ModifiedAt = currentPrice.ModifiedAt
+                            };
+                            mustUpdate = true;
+                        }
+                        
+                        if (existingEntry.IsDeleted)
+                        {
+                            existingEntry.IsDeleted = false;
+                            mustUpdate = true;
+                        }
+                        
                         if (alert.IsDeleted)
                         {
                             alert.IsDeleted = false;
                             alert.IsActive = true;
+                            mustUpdate = true;
+                        }
+
+                        if (mustUpdate)
+                        {
                             await this._alertRepository.UpdateAsync(userId, alert);
                         }
 
@@ -133,7 +159,6 @@ namespace PriceAlerts.Api.Controllers
                     }
                 }
 
-                var currentPrice = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
                 var newAlert = new UserAlert 
                 { 
                     Title = existingProduct.Title, 
@@ -142,7 +167,12 @@ namespace PriceAlerts.Api.Controllers
                     BestCurrentDeal = new Deal { Price = currentPrice.Price, ModifiedAt = currentPrice.ModifiedAt, ProductId = existingProduct.Id }
                 };
 
-                newAlert.Entries.Add(new UserAlertEntry { MonitoredProductId = existingProduct.Id });
+                newAlert.Entries.Add(new UserAlertEntry
+                {
+                    MonitoredProductId = existingProduct.Id,
+                    CreatedAt = DateTime.UtcNow,
+                    OriginalPrice = currentPrice.Price
+                });
 
                 newAlert = await this._alertRepository.InsertAsync(userId, newAlert);
 
@@ -168,17 +198,59 @@ namespace PriceAlerts.Api.Controllers
             {
                 var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
                 var existingProduct = await this._productFactory.CreateUpdatedProduct(uri);
+                var currentPrice = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
 
-                repoUserAlert.Entries.Add(new UserAlertEntry { MonitoredProductId = existingProduct.Id });
+                var existingEntry = repoUserAlert.Entries.FirstOrDefault(x => x.MonitoredProductId == existingProduct.Id);
+                if (existingEntry != null)
+                {
+                    var mustUpdate = false;
+                        
+                    if (currentPrice.Price < repoUserAlert.BestCurrentDeal.Price)
+                    {
+                        repoUserAlert.BestCurrentDeal = new Deal
+                        {
+                            ProductId = existingProduct.Id, 
+                            Price = currentPrice.Price, 
+                            ModifiedAt = currentPrice.ModifiedAt
+                        };
+                        mustUpdate = true;
+                    }
+                        
+                    if (existingEntry.IsDeleted)
+                    {
+                        existingEntry.IsDeleted = false;
+                        mustUpdate = true;
+                    }
+                        
+                    if (repoUserAlert.IsDeleted)
+                    {
+                        repoUserAlert.IsDeleted = false;
+                        repoUserAlert.IsActive = true;
+                        mustUpdate = true;
+                    }
 
-                var lastProductHistoryEntry = existingProduct.PriceHistory.LastOf(x => x.ModifiedAt);
-                if (lastProductHistoryEntry.Price < repoUserAlert.BestCurrentDeal.Price)
+                    if (mustUpdate)
+                    {
+                        await this._alertRepository.UpdateAsync(userId, repoUserAlert);
+                    }
+
+                    return this.Redirect($"{userId}/{alertId}");
+                }
+                
+                repoUserAlert.Entries.Add(new UserAlertEntry
+                {
+                    MonitoredProductId = existingProduct.Id,
+                    CreatedAt = DateTime.UtcNow,
+                    OriginalPrice = currentPrice.Price
+                });
+
+                if (currentPrice.Price < repoUserAlert.BestCurrentDeal.Price)
                 {
                     repoUserAlert.BestCurrentDeal = new Deal
                     {
                         ProductId = existingProduct.Id, 
-                        Price = lastProductHistoryEntry.Price, 
-                        ModifiedAt = lastProductHistoryEntry.ModifiedAt
+                        Price = currentPrice.Price, 
+                        ModifiedAt = currentPrice.ModifiedAt
                     };
                 }
 
@@ -273,7 +345,9 @@ namespace PriceAlerts.Api.Controllers
                             {
                                 MonitoredProductId = existingProduct.Id,
                                 Note = entry.Note,
-                                IsDeleted = entry.IsDeleted
+                                IsDeleted = entry.IsDeleted,
+                                CreatedAt = entry.CreatedAt,
+                                OriginalPrice = entry.OriginalPrice
                             });
                     }
                 }));

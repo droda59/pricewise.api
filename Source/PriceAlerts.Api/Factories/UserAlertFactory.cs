@@ -47,7 +47,9 @@ namespace PriceAlerts.Api.Factories
                     ProductUrl = handler.HandleManipulateUrl(productUrl).AbsoluteUri,
                     LastPrice = lastUpdate.Price,
                     Note = entry.Note,
-                    ProductIdentifier = entryProduct.ProductIdentifier
+                    ProductIdentifier = entryProduct.ProductIdentifier,
+                    CreatedAt = entry.CreatedAt,
+                    OriginalPrice = entry.OriginalPrice
                 };
 
                 lock (lockObject) 
