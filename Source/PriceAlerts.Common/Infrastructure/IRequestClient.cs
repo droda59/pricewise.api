@@ -11,6 +11,8 @@ namespace PriceAlerts.Common.Infrastructure
 
         Task<HttpResponseMessage> LoadHtmlAsync(Uri uri, params KeyValuePair<string, string>[] customHeaders);
 
+        Task<HttpResponseMessage> LoadHtmlAsync(Uri uri, HttpMethod httpMethod, string requestBody, string contentType, params KeyValuePair<string, string>[] customHeaders);
+
         void Initialize();
     }
 }

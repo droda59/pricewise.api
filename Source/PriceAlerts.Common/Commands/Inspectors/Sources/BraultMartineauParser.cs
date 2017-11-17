@@ -28,7 +28,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         protected override string GetImageUrl(HtmlDocument doc)
         {
             var imageNode = doc.GetElementbyId("productMainImage");
-                
+
             var extractedValue = new Uri(this.Source.Domain, imageNode.Attributes["src"].Value);
 
             return extractedValue.AbsoluteUri;

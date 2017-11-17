@@ -1,5 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -31,13 +36,29 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var priceNodes = doc.DocumentNode.SelectNodes("//div[@class='price-current']");
+            // We need to use the async method
+            return 0;
+        }
 
-            string priceContent = "";
+        protected override async Task<decimal> GetPriceAsync(HtmlDocument doc)
+        {
+            var customHeaders = new List<KeyValuePair<string,string>>();
+            customHeaders.Add(new KeyValuePair<string, string>("X-Requested-With", "XMLHttpRequest"));
 
-            var decimalValue = priceContent.ExtractDecimal();
+            var skuPosition = doc.DocumentNode.InnerHtml.IndexOf("\"sku\"") + 7;
+            var skuString = doc.DocumentNode.InnerHtml.Substring(skuPosition, 13);
 
-            return decimalValue;
+            var upcPosition = doc.DocumentNode.InnerHtml.IndexOf("\"upc\"") +8;
+            var upcString = doc.DocumentNode.InnerHtml.Substring(upcPosition, 15);
+
+            var priceUri = new Uri("https://www.walmart.ca/ws/fr/products/availability-pip");
+            var requestBody = "{\"stores\":[\"1170\"], \"products\":{\""+skuString + "\":[{\"sku\":\""+skuString+"\",\"upc\":[\""+upcString+"\"]}]},\"origin\":\"pip\"}";
+
+            var priceRequest = await this._documentLoader.LoadDocumentAsString(priceUri, HttpMethod.Post, requestBody, "application/json", customHeaders);
+            var priceObject = JObject.Parse(priceRequest);
+
+            var price = (decimal)priceObject.SelectToken(skuString+".onlineSummary.minCurrentPrice");
+            return price;
         }
     }
 }

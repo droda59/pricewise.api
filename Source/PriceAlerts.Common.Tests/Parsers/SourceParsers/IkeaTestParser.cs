@@ -15,12 +15,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class IkeaTestParser : IkeaParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public IkeaTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new IkeaSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
@@ -30,7 +27,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var pagesToBrowse = new List<Uri>();
 
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
-            
+
             var urls = document.GetElementbyId("menu")
                 .SelectSingleNode(".//div[contains(@class, 'mainMenu')]")
                 .SelectSingleNode(".//div[contains(@class, 'tableContainer')]")
@@ -51,7 +48,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                 }
             }
 
-            await Task.WhenAll(pagesToBrowse.Select(async pageUrl => 
+            await Task.WhenAll(pagesToBrowse.Select(async pageUrl =>
             {
                 var page = await this._documentLoader.LoadDocument(pageUrl, this.Source.CustomHeaders);
 
@@ -90,7 +87,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                             }
                         }
                     }
-                }  
+                }
             }));
 
             return productUrls;

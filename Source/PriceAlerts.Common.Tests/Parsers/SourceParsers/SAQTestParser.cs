@@ -10,12 +10,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class SAQTestParser : SAQParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public SAQTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new SAQSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()

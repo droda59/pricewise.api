@@ -10,18 +10,15 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class LegoTestParser : LegoParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public LegoTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new LegoSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
         {
             var document = await this._documentLoader.LoadDocument(new Uri(this.Source.Domain, "en-CA/New-Sets"), this.Source.CustomHeaders);
-            
+
             return document.DocumentNode
                     .SelectNodes(".//div[contains(@class, 'product-leaf')]//a")
                     .Select(x => x.Attributes["href"].Value)

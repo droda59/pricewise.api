@@ -10,12 +10,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class NcixTestParser : NcixParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public NcixTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new NcixSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()

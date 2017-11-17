@@ -10,12 +10,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class BraultMartineauTestParser : BraultMartineauParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public BraultMartineauTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new BraultMartineauSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
@@ -34,7 +31,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                 new Uri("http://www.braultetmartineau.com/en/ensembles-matelas-sommier")
             };
 
-            await Task.WhenAll(pagesToBrowse.Select(async pageUrl => 
+            await Task.WhenAll(pagesToBrowse.Select(async pageUrl =>
             {
                 var page = await this._documentLoader.LoadDocument(pageUrl, this.Source.CustomHeaders);
                 var productList = page.DocumentNode.SelectSingleNode(".//div[contains(@class, 'product_listing_container')]");
@@ -50,7 +47,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                                 .Distinct()
                                 .Take(4)
                                 .Select(x => new Uri(this.Source.Domain, x)));
-                    }  
+                    }
                 }
             }));
 

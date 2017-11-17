@@ -11,12 +11,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class AmazonTestParser : AmazonHtmlParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public AmazonTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new AmazonSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
@@ -25,7 +22,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var productUrls = new List<Uri>();
 
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
-            
+
             var pagesToBrowse = new List<Uri>();
             pagesToBrowse.AddRange(
                 document.DocumentNode
@@ -33,7 +30,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                     .SelectNodes(".//a")
                     .Select(x => new Uri(this.Source.Domain, x.Attributes["href"].Value)));
 
-            await Task.WhenAll(pagesToBrowse.Select(async pageUrl => 
+            await Task.WhenAll(pagesToBrowse.Select(async pageUrl =>
             {
                 var page = await this._documentLoader.LoadDocument(pageUrl, this.Source.CustomHeaders);
                 if (page.GetElementbyId("mainResults") != null)
@@ -47,7 +44,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                                 .Take(6)
                                 .Select(x => x.SelectSingleNode(".//a[contains(@class, 's-access-detail-page')]"))
                                 .Select(x => new Uri(x.Attributes["href"].Value)));
-                    }  
+                    }
                 }
             }));
 

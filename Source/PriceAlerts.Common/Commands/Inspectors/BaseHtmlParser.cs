@@ -9,7 +9,7 @@ namespace PriceAlerts.Common.Commands.Inspectors
 {
     public abstract class BaseHtmlParser : IInspector
     {
-        private readonly IDocumentLoader _documentLoader;
+        protected readonly IDocumentLoader _documentLoader;
 
         protected BaseHtmlParser(IDocumentLoader documentLoader, ISource source)
         {
@@ -39,7 +39,7 @@ namespace PriceAlerts.Common.Commands.Inspectors
 
             if (document == null)
             {
-                throw new ParseException("Error parsing the document", productUrl);                
+                throw new ParseException("Error parsing the document", productUrl);
             }
 
             try
@@ -50,7 +50,7 @@ namespace PriceAlerts.Common.Commands.Inspectors
             {
                 throw new ParseException("Error parsing the title: " + e.Message, e, productUrl);
             }
-            
+
             try
             {
                 imageUrl = this.GetImageUrl(document);
@@ -59,10 +59,14 @@ namespace PriceAlerts.Common.Commands.Inspectors
             {
                 throw new ParseException("Error parsing the image: " + e.Message, e, productUrl);
             }
-            
+
             try
             {
                 price = this.GetPrice(document);
+                if(price == 0)
+                {
+                    price = await this.GetPriceAsync(document);
+                }
             }
             catch (Exception e)
             {
@@ -80,7 +84,7 @@ namespace PriceAlerts.Common.Commands.Inspectors
 
             return new SitePriceInfo
             {
-                ProductIdentifier = productIdentifier, 
+                ProductIdentifier = productIdentifier,
                 Uri = productUrl.AbsoluteUri,
                 Title = title,
                 ImageUrl = imageUrl,
@@ -93,6 +97,11 @@ namespace PriceAlerts.Common.Commands.Inspectors
         protected abstract string GetImageUrl(HtmlDocument doc);
 
         protected abstract decimal GetPrice(HtmlDocument doc);
+
+        protected virtual Task<decimal> GetPriceAsync(HtmlDocument document)
+        {
+            throw new InvalidOperationException("Base method should never be called.");
+        }
 
         protected virtual string GetProductIdentifier(HtmlDocument doc)
         {

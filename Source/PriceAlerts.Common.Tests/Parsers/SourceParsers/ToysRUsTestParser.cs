@@ -10,12 +10,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class ToysRUsTestParser : ToysRUsParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public ToysRUsTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new ToysRUsSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
@@ -30,7 +27,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                     .Distinct()
                     .Select(x => new Uri(x));
 
-            await Task.WhenAll(pagesToBrowse.Where(x => x.AbsoluteUri.Contains("categoryId")).Select(async pageUrl => 
+            await Task.WhenAll(pagesToBrowse.Where(x => x.AbsoluteUri.Contains("categoryId")).Select(async pageUrl =>
             {
                 var page = await this._documentLoader.LoadDocument(pageUrl, this.Source.CustomHeaders);
 
@@ -42,7 +39,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                             .Take(6)
                             .Select(x => x.Attributes["href"].Value)
                             .Select(x => new Uri(this.Source.Domain, x)));
-                }  
+                }
             }));
 
             return productUrls;

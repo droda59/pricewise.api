@@ -10,12 +10,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class LeonTestParser : LeonParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public LeonTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new LeonSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
@@ -24,7 +21,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var productUrls = new List<Uri>();
 
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
-            
+
             var pagesToBrowse = new List<Uri>();
             pagesToBrowse.AddRange(
                 document.GetElementbyId("home-one")
@@ -32,7 +29,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                     .Take(6)
                     .Select(x => new Uri(this.Source.Domain, x.Attributes["href"].Value)));
 
-            await Task.WhenAll(pagesToBrowse.Select(async pageUrl => 
+            await Task.WhenAll(pagesToBrowse.Select(async pageUrl =>
             {
                 var page = await this._documentLoader.LoadDocument(pageUrl, this.Source.CustomHeaders);
                 if (page.GetElementbyId("hawkitemlist") != null)
@@ -46,7 +43,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                                 .Distinct()
                                 .Take(4)
                                 .Select(x => new Uri(this.Source.Domain, x)));
-                    }  
+                    }
                 }
             }));
 

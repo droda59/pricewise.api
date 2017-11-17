@@ -10,12 +10,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class MonoPriceTestParser : MonoPriceParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public MonoPriceTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new MonoPriceSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()

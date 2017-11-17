@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using PriceAlerts.Common.Infrastructure;
@@ -35,7 +36,7 @@ namespace PriceAlerts.Common.Commands.Searchers
             // var document = await this.LoadDocument(searchUrl);
 
             var data = await this._requestClient.LoadHtmlAsync(searchUrl, this.Source.CustomHeaders.ToArray());
-            
+
             if (data.IsSuccessStatusCode)
             {
                 var content = await data.Content.ReadAsStringAsync();
@@ -45,7 +46,7 @@ namespace PriceAlerts.Common.Commands.Searchers
 
                 return this.GetSearchResultsUris(document, maxResultCount);
             }
-            
+
             if (data.Headers.Location != null)
             {
                 Uri location;

@@ -10,12 +10,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class SearsTestParser : SearsParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public SearsTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new SearsSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
@@ -23,7 +20,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var productUrls = new List<Uri>();
 
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
-            
+
             var pagesToBrowse = new List<Uri>();
             pagesToBrowse.AddRange(
                 document.DocumentNode

@@ -10,18 +10,15 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class TigerDirectTestParser : TigerDirectParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public TigerDirectTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new TigerDirectSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()
         {
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
-            
+
             return document.GetElementbyId("homeFeatured")
                     .SelectNodes(".//div[contains(@class, 'product')]//div[contains(@class, 'productInfo')]//a")
                     .Select(x => x.Attributes["href"].Value)

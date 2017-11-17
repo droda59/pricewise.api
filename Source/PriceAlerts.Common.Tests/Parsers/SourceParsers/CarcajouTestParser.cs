@@ -10,12 +10,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 {
     internal class CarcajouTestParser : CarcajouParser, ITestParser
     {
-        private readonly IDocumentLoader _documentLoader;
-
         public CarcajouTestParser(IDocumentLoader documentLoader)
             : base(documentLoader, new CarcajouSource())
         {
-            this._documentLoader = documentLoader;
         }
 
         public async Task<IEnumerable<Uri>> GetTestProductsUrls()

@@ -29,7 +29,7 @@ namespace PriceAlerts.Common.Infrastructure
 
         public async Task<HtmlDocument> LoadDocument(Uri url, IEnumerable<KeyValuePair<string, string>> customHeaders)
         {
-            var data = await this._requestClient.LoadHtmlAsync(url, customHeaders.ToArray());
+                        var data = await this._requestClient.LoadHtmlAsync(url, customHeaders.ToArray());
             if (!data.IsSuccessStatusCode)
             {
                 if (data.Headers.Location != null)
@@ -45,8 +45,6 @@ namespace PriceAlerts.Common.Infrastructure
                         location = new Uri(domain, data.Headers.Location);
                     }
 
-//                    Console.WriteLine("Redirect: " + location.AbsoluteUri);
-
                     return await this.LoadDocument(location, customHeaders);
                 }
             }
@@ -58,6 +56,36 @@ namespace PriceAlerts.Common.Infrastructure
                 document.LoadHtml(WebUtility.HtmlDecode(content));
 
                 return document;
+            }
+
+            return null;
+        }
+
+        public async Task<string> LoadDocumentAsString(Uri url, HttpMethod httpMethod, string requestBody, string contentType, IEnumerable<KeyValuePair<string, string>> customHeaders)
+        {
+            var data = await this._requestClient.LoadHtmlAsync(url, httpMethod, requestBody, contentType, customHeaders.ToArray());
+            if (!data.IsSuccessStatusCode)
+            {
+                if (data.Headers.Location != null)
+                {
+                    Uri location;
+                    if (Uri.IsWellFormedUriString(data.Headers.Location.ToString(), UriKind.Absolute))
+                    {
+                        location = data.Headers.Location;
+                    }
+                    else
+                    {
+                        var domain = new Uri(url.GetComponents(UriComponents.Scheme | UriComponents.StrongAuthority, UriFormat.Unescaped));
+                        location = new Uri(domain, data.Headers.Location);
+                    }
+
+                    return await this.LoadDocumentAsString(location, httpMethod, requestBody, contentType, customHeaders);
+                }
+            }
+            else
+            {
+                var content = await data.Content.ReadAsStringAsync();
+                return content;
             }
 
             return null;
