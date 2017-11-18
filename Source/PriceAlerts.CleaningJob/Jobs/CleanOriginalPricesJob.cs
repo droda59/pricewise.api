@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Extensions;
@@ -51,7 +52,7 @@ namespace PriceAlerts.CleaningJob.Jobs
                         }
                     }
 
-                    await this._alertRepository.UpdateAsync(user.Id, alert);
+                    await this._alertRepository.UpdateAsync(user.UserId, alert);
                 }
             }
             
