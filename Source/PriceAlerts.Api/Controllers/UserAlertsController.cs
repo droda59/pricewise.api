@@ -32,6 +32,8 @@ namespace PriceAlerts.Api.Controllers
             this._userAlertFactory = userAlertFactory;
             this._productFactory = productFactory;
         }
+        
+        #region Summaries
 
         [HttpGet("{userId}")]
         [LoggingDescription("Request to get alert summaries")]
@@ -57,17 +59,6 @@ namespace PriceAlerts.Api.Controllers
             return alertSummaries;
         }
 
-        [HttpGet("{userId}/{alertId}")]
-        [LoggingDescription("Request to get alert")]
-        public virtual async Task<UserAlertDto> Get(string userId, string alertId)
-        {
-            var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
-
-            var userAlert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
-
-            return userAlert;
-        }
-
         [HttpGet("{userId}/{alertId}/summary")]
         [LoggingDescription("Request to get alert summary")]
         public virtual async Task<UserAlertSummaryDto> GetSummary(string userId, string alertId)
@@ -78,6 +69,36 @@ namespace PriceAlerts.Api.Controllers
 
             return userAlert;
         }
+
+        [HttpPut("{userId}/summary")]
+        [LoggingDescription("Request to update an alert summary")]
+        public virtual async Task<IActionResult> UpdateAlertSummary(string userId, [FromBody]UserAlertSummaryDto alert)
+        {
+            try
+            {
+                var repoUserAlert = await this._alertRepository.GetAsync(userId, alert.Id);
+                repoUserAlert.IsActive = alert.IsActive;
+                repoUserAlert.Title = alert.Title;
+                
+                repoUserAlert = await this._alertRepository.UpdateAsync(userId, repoUserAlert);
+
+                var userAlert = await this._userAlertFactory.CreateUserAlertSummary(repoUserAlert);
+
+                return this.Ok(userAlert);
+            }
+            catch (KeyNotFoundException)
+            {
+                return this.NotFound("The specified source is not yet supported.");
+            }
+            catch (ParseException e)
+            {
+                return this.BadRequest(e.Message);
+            }
+        }
+        
+        #endregion
+        
+        #region History
 
         [HttpGet("{userId}/{alertId}/history")]
         [LoggingDescription("Request to get alert history")]
@@ -106,6 +127,21 @@ namespace PriceAlerts.Api.Controllers
                 });
 
             return deals;
+        }
+        
+        #endregion
+        
+        #region Alerts
+
+        [HttpGet("{userId}/{alertId}")]
+        [LoggingDescription("Request to get alert")]
+        public virtual async Task<UserAlertDto> Get(string userId, string alertId)
+        {
+            var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
+
+            var userAlert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
+
+            return userAlert;
         }
 
         [HttpPost("{userId}")]
@@ -289,32 +325,6 @@ namespace PriceAlerts.Api.Controllers
             }
         }
 
-        [HttpPut("{userId}/summary")]
-        [LoggingDescription("Request to update an alert summary")]
-        public virtual async Task<IActionResult> UpdateAlertSummary(string userId, [FromBody]UserAlertSummaryDto alert)
-        {
-            try
-            {
-                var repoUserAlert = await this._alertRepository.GetAsync(userId, alert.Id);
-                repoUserAlert.IsActive = alert.IsActive;
-                repoUserAlert.Title = alert.Title;
-                
-                repoUserAlert = await this._alertRepository.UpdateAsync(userId, repoUserAlert);
-
-                var userAlert = await this._userAlertFactory.CreateUserAlertSummary(repoUserAlert);
-
-                return this.Ok(userAlert);
-            }
-            catch (KeyNotFoundException)
-            {
-                return this.NotFound("The specified source is not yet supported.");
-            }
-            catch (ParseException e)
-            {
-                return this.BadRequest(e.Message);
-            }
-        }
-
         [HttpPut("{userId}")]
         [LoggingDescription("Request to update an alert")]
         public virtual async Task<IActionResult> UpdateAlert(string userId, [FromBody]UserAlertDto alert)
@@ -380,5 +390,7 @@ namespace PriceAlerts.Api.Controllers
 
             return isDeleted;
         }
+        
+        #endregion
     }
 }
