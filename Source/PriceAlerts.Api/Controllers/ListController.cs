@@ -1,0 +1,133 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using PriceAlerts.Api.Factories;
+using PriceAlerts.Api.Models;
+using PriceAlerts.Common.Database;
+using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Models;
+
+namespace PriceAlerts.Api.Controllers
+{
+    [Authorize]
+    [Route("api/[controller]")]
+    public class ListController : Controller
+    {
+        private readonly IAlertRepository _alertRepository;
+        private readonly IListRepository _listRepository;
+        private readonly IUserAlertFactory _userAlertFactory;
+
+        public ListController(
+            IAlertRepository alertRepository,
+            IListRepository listRepository,
+            IUserAlertFactory userAlertFactory, 
+            IProductFactory productFactory)
+        {
+            this._alertRepository = alertRepository;
+            this._listRepository = listRepository;
+            this._userAlertFactory = userAlertFactory;
+        }
+
+        [HttpDelete("{userId}/{listId}")]
+        [LoggingDescription("Request to delete user list")]
+        public virtual async Task<IActionResult> DeleteUserList(string userId, string listId)
+        {
+            var repoList = await this._listRepository.GetAsync(listId);
+            if (repoList.UserId != userId)
+            {
+                return this.Unauthorized();
+            }
+
+            var result = await this._listRepository.DeleteAsync(listId);
+
+            return this.Ok(result);
+        }
+
+        [HttpGet("{userId}/{listId}")]
+        [LoggingDescription("Request to get user list")]
+        public virtual async Task<IActionResult> GetUserList(string userId, string listId)
+        {
+            var repoList = await this._listRepository.GetAsync(listId);
+            if (repoList.UserId != userId)
+            {
+                return this.Unauthorized();
+            }
+
+            if (repoList.IsDeleted)
+            {
+                return this.NotFound();
+            }
+            
+            var lockObject = new object();
+            var summaries = new List<UserAlertSummaryDto>();
+            await Task.WhenAll(repoList.Alerts.Select(async alert =>
+            {
+                var summary = await this._userAlertFactory.CreateUserAlertSummary(alert);
+                lock (lockObject) 
+                {
+                    summaries.Add(summary);
+                }
+            }));
+
+            var userList = new ListDto
+            {
+                Id = repoList.Id,
+                Name = repoList.Name,
+                Alerts = summaries
+            };
+
+            return this.Ok(userList);
+        }
+
+        [HttpGet("{userId}")]
+        [LoggingDescription("Request to get user lists")]
+        public virtual async Task<IEnumerable<ListSummaryDto>> GetUserListSummaries(string userId)
+        {
+            var repoLists = await this._listRepository.GetUserListsAsync(userId);
+            
+            var userLists = new List<ListSummaryDto>();
+            foreach (var repoList in repoLists)
+            {
+                if (!repoList.IsDeleted)
+                {
+                    userLists.Add(new ListSummaryDto
+                    {
+                        Id = repoList.Id,
+                        Name = repoList.Name
+                    });
+                }
+            }
+
+            return userLists;
+        }
+
+        [HttpPost("{userId}")]
+        [LoggingDescription("Request to create a list")]
+        public virtual async Task<ListSummaryDto> CreateList(string userId, [FromBody]ListDto list)
+        {
+            var listIds = list.Alerts.Select(x => x.Id).ToList();
+            var repoAlerts = await this._alertRepository.GetAllAsync(userId);
+            var listAlerts = repoAlerts.Where(x => listIds.Contains(x.Id)).ToList();
+            
+            var newList = new List
+            {
+                Name = list.Name,
+                UserId = userId,
+                Alerts = listAlerts
+            };
+
+            newList = await this._listRepository.InsertAsync(newList);
+
+            var userList = new ListSummaryDto
+            {
+                Id = newList.Id,
+                Name = newList.Name
+            };
+            
+            return userList;
+        }
+    }
+}
