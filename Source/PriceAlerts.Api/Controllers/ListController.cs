@@ -41,6 +41,11 @@ namespace PriceAlerts.Api.Controllers
                 return this.Unauthorized();
             }
 
+            if (repoList.IsDeleted)
+            {
+                return this.NotFound();
+            }
+
             var result = await this._listRepository.DeleteAsync(listId);
 
             return this.Ok(result);
@@ -91,14 +96,11 @@ namespace PriceAlerts.Api.Controllers
             var userLists = new List<ListSummaryDto>();
             foreach (var repoList in repoLists)
             {
-                if (!repoList.IsDeleted)
+                userLists.Add(new ListSummaryDto
                 {
-                    userLists.Add(new ListSummaryDto
-                    {
-                        Id = repoList.Id,
-                        Name = repoList.Name
-                    });
-                }
+                    Id = repoList.Id,
+                    Name = repoList.Name
+                });
             }
 
             return userLists;

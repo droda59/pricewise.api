@@ -10,7 +10,7 @@ namespace PriceAlerts.Common.Database
     {
         public async Task<IEnumerable<List>> GetUserListsAsync(string userId)
         {
-            return await this.Collection.Find(x => x.UserId == userId).ToListAsync();
+            return await this.Collection.Find(x => x.UserId == userId && !x.IsDeleted).ToListAsync();
         }
         
         public async Task<List> GetAsync(string listId)
