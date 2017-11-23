@@ -32,7 +32,7 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpDelete("{userId}/{listId}")]
-        [LoggingDescription("Request to delete user list")]
+        [LoggingDescription("*** REQUEST to delete user list ***")]
         public virtual async Task<IActionResult> DeleteUserList(string userId, string listId)
         {
             var repoList = await this._listRepository.GetAsync(listId);
@@ -52,7 +52,7 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpGet("{userId}/{listId}")]
-        [LoggingDescription("Request to get user list")]
+        [LoggingDescription("*** REQUEST to get user list ***")]
         public virtual async Task<IActionResult> GetUserList(string userId, string listId)
         {
             var repoList = await this._listRepository.GetAsync(listId);
@@ -88,7 +88,7 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpGet("{userId}")]
-        [LoggingDescription("Request to get user lists")]
+        [LoggingDescription("*** REQUEST to get user lists ***")]
         public virtual async Task<IEnumerable<ListSummaryDto>> GetUserListSummaries(string userId)
         {
             var repoLists = await this._listRepository.GetUserListsAsync(userId);
@@ -106,13 +106,49 @@ namespace PriceAlerts.Api.Controllers
             return userLists;
         }
 
+        [HttpPut("{userId}")]
+        [LoggingDescription("*** REQUEST to update a list ***")]
+        public virtual async Task<ListDto> UpdateList(string userId, [FromBody]ListDto list)
+        {
+            var repoList = await this._listRepository.GetAsync(list.Id);
+            
+            var repoAlerts = await this._alertRepository.GetAllAsync(userId);
+            var listAlertIds = list.Alerts.Select(x => x.Id).ToList();
+            var listAlerts = repoAlerts.Where(x => listAlertIds.Contains(x.Id)).ToList();
+
+            repoList.Name = list.Name;
+            repoList.Alerts = listAlerts;
+
+            repoList = await this._listRepository.UpdateAsync(repoList);
+
+            var lockObject = new object();
+            var summaries = new List<UserAlertSummaryDto>();
+            await Task.WhenAll(repoList.Alerts.Select(async alert =>
+            {
+                var summary = await this._userAlertFactory.CreateUserAlertSummary(alert);
+                lock (lockObject) 
+                {
+                    summaries.Add(summary);
+                }
+            }));
+            
+            var userList = new ListDto
+            {
+                Id = repoList.Id,
+                Name = repoList.Name,
+                Alerts = summaries
+            };
+            
+            return userList;
+        }
+
         [HttpPost("{userId}")]
-        [LoggingDescription("Request to create a list")]
+        [LoggingDescription("*** REQUEST to create a list ***")]
         public virtual async Task<ListSummaryDto> CreateList(string userId, [FromBody]ListDto list)
         {
-            var listIds = list.Alerts.Select(x => x.Id).ToList();
             var repoAlerts = await this._alertRepository.GetAllAsync(userId);
-            var listAlerts = repoAlerts.Where(x => listIds.Contains(x.Id)).ToList();
+            var listAlertIds = list.Alerts.Select(x => x.Id).ToList();
+            var listAlerts = repoAlerts.Where(x => listAlertIds.Contains(x.Id)).ToList();
             
             var newList = new List
             {

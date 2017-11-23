@@ -36,7 +36,7 @@ namespace PriceAlerts.Api.Controllers
         #region Summaries
 
         [HttpGet("{userId}")]
-        [LoggingDescription("Request to get alert summaries")]
+        [LoggingDescription("*** REQUEST to get alert summaries ***")]
         public virtual async Task<IEnumerable<UserAlertSummaryDto>> GetSummaries(string userId)
         {
             var alertSummaries = new List<UserAlertSummaryDto>();
@@ -60,7 +60,7 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpGet("{userId}/{alertId}/summary")]
-        [LoggingDescription("Request to get alert summary")]
+        [LoggingDescription("*** REQUEST to get alert summary ***")]
         public virtual async Task<UserAlertSummaryDto> GetSummary(string userId, string alertId)
         {
             var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
@@ -71,7 +71,7 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpPut("{userId}/summary")]
-        [LoggingDescription("Request to update an alert summary")]
+        [LoggingDescription("*** REQUEST to update an alert summary ***")]
         public virtual async Task<IActionResult> UpdateAlertSummary(string userId, [FromBody]UserAlertSummaryDto alert)
         {
             try
@@ -101,7 +101,7 @@ namespace PriceAlerts.Api.Controllers
         #region History
 
         [HttpGet("{userId}/{alertId}/history")]
-        [LoggingDescription("Request to get alert history")]
+        [LoggingDescription("*** REQUEST to get alert history ***")]
         public virtual async Task<IEnumerable<ProductHistory>> GetHistory(string userId, string alertId)
         {
             var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
@@ -134,7 +134,7 @@ namespace PriceAlerts.Api.Controllers
         #region Alerts
 
         [HttpGet("{userId}/{alertId}")]
-        [LoggingDescription("Request to get alert")]
+        [LoggingDescription("*** REQUEST to get alert ***")]
         public virtual async Task<UserAlertDto> Get(string userId, string alertId)
         {
             var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
@@ -145,7 +145,7 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpPost("{userId}")]
-        [LoggingDescription("Request to create alert")]
+        [LoggingDescription("*** REQUEST to create alert ***")]
         public virtual async Task<IActionResult> CreateAlert(string userId, [FromBody]Uri uri)
         {
             try
@@ -191,7 +191,7 @@ namespace PriceAlerts.Api.Controllers
                             await this._alertRepository.UpdateAsync(userId, alert);
                         }
 
-                        return this.Redirect($"{userId}/{alert.Id}");
+                        return this.Redirect($"{userId}/{alert.Id}/summary");
                     }
                 }
 
@@ -227,7 +227,7 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpPost("{userId}/{alertId}/entry")]
-        [LoggingDescription("Request to create an alert entry")]
+        [LoggingDescription("*** REQUEST to create an alert entry ***")]
         public virtual async Task<IActionResult> CreateAlertEntry(string userId, string alertId, [FromBody]Uri uri)
         {
             try 
@@ -307,7 +307,7 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpPut("{userId}/{alertId}/activate")]
-        [LoggingDescription("Request to change alert active state")]
+        [LoggingDescription("*** REQUEST to change alert active state ***")]
         public virtual async Task<IActionResult> ActivateAlert(string userId, string alertId, [FromBody]bool isActive)
         {
             try
@@ -326,7 +326,7 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpPut("{userId}")]
-        [LoggingDescription("Request to update an alert")]
+        [LoggingDescription("*** REQUEST to update an alert ***")]
         public virtual async Task<IActionResult> UpdateAlert(string userId, [FromBody]UserAlertDto alert)
         {
             try
@@ -383,7 +383,7 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpDelete("{userId}/{alertId}")]
-        [LoggingDescription("Request to delete an alert")]
+        [LoggingDescription("*** REQUEST to delete an alert ***")]
         public virtual async Task<bool> DeleteAlert(string userId, string alertId)
         {
             var isDeleted = await this._alertRepository.DeleteAsync(userId, alertId);

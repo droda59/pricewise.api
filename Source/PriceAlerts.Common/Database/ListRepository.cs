@@ -33,6 +33,18 @@ namespace PriceAlerts.Common.Database
             return true;
         }
         
+        public async Task<List> UpdateAsync(List data)
+        {
+            data.LastModifiedAt = DateTime.UtcNow;
+            
+            var updatedEntry = await this.Collection.FindOneAndReplaceAsync<List>(
+                x => x.Id == data.Id, 
+                data,
+                new FindOneAndReplaceOptions<List> { ReturnDocument = ReturnDocument.After });
+
+            return updatedEntry;
+        }
+        
         public async Task<List> InsertAsync(List data)
         {
             data.CreatedAt = DateTime.UtcNow;

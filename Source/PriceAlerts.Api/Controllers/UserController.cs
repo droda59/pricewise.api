@@ -22,7 +22,7 @@ namespace PriceAlerts.Api.Controllers
 
         [Authorize]
         [HttpGet("{userId}")]
-        [LoggingDescription("Request to get a user")]
+        [LoggingDescription("*** REQUEST to get a user ***")]
         public virtual async Task<IActionResult> Get(string userId)
         {
             var repoUser = await this._userRepository.GetAsync(userId);
@@ -38,7 +38,7 @@ namespace PriceAlerts.Api.Controllers
 
         [Authorize]
         [HttpPost]
-        [LoggingDescription("Request to create a user")]
+        [LoggingDescription("*** REQUEST to create a user ***")]
         public virtual async Task<IActionResult> Create([FromBody]UserDto user)
         {
             var repoUser = new User
@@ -60,7 +60,7 @@ namespace PriceAlerts.Api.Controllers
 
         [Authorize]
         [HttpPut("{userId}")]
-        [LoggingDescription("Request to update a user")]
+        [LoggingDescription("*** REQUEST to update a user ***")]
         public virtual async Task<IActionResult> Update(string userId, [FromBody]UserDto user)
         {
             var repoUser = await this._userRepository.GetAsync(userId);

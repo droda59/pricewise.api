@@ -16,6 +16,9 @@ namespace PriceAlerts.Common.Database
         [LoggingDescription("Get user list from database")]
         Task<List> GetAsync(string listId);
 
+        [LoggingDescription("Update user list in database")]
+        Task<List> UpdateAsync(List data);
+
         [LoggingDescription("Remove user list from database")]
         Task<bool> DeleteAsync(string listId);
     }
