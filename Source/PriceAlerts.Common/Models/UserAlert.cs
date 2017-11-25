@@ -26,6 +26,11 @@ namespace PriceAlerts.Common.Models
 
         public IList<UserAlertEntry> Entries { get; set; }
 
+        public override bool Equals(object obj)
+        {
+            return this.Id == ((UserAlert)obj).Id;
+        }
+
         public override string ToString()
         {
             var id = this.Id;
