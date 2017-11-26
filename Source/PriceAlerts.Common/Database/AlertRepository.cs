@@ -12,10 +12,12 @@ namespace PriceAlerts.Common.Database
     internal class AlertRepository : IAlertRepository
     {
         private readonly IUserRepository _userRepository;
+        private readonly IListRepository _listRepository;
 
-        public AlertRepository(IUserRepository userRepository)
+        public AlertRepository(IUserRepository userRepository, IListRepository listRepository)
         {
             this._userRepository = userRepository;
+            this._listRepository = listRepository;
         }
 
         public async Task<IEnumerable<UserAlert>> GetAllAsync(string userId)
@@ -53,7 +55,10 @@ namespace PriceAlerts.Common.Database
             repoUserAlert.IsDeleted = data.IsDeleted;
             repoUserAlert.LastModifiedAt = DateTime.UtcNow;
 
-            await this._userRepository.UpdateAsync(userId, repoUser);
+            Task.WaitAll(
+                this._userRepository.UpdateAsync(userId, repoUser), 
+                this.UpdateListsWithAlert(userId, repoUserAlert));
+            
             var updatedAlert = await this.GetAsync(userId, data.Id);
 
             return updatedAlert;
@@ -86,9 +91,35 @@ namespace PriceAlerts.Common.Database
             repoUserAlert.IsActive = false;
             repoUserAlert.LastModifiedAt = DateTime.UtcNow;
 
-            await this._userRepository.UpdateAsync(userId, repoUser);
+            Task.WaitAll(
+                this._userRepository.UpdateAsync(userId, repoUser), 
+                this.UpdateListsWithDeletedAlert(userId, repoUserAlert));
 
             return true;
+        }
+        
+        private async Task UpdateListsWithAlert(string userId, UserAlert repoUserAlert)
+        {
+            var userLists = await this._listRepository.GetUserListsAsync(userId);
+            var listsWithCurrentAlert = userLists.Where(x => x.Alerts.Contains(repoUserAlert)).ToList();
+            foreach (var list in listsWithCurrentAlert)
+            {
+                var alertIndex = ((List<UserAlert>) list.Alerts).IndexOf(repoUserAlert);
+                ((List<UserAlert>) list.Alerts)[alertIndex] = repoUserAlert;
+                await this._listRepository.UpdateAsync(list);
+            }
+        }
+
+        private async Task UpdateListsWithDeletedAlert(string userId, UserAlert repoUserAlert)
+        {
+            var userLists = await this._listRepository.GetUserListsAsync(userId);
+            var listsWithCurrentAlert = userLists.Where(x => x.Alerts.Contains(repoUserAlert)).ToList();
+            foreach (var list in listsWithCurrentAlert)
+            {
+                var alertIndex = ((List<UserAlert>) list.Alerts).IndexOf(repoUserAlert);
+                ((List<UserAlert>) list.Alerts).RemoveAt(alertIndex);
+                await this._listRepository.UpdateAsync(list);
+            }
         }
     }
 }

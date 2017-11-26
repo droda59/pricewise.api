@@ -90,8 +90,6 @@ namespace PriceAlerts.Api.Controllers
                 
                 repoUserAlert = await this._alertRepository.UpdateAsync(userId, repoUserAlert);
 
-                await this.UpdateListsWithAlert(userId, repoUserAlert);
-
                 var userAlert = await this._userAlertFactory.CreateUserAlertSummary(repoUserAlert);
 
                 return this.Ok(userAlert);
@@ -302,8 +300,6 @@ namespace PriceAlerts.Api.Controllers
 
                 repoUserAlert = await this._alertRepository.UpdateAsync(userId, repoUserAlert);
                 
-                await this.UpdateListsWithAlert(userId, repoUserAlert);
-
                 var userAlert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
 
                 return this.Ok(userAlert);
@@ -329,8 +325,6 @@ namespace PriceAlerts.Api.Controllers
 
                 await this._alertRepository.UpdateAsync(userId, repoUserAlert);
                 
-                await this.UpdateListsWithAlert(userId, repoUserAlert);
-
                 return this.Ok(true);
             }
             catch (Exception e)
@@ -382,8 +376,6 @@ namespace PriceAlerts.Api.Controllers
 
                 repoUserAlert = await this._alertRepository.UpdateAsync(userId, repoUserAlert);
                 
-                await this.UpdateListsWithAlert(userId, repoUserAlert);
-
                 var userAlert = await this._userAlertFactory.CreateUserAlert(repoUserAlert);
 
                 return this.Ok(userAlert);
@@ -402,33 +394,11 @@ namespace PriceAlerts.Api.Controllers
         [LoggingDescription("*** REQUEST to delete an alert ***")]
         public virtual async Task<bool> DeleteAlert(string userId, string alertId)
         {
-            var repoUserAlert = await this._alertRepository.GetAsync(userId, alertId);
             var isDeleted = await this._alertRepository.DeleteAsync(userId, alertId);
-            
-            var userLists = await this._listRepository.GetUserListsAsync(userId);
-            var listsWithCurrentAlert = userLists.Where(x => x.Alerts.Contains(repoUserAlert)).ToList();
-            foreach (var list in listsWithCurrentAlert)
-            {
-                var alertIndex = ((List<UserAlert>) list.Alerts).IndexOf(repoUserAlert);
-                ((List<UserAlert>) list.Alerts).RemoveAt(alertIndex);
-                await this._listRepository.UpdateAsync(list);
-            }
 
             return isDeleted;
         }
         
         #endregion
-
-        private async Task UpdateListsWithAlert(string userId, UserAlert repoUserAlert)
-        {
-            var userLists = await this._listRepository.GetUserListsAsync(userId);
-            var listsWithCurrentAlert = userLists.Where(x => x.Alerts.Contains(repoUserAlert)).ToList();
-            foreach (var list in listsWithCurrentAlert)
-            {
-                var alertIndex = ((List<UserAlert>) list.Alerts).IndexOf(repoUserAlert);
-                ((List<UserAlert>) list.Alerts)[alertIndex] = repoUserAlert;
-                await this._listRepository.UpdateAsync(list);
-            }
-        }
     }
 }
