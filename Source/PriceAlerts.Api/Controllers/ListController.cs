@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -32,17 +33,17 @@ namespace PriceAlerts.Api.Controllers
 
         [HttpDelete("{userId}/{listId}")]
         [LoggingDescription("*** REQUEST to delete user list ***")]
-        public virtual async Task<IActionResult> DeleteUserList(string userId, string listId)
+        public virtual async Task<IActionResult> Delete(string userId, string listId)
         {
             var repoList = await this._listRepository.GetAsync(listId);
+            if (repoList == null)
+            {
+                return this.NotFound();
+            }
+            
             if (repoList.UserId != userId)
             {
                 return this.Unauthorized();
-            }
-
-            if (repoList.IsDeleted)
-            {
-                return this.NotFound();
             }
 
             var result = await this._listRepository.DeleteAsync(listId);
@@ -55,14 +56,14 @@ namespace PriceAlerts.Api.Controllers
         public virtual async Task<IActionResult> GetUserList(string userId, string listId)
         {
             var repoList = await this._listRepository.GetAsync(listId);
+            if (repoList == null)
+            {
+                return this.NotFound();
+            }
+            
             if (repoList.UserId != userId)
             {
                 return this.Unauthorized();
-            }
-
-            if (repoList.IsDeleted)
-            {
-                return this.NotFound();
             }
             
             var lockObject = new object();
@@ -107,9 +108,18 @@ namespace PriceAlerts.Api.Controllers
 
         [HttpPut("{userId}")]
         [LoggingDescription("*** REQUEST to update a list ***")]
-        public virtual async Task<ListSummaryDto> UpdateList(string userId, [FromBody]ListDto list)
+        public virtual async Task<IActionResult> Update(string userId, [FromBody]ListDto list)
         {
             var repoList = await this._listRepository.GetAsync(list.Id);
+            if (repoList == null)
+            {
+                return this.NotFound();
+            }
+            
+            if (repoList.UserId != userId)
+            {
+                return this.Unauthorized();
+            }
             
             var repoAlerts = await this._alertRepository.GetAllAsync(userId);
             var listAlertIds = list.Alerts.Select(x => x.Id).ToList();
@@ -126,12 +136,12 @@ namespace PriceAlerts.Api.Controllers
                 Name = repoList.Name
             };
             
-            return userList;
+            return this.Ok(userList);
         }
 
         [HttpPost("{userId}")]
         [LoggingDescription("*** REQUEST to create a list ***")]
-        public virtual async Task<ListSummaryDto> CreateList(string userId, [FromBody]ListDto list)
+        public virtual async Task<ListSummaryDto> Create(string userId, [FromBody]ListDto list)
         {
             var repoAlerts = await this._alertRepository.GetAllAsync(userId);
             var listAlertIds = list.Alerts.Select(x => x.Id).ToList();
@@ -153,6 +163,31 @@ namespace PriceAlerts.Api.Controllers
             };
             
             return userList;
+        }
+
+        [HttpPost("{userId}/{listId}")]
+        [LoggingDescription("*** REQUEST to share a list ***")]
+        public virtual async Task<IActionResult> Share(string userId, string listId)
+        {
+            var repoList = await this._listRepository.GetAsync(listId);
+            if (repoList == null)
+            {
+                return this.NotFound();
+            }
+            
+            if (repoList.UserId != userId)
+            {
+                return this.Unauthorized();
+            }
+
+            if (!repoList.IsPublic)
+            {
+                repoList.IsPublic = true;
+                
+                await this._listRepository.UpdateAsync(repoList);
+            }
+
+            return this.Ok(new Uri($"/list/{repoList.Id}", UriKind.Relative));
         }
     }
 }

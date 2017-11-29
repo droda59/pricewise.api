@@ -15,7 +15,7 @@ namespace PriceAlerts.Common.Database
         
         public async Task<List> GetAsync(string listId)
         {
-            return await this.Collection.Find(x => x.Id == listId).FirstOrDefaultAsync();
+            return await this.Collection.Find(x => x.Id == listId && !x.IsDeleted).FirstOrDefaultAsync();
         }
 
         public async Task<bool> DeleteAsync(string listId)
