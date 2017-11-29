@@ -107,7 +107,7 @@ namespace PriceAlerts.Api.Controllers
 
         [HttpPut("{userId}")]
         [LoggingDescription("*** REQUEST to update a list ***")]
-        public virtual async Task<ListDto> UpdateList(string userId, [FromBody]ListDto list)
+        public virtual async Task<ListSummaryDto> UpdateList(string userId, [FromBody]ListDto list)
         {
             var repoList = await this._listRepository.GetAsync(list.Id);
             
@@ -119,23 +119,11 @@ namespace PriceAlerts.Api.Controllers
             repoList.Alerts = listAlerts;
 
             repoList = await this._listRepository.UpdateAsync(repoList);
-
-            var lockObject = new object();
-            var summaries = new List<UserAlertSummaryDto>();
-            await Task.WhenAll(repoList.Alerts.Select(async alert =>
-            {
-                var summary = await this._userAlertFactory.CreateUserAlertSummary(alert);
-                lock (lockObject) 
-                {
-                    summaries.Add(summary);
-                }
-            }));
             
-            var userList = new ListDto
+            var userList = new ListSummaryDto
             {
                 Id = repoList.Id,
-                Name = repoList.Name,
-                Alerts = summaries
+                Name = repoList.Name
             };
             
             return userList;
