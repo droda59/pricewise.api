@@ -140,7 +140,7 @@ namespace PriceAlerts.Api.Controllers
             return await this._alertListFactory.CreateAlertList(newList);
         }
 
-        [HttpPost("{userId}/{listId}")]
+        [HttpPost("{userId}/{listId}/share")]
         [LoggingDescription("*** REQUEST to share an alert list ***")]
         public virtual async Task<IActionResult> Share(string userId, string listId)
         {
