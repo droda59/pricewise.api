@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -66,42 +66,27 @@ namespace PriceAlerts.Api.Controllers
                 return this.Unauthorized();
             }
             
-            var lockObject = new object();
-            var summaries = new List<UserAlertSummaryDto>();
-            await Task.WhenAll(repoList.Alerts.Select(async alert =>
-            {
-                var summary = await this._userAlertFactory.CreateUserAlertSummary(alert);
-                lock (lockObject) 
-                {
-                    summaries.Add(summary);
-                }
-            }));
-
-            var userList = new ListDto
-            {
-                Id = repoList.Id,
-                Name = repoList.Name,
-                Alerts = summaries
-            };
+            var userList = await this.CreateList(repoList);
 
             return this.Ok(userList);
         }
 
         [HttpGet("{userId}")]
         [LoggingDescription("*** REQUEST to get user lists ***")]
-        public virtual async Task<IEnumerable<ListSummaryDto>> GetUserListSummaries(string userId)
+        public virtual async Task<IEnumerable<ListDto>> GetUserLists(string userId)
         {
             var repoLists = await this._listRepository.GetUserListsAsync(userId);
             
-            var userLists = new List<ListSummaryDto>();
-            foreach (var repoList in repoLists)
+            var lockObject = new object();
+            var userLists = new List<ListDto>();
+            await Task.WhenAll(repoLists.Select(async repoList =>
             {
-                userLists.Add(new ListSummaryDto
+                var userList = await this.CreateList(repoList);
+                lock (lockObject)
                 {
-                    Id = repoList.Id,
-                    Name = repoList.Name
-                });
-            }
+                    userLists.Add(userList);
+                }
+            }));
 
             return userLists;
         }
@@ -130,18 +115,14 @@ namespace PriceAlerts.Api.Controllers
 
             repoList = await this._listRepository.UpdateAsync(repoList);
             
-            var userList = new ListSummaryDto
-            {
-                Id = repoList.Id,
-                Name = repoList.Name
-            };
+            var userList = await this.CreateList(repoList);
             
             return this.Ok(userList);
         }
 
         [HttpPost("{userId}")]
         [LoggingDescription("*** REQUEST to create a list ***")]
-        public virtual async Task<ListSummaryDto> Create(string userId, [FromBody]ListDto list)
+        public virtual async Task<ListDto> CreateList(string userId, [FromBody]ListDto list)
         {
             var repoAlerts = await this._alertRepository.GetAllAsync(userId);
             var listAlertIds = list.Alerts.Select(x => x.Id).ToList();
@@ -156,13 +137,30 @@ namespace PriceAlerts.Api.Controllers
 
             newList = await this._listRepository.InsertAsync(newList);
 
-            var userList = new ListSummaryDto
+            return await this.CreateList(newList);
+        }
+
+        private async Task<ListDto> CreateList(List repoList)
+        {
+            var lockObject = new object();
+            var summaries = new List<UserAlertSummaryDto>();
+            await Task.WhenAll(repoList.Alerts.Select(async alert =>
             {
-                Id = newList.Id,
-                Name = newList.Name
+                var summary = await this._userAlertFactory.CreateUserAlertSummary(alert);
+                lock (lockObject)
+                {
+                    summaries.Add(summary);
+                }
+            }));
+
+            var listDto = new ListDto
+            {
+                Id = repoList.Id,
+                Name = repoList.Name,
+                Alerts = summaries
             };
             
-            return userList;
+            return listDto;
         }
 
         [HttpPost("{userId}/{listId}")]
