@@ -18,21 +18,21 @@ namespace PriceAlerts.Api.Controllers
     {
         private readonly IAlertRepository _alertRepository;
         private readonly IListRepository _listRepository;
-        private readonly IUserAlertFactory _userAlertFactory;
+        private readonly IAlertListFactory _alertListFactory;
 
         public ListController(
             IAlertRepository alertRepository,
             IListRepository listRepository,
-            IUserAlertFactory userAlertFactory, 
+            IAlertListFactory alertListFactory, 
             IProductFactory productFactory)
         {
             this._alertRepository = alertRepository;
             this._listRepository = listRepository;
-            this._userAlertFactory = userAlertFactory;
+            this._alertListFactory = alertListFactory;
         }
 
         [HttpDelete("{userId}/{listId}")]
-        [LoggingDescription("*** REQUEST to delete user list ***")]
+        [LoggingDescription("*** REQUEST to delete alert list ***")]
         public virtual async Task<IActionResult> Delete(string userId, string listId)
         {
             var repoList = await this._listRepository.GetAsync(listId);
@@ -52,8 +52,8 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpGet("{userId}/{listId}")]
-        [LoggingDescription("*** REQUEST to get user list ***")]
-        public virtual async Task<IActionResult> GetUserList(string userId, string listId)
+        [LoggingDescription("*** REQUEST to get alert list ***")]
+        public virtual async Task<IActionResult> GetAlertList(string userId, string listId)
         {
             var repoList = await this._listRepository.GetAsync(listId);
             if (repoList == null)
@@ -66,33 +66,33 @@ namespace PriceAlerts.Api.Controllers
                 return this.Unauthorized();
             }
             
-            var userList = await this.CreateList(repoList);
+            var alertList = await this._alertListFactory.CreateAlertList(repoList);
 
-            return this.Ok(userList);
+            return this.Ok(alertList);
         }
 
         [HttpGet("{userId}")]
-        [LoggingDescription("*** REQUEST to get user lists ***")]
-        public virtual async Task<IEnumerable<ListDto>> GetUserLists(string userId)
+        [LoggingDescription("*** REQUEST to get alert lists ***")]
+        public virtual async Task<IEnumerable<ListDto>> GetAlertLists(string userId)
         {
-            var repoLists = await this._listRepository.GetUserListsAsync(userId);
+            var repoLists = await this._listRepository.GetAlertListsAsync(userId);
             
             var lockObject = new object();
-            var userLists = new List<ListDto>();
+            var alertLists = new List<ListDto>();
             await Task.WhenAll(repoLists.Select(async repoList =>
             {
-                var userList = await this.CreateList(repoList);
+                var alertList = await this._alertListFactory.CreateAlertList(repoList);
                 lock (lockObject)
                 {
-                    userLists.Add(userList);
+                    alertLists.Add(alertList);
                 }
             }));
 
-            return userLists;
+            return alertLists;
         }
 
         [HttpPut("{userId}")]
-        [LoggingDescription("*** REQUEST to update a list ***")]
+        [LoggingDescription("*** REQUEST to update an alert list ***")]
         public virtual async Task<IActionResult> Update(string userId, [FromBody]ListDto list)
         {
             var repoList = await this._listRepository.GetAsync(list.Id);
@@ -115,14 +115,14 @@ namespace PriceAlerts.Api.Controllers
 
             repoList = await this._listRepository.UpdateAsync(repoList);
             
-            var userList = await this.CreateList(repoList);
+            var alertList = await this._alertListFactory.CreateAlertList(repoList);
             
-            return this.Ok(userList);
+            return this.Ok(alertList);
         }
 
         [HttpPost("{userId}")]
-        [LoggingDescription("*** REQUEST to create a list ***")]
-        public virtual async Task<ListDto> CreateList(string userId, [FromBody]ListDto list)
+        [LoggingDescription("*** REQUEST to create an alert list ***")]
+        public virtual async Task<ListDto> Create(string userId, [FromBody]ListDto list)
         {
             var repoAlerts = await this._alertRepository.GetAllAsync(userId);
             var listAlertIds = list.Alerts.Select(x => x.Id).ToList();
@@ -137,34 +137,11 @@ namespace PriceAlerts.Api.Controllers
 
             newList = await this._listRepository.InsertAsync(newList);
 
-            return await this.CreateList(newList);
-        }
-
-        private async Task<ListDto> CreateList(List repoList)
-        {
-            var lockObject = new object();
-            var summaries = new List<UserAlertSummaryDto>();
-            await Task.WhenAll(repoList.Alerts.Select(async alert =>
-            {
-                var summary = await this._userAlertFactory.CreateUserAlertSummary(alert);
-                lock (lockObject)
-                {
-                    summaries.Add(summary);
-                }
-            }));
-
-            var listDto = new ListDto
-            {
-                Id = repoList.Id,
-                Name = repoList.Name,
-                Alerts = summaries
-            };
-            
-            return listDto;
+            return await this._alertListFactory.CreateAlertList(newList);
         }
 
         [HttpPost("{userId}/{listId}")]
-        [LoggingDescription("*** REQUEST to share a list ***")]
+        [LoggingDescription("*** REQUEST to share an alert list ***")]
         public virtual async Task<IActionResult> Share(string userId, string listId)
         {
             var repoList = await this._listRepository.GetAsync(listId);

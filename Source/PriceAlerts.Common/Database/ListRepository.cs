@@ -8,7 +8,7 @@ namespace PriceAlerts.Common.Database
 {
     internal class ListRepository : EntityRepository<List>, IListRepository
     {
-        public async Task<IEnumerable<List>> GetUserListsAsync(string userId)
+        public async Task<IEnumerable<List>> GetAlertListsAsync(string userId)
         {
             return await this.Collection.Find(x => x.UserId == userId && !x.IsDeleted).ToListAsync();
         }

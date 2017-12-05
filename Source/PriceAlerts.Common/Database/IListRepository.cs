@@ -7,19 +7,19 @@ namespace PriceAlerts.Common.Database
 {
     public interface IListRepository
     {
-        [LoggingDescription("Create new user list in database")]
+        [LoggingDescription("Create new alert list in database")]
         Task<List> InsertAsync(List data);
 
-        [LoggingDescription("Get user lists from database")]
-        Task<IEnumerable<List>> GetUserListsAsync(string userId);
+        [LoggingDescription("Get alert lists from database")]
+        Task<IEnumerable<List>> GetAlertListsAsync(string userId);
         
-        [LoggingDescription("Get user list from database")]
+        [LoggingDescription("Get alert list from database")]
         Task<List> GetAsync(string listId);
 
-        [LoggingDescription("Update user list in database")]
+        [LoggingDescription("Update alert list in database")]
         Task<List> UpdateAsync(List data);
 
-        [LoggingDescription("Remove user list from database")]
+        [LoggingDescription("Remove alert list from database")]
         Task<bool> DeleteAsync(string listId);
     }
 }

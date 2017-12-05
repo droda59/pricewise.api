@@ -8,7 +8,6 @@ using PriceAlerts.Common.Commands;
 using PriceAlerts.Common.Factories;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
-using Module = Autofac.Module;
 
 namespace PriceAlerts.Common
 {
