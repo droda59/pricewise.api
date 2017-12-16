@@ -41,11 +41,11 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var priceNodes = doc.DocumentNode
+            var priceNode = doc.DocumentNode
                 .SelectSingleNode(".//div[@class='product-essential']")
                 .SelectSingleNode(".//div[@class='price-box']")
-                .SelectNodes(".//span[@class='price']");
-            var priceNode = priceNodes.First(x => x.Id.Contains("product-price"));
+                .SelectNodes(".//span[@class='price']")
+                .First(x => x.Id.Contains("product-price"));
 
             var nodeValue = priceNode.InnerText;
             var decimalValue = nodeValue.ExtractDecimal();

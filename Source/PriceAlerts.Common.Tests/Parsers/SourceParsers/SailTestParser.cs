@@ -22,11 +22,12 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
         {
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
 
-            var widgets = document.DocumentNode.SelectNodes(".//div[@class='widget-multi-products']");
-            var widget = widgets.First();
-            var carousel = widget.SelectSingleNode(".//div[@class='products-carousel products-carousel-slick']");
-            var nodes = carousel.SelectNodes(".//h3[@class='product-name']");
-            var urls = nodes.SelectMany(x => x.SelectNodes("a"))
+            var urls = document.DocumentNode
+                .SelectNodes(".//div[@class='widget-multi-products']")
+                .First()
+                .SelectSingleNode(".//div[@class='products-carousel products-carousel-slick']")
+                .SelectNodes(".//h3[@class='product-name']")
+                .SelectMany(x => x.SelectNodes("a"))
                 .Select(x => x.Attributes["href"].Value)
                 .Select(x => new Uri(this.Source.Domain, x));
             return urls;

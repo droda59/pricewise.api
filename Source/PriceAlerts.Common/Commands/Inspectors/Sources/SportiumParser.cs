@@ -20,8 +20,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 .SelectSingleNode(".//div[@class='product-essential']")
                 .SelectSingleNode(".//div[@class='product-name']")
                 .SelectSingleNode(".//h1").InnerText;
-
-
+            
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 
             return extractedValue;
@@ -29,23 +28,23 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override string GetImageUrl(HtmlDocument doc)
         {
-            var nodeValue = doc.DocumentNode
+            var imageNode = doc.DocumentNode
                 .SelectSingleNode(".//div[@class='product-essential']")
                 .SelectSingleNode(".//div[@class='product-image-gallery']")
                 .SelectSingleNode(".//img[@class='gallery-image visible']");
                 
-            var extractedValue = nodeValue.Attributes["src"].Value;
+            var extractedValue = imageNode.Attributes["src"].Value;
 
             return extractedValue;
         }
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var priceNodes = doc.DocumentNode
+            var priceNode = doc.DocumentNode
                 .SelectSingleNode(".//div[@class='product-essential']")
                 .SelectSingleNode(".//div[@class='price-box']")
-                .SelectNodes(".//span[@class='price']");
-            var priceNode = priceNodes.First(x => x.Id.Contains("product-price"));
+                .SelectNodes(".//span[@class='price']")
+                .First(x => x.Id.Contains("product-price"));
 
             var nodeValue = priceNode.InnerText;
             var decimalValue = nodeValue.ExtractDecimal();
