@@ -8,10 +8,12 @@ namespace PriceAlerts.Common.CommandHandlers.Sources
     {
         public CanadianTireCommandHandler(CanadianTireSource source, 
             EmptyQueryStringCleaner cleaner, 
+            AnchorCleaner anchorCleaner, 
             CanadianTireParser parser)
             : base(source)
         {
             this.Commands.Add(cleaner);
+            this.Commands.Add(anchorCleaner);
             this.Commands.Add(parser);
         }
     }
