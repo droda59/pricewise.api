@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Castle.Core.Internal;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using PriceAlerts.Common.Infrastructure;
@@ -47,13 +48,20 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            decimal price = 0m;
+            var price = 0m;
 
-            var sku = doc.DocumentNode.SelectSingleNode(".//div[@class='sku-selectors__fieldset-wrapper']").Attributes["data-sku"].Value.Substring(0, 7);
-            var infoJson = this.GetProductInfo(sku);
-            if (infoJson.Any())
+            var productInfoJson = Enumerable.Empty<dynamic>();
+            var skuSelector = doc.DocumentNode.SelectSingleNode(".//form[@class='sku-selectors']");
+            if (skuSelector != null)
             {
-                var productEntry = infoJson.First();
+                var indexOfCode = skuSelector.OuterHtml.IndexOf("pCode", StringComparison.InvariantCultureIgnoreCase);
+                var productIdentifier = skuSelector.OuterHtml.Substring(indexOfCode + 8, 8).ToUpperInvariant();
+                productInfoJson = this.GetProductInfo(productId: productIdentifier);
+            }
+            
+            if (productInfoJson.Any())
+            {
+                var productEntry = productInfoJson.First();
                 price = productEntry.Price;
 
                 if (productEntry.Promo != null) 
@@ -65,24 +73,19 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             return price;
         }
 
-//        protected override string GetProductIdentifier(HtmlDocument doc)
-//        {
-//            var productIdentifier = string.Empty;
-
-            // var sku = doc.DocumentNode.SelectSingleNode(".//div[@class='sku-selectors__fieldset-wrapper']").Attributes["data-sku"].Value.Substring(0, 7);
-            // var infoJson = this.GetProductInfo(sku);
-            // if (infoJson.Any())
-            // {
-            //     var productEntry = infoJson.First();
-            //     productIdentifier = productEntry.PartNumber;
-            // }
-//
-//            return productIdentifier;
-//        }
-
-        private IEnumerable<dynamic> GetProductInfo(string sku)
+        private IEnumerable<dynamic> GetProductInfo(string sku = null, string productId = null)
         {
-            var priceUrl = new Uri(this.Source.Domain, $"/ESB/PriceAvailability?SKU={sku}&Banner=CTR&Language=E");
+            var requestUrl = "/ESB/PriceAvailability?Banner=CTR&Language=E";
+            if (!sku.IsNullOrEmpty())
+            {
+                requestUrl += $"&SKU={sku}";
+            }
+            else if (!productId.IsNullOrEmpty())
+            {
+                requestUrl += $"&Product={productId}";
+            }
+            
+            var priceUrl = new Uri(this.Source.Domain, requestUrl);
             var getInfoTask = this._requestClient.ReadHtmlAsync(priceUrl);
             getInfoTask.Wait();
 

@@ -35,11 +35,11 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
             var priceContentNode = doc.DocumentNode
                 .SelectSingleNode(".//div[contains(@class, 'productDetails')]")
-                .SelectSingleNode(".//span[contains(@class, 'product_price')]")
-                .SelectSingleNode(".//span[contains(@class, 'product_price_amount')]");
+                .SelectSingleNode(".//span[contains(@class, 'price-box__price')]")
+                .SelectSingleNode(".//span[contains(@class, 'price-box__price__amount')]");
 
-            var dollarsValue = priceContentNode.SelectSingleNode(".//span[contains(@class, 'integer')]");
-            var centsValue = priceContentNode.SelectSingleNode(".//span[contains(@class, 'decimal')]");
+            var dollarsValue = priceContentNode.SelectSingleNode(".//span[contains(@class, 'price-box__price__amount__integer')]");
+            var centsValue = priceContentNode.SelectSingleNode(".//sup[contains(@class, 'price-box__price__amount__decimal')]");
 
             var decimalDollarsValue = dollarsValue?.InnerText.Replace(",", string.Empty).ExtractDecimal() ?? 0m;
             var decimalCentsValue = centsValue?.InnerText.ExtractDecimal() ?? 0m;
