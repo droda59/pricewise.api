@@ -114,10 +114,10 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                 {
                                     templateName = "Raise";
                                 }
-                                var emailTemplate = $"Price{templateName}_{user.Settings.CorrespondenceLanguage}";
+                                var emailTemplate = $"Price{templateName}_Unsubscribe_{user.Settings.CorrespondenceLanguage}";
 
                                 Console.WriteLine($"Sending email {emailTemplate} to user {user.Id} for alert {alert.Id}");
-                                
+
                                 var sendEmailTask = this._emailSender.SendEmail(user.Email, parameters, emailTemplate);
                                 tasksToRun.Add(sendEmailTask);
                             }
