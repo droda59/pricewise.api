@@ -13,8 +13,8 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
     public class AmazonApiInspector : IInspector
     {
-        private const string AccessKey = "AKIAJ77TFJHVOREMTPCA";
-        private const string SecretKey = "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";
+        private const string AccessKey = "AKIAI2USA5KCUXZQ32CQ";
+        private const string SecretKey = "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";
         
         private readonly AmazonWrapper _apiWwrapper;
         private readonly AmazonSource _source;
