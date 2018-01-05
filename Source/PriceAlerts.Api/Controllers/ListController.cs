@@ -162,7 +162,7 @@ namespace PriceAlerts.Api.Controllers
                 await this._listRepository.UpdateAsync(repoList);
             }
 
-            return this.Ok(new Uri($"/list/{repoList.Id}", UriKind.Relative));
+            return this.Ok(new Uri($"list/{repoList.Id}", UriKind.Relative));
         }
     }
 }
