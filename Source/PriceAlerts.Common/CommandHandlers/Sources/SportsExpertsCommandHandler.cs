@@ -4,9 +4,11 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.CommandHandlers.Sources
 {
-    internal class MECCommandHandler : CommandHandler
+    internal class SportsExpertsCommandHandler : CommandHandler
     {
-        public MECCommandHandler(MECSource source, MECCleaner cleaner, MECParser parser)
+        public SportsExpertsCommandHandler(SportsExpertsSource source, 
+            SportsExpertsCleaner cleaner, 
+            SportsExpertsParser parser)
             : base(source)
         {
             this.Commands.Add(cleaner);

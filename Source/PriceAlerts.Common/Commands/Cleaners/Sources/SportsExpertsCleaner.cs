@@ -3,11 +3,11 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Cleaners.Sources
 {
-    public class MECCleaner : BaseCleaner, ICleaner
+    public class SportsExpertsCleaner : BaseCleaner, ICleaner
     {
-        private readonly MECSource _source;
+        private readonly SportsExpertsSource _source;
 
-        public MECCleaner(MECSource source)
+        public SportsExpertsCleaner(SportsExpertsSource source)
         {
             this._source = source;
         }
@@ -25,14 +25,8 @@ namespace PriceAlerts.Common.Commands.Cleaners.Sources
                     continue;
                 }
 
-                if (string.Equals(segment, "en/", StringComparison.OrdinalIgnoreCase) 
-                    || string.Equals(segment, "fr/", StringComparison.OrdinalIgnoreCase))
-                {
-                    newUrl += segment;
-                    continue;
-                }
-
-                if (string.Equals(segment, "product/", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(segment, "en-CA/", StringComparison.OrdinalIgnoreCase) 
+                    || string.Equals(segment, "fr-CA/", StringComparison.OrdinalIgnoreCase))
                 {
                     newUrl += segment;
                     continue;

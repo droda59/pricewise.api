@@ -43,6 +43,7 @@ namespace PriceAlerts.Common.Tests
         [InlineData(typeof(SailTestParser))]
         [InlineData(typeof(SAQTestParser))]
         [InlineData(typeof(SportiumTestParser))]
+        [InlineData(typeof(SportsExpertsTestParser))]
         [InlineData(typeof(StaplesTestParser))]
         [InlineData(typeof(TigerDirectTestParser))]
         [InlineData(typeof(ToysRUsTestParser))]
