@@ -20,7 +20,7 @@ namespace PriceAlerts.Common.Database
 
         public async Task<User> GetByEmailAsync(string email)
         {
-            return await this.Collection.Find(x => x.Email == email).FirstOrDefaultAsync();
+            return await this.Collection.Find(x => x.Email.ToLower() == email.ToLower()).FirstOrDefaultAsync();
         }
 
         public async Task<User> UpdateAsync(string userId, User data)
