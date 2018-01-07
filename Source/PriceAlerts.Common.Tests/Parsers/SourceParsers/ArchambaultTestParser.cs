@@ -23,7 +23,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
             
             return document.DocumentNode
-                    .SelectNodes(".//div[contains(@class, 'products-carousel')]//div[contains(@class, 'carousel__item-description')]//a")
+                    .SelectNodes(".//div[contains(@class, 'new-carousel')]//div[contains(@class, 'carousel__item-description')]//a")
                     .Select(x => x.Attributes["href"].Value)
                     .Distinct()
                     .Take(24)
