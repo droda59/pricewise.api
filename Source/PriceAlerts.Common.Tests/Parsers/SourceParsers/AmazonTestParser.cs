@@ -27,26 +27,34 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
             
             var pagesToBrowse = new List<Uri>();
-            pagesToBrowse.AddRange(
-                document.DocumentNode
-                    .SelectSingleNode(".//div[contains(@class, 'popular-departments')]")
-                    .SelectNodes(".//a")
-                    .Select(x => new Uri(this.Source.Domain, x.Attributes["href"].Value)));
+            var desktopRows = document.DocumentNode
+                .SelectNodes(".//div[contains(@class, 'desktop-row')]");
+            var titleBlocks = desktopRows
+                .Select(x => x.SelectSingleNode(".//div[contains(@class, 'as-title-block')]"));
+
+            var hrefs = titleBlocks.Select(titleBLock => titleBLock
+                .SelectSingleNode(".//a"))
+                .Select(x => new Uri(this.Source.Domain, x.Attributes["href"].Value));
+            pagesToBrowse.AddRange(hrefs);
 
             await Task.WhenAll(pagesToBrowse.Select(async pageUrl => 
             {
                 var page = await this._documentLoader.LoadDocument(pageUrl, this.Source.CustomHeaders);
-                if (page.GetElementbyId("mainResults") != null)
+                if (page.GetElementbyId("zg_centerListWrapper") != null)
                 {
                     lock(lockObject)
                     {
-                        productUrls.AddRange(
-                            page.GetElementbyId("mainResults")
-                                .SelectSingleNode(".//ul[contains(@class, 's-result-list')]")
-                                .SelectNodes(".//li[contains(@class, 's-result-item')]")
-                                .Take(6)
-                                .Select(x => x.SelectSingleNode(".//a[contains(@class, 's-access-detail-page')]"))
-                                .Select(x => new Uri(x.Attributes["href"].Value)));
+                        var listWrapper = page.GetElementbyId("zg_centerListWrapper");
+                        var itemWrappers = listWrapper
+                            .SelectNodes(".//div[contains(@class, 'zg_itemWrapper')]")
+                            .Take(6);
+                        var products = itemWrappers
+                            .Select(x => x.SelectSingleNode(".//div[contains(@class, 'a-section')]"));
+                        var productHrefs = products
+                            .Select(x => x.SelectSingleNode(".//a"))
+                            .Select(x => new Uri(this.Source.Domain, x.Attributes["href"].Value));
+
+                        productUrls.AddRange(productHrefs);
                     }  
                 }
             }));
