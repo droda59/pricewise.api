@@ -43,12 +43,13 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var price = doc.DocumentNode
+            var priceNode = doc.DocumentNode
                 .SelectSingleNode(".//div[contains(@class, 'product-layout')]")
                 .SelectSingleNode(".//ul[@class='price-group']")
-                .SelectSingleNode(".//li[@class='price']")
-                .SelectSingleNode(".//span[@itemprop='price']")
-                .InnerText;
+                .SelectSingleNode(".//li[@class='price']");
+
+            var lowprice = priceNode.SelectSingleNode(".//span[@itemprop='lowPrice']");
+            var price = lowprice != null ? lowprice.InnerText : priceNode.SelectSingleNode(".//span[@itemprop='price']").InnerText;
 
             var decimalValue = price.ExtractDecimal();
 
