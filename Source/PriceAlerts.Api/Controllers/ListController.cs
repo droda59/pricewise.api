@@ -18,16 +18,19 @@ namespace PriceAlerts.Api.Controllers
     {
         private readonly IAlertRepository _alertRepository;
         private readonly IListRepository _listRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IAlertListFactory _alertListFactory;
 
         public ListController(
             IAlertRepository alertRepository,
             IListRepository listRepository,
+            IUserRepository userRepository,
             IAlertListFactory alertListFactory, 
             IProductFactory productFactory)
         {
             this._alertRepository = alertRepository;
             this._listRepository = listRepository;
+            this._userRepository = userRepository;
             this._alertListFactory = alertListFactory;
         }
 
@@ -41,6 +44,7 @@ namespace PriceAlerts.Api.Controllers
                 return this.NotFound();
             }
             
+            // Only the list's user can delete it
             if (repoList.UserId != userId)
             {
                 return this.Unauthorized();
@@ -61,7 +65,8 @@ namespace PriceAlerts.Api.Controllers
                 return this.NotFound();
             }
             
-            if (repoList.UserId != userId)
+            // You can get the list if you are a watcher
+            if (repoList.UserId != userId && !repoList.Watchers.Contains(userId))
             {
                 return this.Unauthorized();
             }
@@ -75,7 +80,27 @@ namespace PriceAlerts.Api.Controllers
         [LoggingDescription("*** REQUEST to get alert lists ***")]
         public virtual async Task<IEnumerable<ListDto>> GetAlertLists(string userId)
         {
-            var repoLists = await this._listRepository.GetAlertListsAsync(userId);
+            var repoLists = await this._listRepository.GetUserAlertListsAsync(userId);
+            
+            var lockObject = new object();
+            var alertLists = new List<ListDto>();
+            await Task.WhenAll(repoLists.Select(async repoList =>
+            {
+                var alertList = await this._alertListFactory.CreateAlertList(repoList);
+                lock (lockObject)
+                {
+                    alertLists.Add(alertList);
+                }
+            }));
+
+            return alertLists;
+        }
+
+        [HttpGet("{userId}/watched")]
+        [LoggingDescription("*** REQUEST to get watched alert lists ***")]
+        public virtual async Task<IEnumerable<ListDto>> GetWatchedAlertLists(string userId)
+        {
+            var repoLists = await this._listRepository.GetUserWatchedAlertListsAsync(userId);
             
             var lockObject = new object();
             var alertLists = new List<ListDto>();
@@ -101,6 +126,7 @@ namespace PriceAlerts.Api.Controllers
                 return this.NotFound();
             }
             
+            // Only the list's user can update it
             if (repoList.UserId != userId)
             {
                 return this.Unauthorized();
@@ -150,6 +176,7 @@ namespace PriceAlerts.Api.Controllers
                 return this.NotFound();
             }
             
+            // Only the list's user can share it
             if (repoList.UserId != userId)
             {
                 return this.Unauthorized();
@@ -163,6 +190,66 @@ namespace PriceAlerts.Api.Controllers
             }
 
             return this.Ok(new Uri($"list/{repoList.Id}", UriKind.Relative));
+        }
+
+        [HttpPost("{userId}/{listId}/unshare")]
+        [LoggingDescription("*** REQUEST to share an alert list ***")]
+        public virtual async Task<IActionResult> Unshare(string userId, string listId)
+        {
+            var repoList = await this._listRepository.GetAsync(listId);
+            if (repoList == null)
+            {
+                return this.NotFound();
+            }
+            
+            // Only the list's user can unshare it
+            if (repoList.UserId != userId)
+            {
+                return this.Unauthorized();
+            }
+
+            if (repoList.IsPublic)
+            {
+                repoList.IsPublic = false;
+                
+                await this._listRepository.UpdateAsync(repoList);
+            }
+
+            return this.Ok();
+        }
+
+        [HttpPost("{userId}/{listId}/follow")]
+        [LoggingDescription("*** REQUEST to follow a public alert list ***")]
+        public virtual async Task<IActionResult> FollowAlertList(string userId, string listId)
+        {
+            var repoList = await this._listRepository.GetAsync(listId);
+            if (repoList == null)
+            {
+                return this.NotFound();
+            }
+            
+            if (!repoList.IsPublic)
+            {
+                return this.Unauthorized();
+            }
+            
+            // A user cannot follow its own list
+            if (repoList.UserId == userId)
+            {
+                return this.BadRequest();
+            }
+
+            // A user cannot follow a list he is already following
+            if (repoList.Watchers.Contains(userId))
+            {
+                return this.BadRequest();
+            }
+            
+            repoList.Watchers.Add(userId);
+            
+            await this._listRepository.UpdateAsync(repoList);
+            
+            return this.Ok();
         }
     }
 }

@@ -100,7 +100,7 @@ namespace PriceAlerts.Common.Database
         
         private async Task UpdateListsWithAlert(string userId, UserAlert repoUserAlert)
         {
-            var alertLists = await this._listRepository.GetAlertListsAsync(userId);
+            var alertLists = await this._listRepository.GetUserAlertListsAsync(userId);
             var listsWithCurrentAlert = alertLists.Where(x => x.Alerts.Contains(repoUserAlert)).ToList();
             foreach (var list in listsWithCurrentAlert)
             {
@@ -112,7 +112,7 @@ namespace PriceAlerts.Common.Database
 
         private async Task UpdateListsWithDeletedAlert(string userId, UserAlert repoUserAlert)
         {
-            var alertLists = await this._listRepository.GetAlertListsAsync(userId);
+            var alertLists = await this._listRepository.GetUserAlertListsAsync(userId);
             var listsWithCurrentAlert = alertLists.Where(x => x.Alerts.Contains(repoUserAlert)).ToList();
             foreach (var list in listsWithCurrentAlert)
             {

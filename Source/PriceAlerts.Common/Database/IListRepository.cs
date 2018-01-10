@@ -11,7 +11,10 @@ namespace PriceAlerts.Common.Database
         Task<List> InsertAsync(List data);
 
         [LoggingDescription("Get alert lists from database")]
-        Task<IEnumerable<List>> GetAlertListsAsync(string userId);
+        Task<IEnumerable<List>> GetUserAlertListsAsync(string userId);
+
+        [LoggingDescription("Get watched alert lists from database")]
+        Task<IEnumerable<List>> GetUserWatchedAlertListsAsync(string userId);
         
         [LoggingDescription("Get alert list from database")]
         Task<List> GetAsync(string listId);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using PriceAlerts.Common.Models;
@@ -8,14 +9,19 @@ namespace PriceAlerts.Common.Database
 {
     internal class ListRepository : EntityRepository<List>, IListRepository
     {
-        public async Task<IEnumerable<List>> GetAlertListsAsync(string userId)
+        public async Task<IEnumerable<List>> GetUserAlertListsAsync(string userId)
         {
-            return await this.Collection.Find(x => x.UserId == userId && !x.IsDeleted).ToListAsync();
+            return await this.Collection.Find(x => !x.IsDeleted && x.UserId == userId).ToListAsync();
+        }
+        
+        public async Task<IEnumerable<List>> GetUserWatchedAlertListsAsync(string userId)
+        {
+            return await this.Collection.Find(x => !x.IsDeleted && x.IsPublic && x.Watchers.Contains(userId)).ToListAsync();
         }
         
         public async Task<List> GetAsync(string listId)
         {
-            return await this.Collection.Find(x => x.Id == listId && !x.IsDeleted).FirstOrDefaultAsync();
+            return await this.Collection.Find(x => !x.IsDeleted && x.Id == listId).FirstOrDefaultAsync();
         }
 
         public async Task<bool> DeleteAsync(string listId)

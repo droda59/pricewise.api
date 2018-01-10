@@ -10,6 +10,7 @@ namespace PriceAlerts.Common.Models
         public List()
         {
             this.Alerts = new List<UserAlert>();
+            this.Watchers = new List<string>();
         }
         
         public string Name { get; set; }
@@ -26,6 +27,8 @@ namespace PriceAlerts.Common.Models
         public bool IsPublic { get; set; }
 
         public IEnumerable<UserAlert> Alerts { get; set; }
+        
+        public IList<string> Watchers { get; set; }
 
         public override string ToString()
         {
