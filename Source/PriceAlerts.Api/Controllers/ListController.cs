@@ -251,5 +251,39 @@ namespace PriceAlerts.Api.Controllers
             
             return this.Ok();
         }
+
+        [HttpPost("{userId}/{listId}/unfollow")]
+        [LoggingDescription("*** REQUEST to follow a public alert list ***")]
+        public virtual async Task<IActionResult> UnfollowAlertList(string userId, string listId)
+        {
+            var repoList = await this._listRepository.GetAsync(listId);
+            if (repoList == null)
+            {
+                return this.NotFound();
+            }
+            
+            if (!repoList.IsPublic)
+            {
+                return this.Unauthorized();
+            }
+            
+            // A user cannot unfollow its own list
+            if (repoList.UserId == userId)
+            {
+                return this.BadRequest();
+            }
+
+            // A user cannot unfollow a list he is not already following
+            if (!repoList.Watchers.Contains(userId))
+            {
+                return this.BadRequest();
+            }
+            
+            repoList.Watchers.Remove(userId);
+            
+            await this._listRepository.UpdateAsync(repoList);
+            
+            return this.Ok();
+        }
     }
 }
