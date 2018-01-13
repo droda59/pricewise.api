@@ -36,12 +36,18 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 
                 lock(lockObject)
                 {
-                    productUrls.AddRange(
-                        page.DocumentNode
+                    if (page.DocumentNode
                             .SelectNodes(".//ul[contains(@class, 'product-list')]//div[contains(@class, 'productDesc')]/a")
-                            .Take(6)
-                            .Select(x => x.Attributes["href"].Value)
-                            .Select(x => new Uri(this.Source.Domain, x)));
+                             != null)
+                    {
+                        productUrls.AddRange(
+                            page.DocumentNode
+                                .SelectNodes(".//ul[contains(@class, 'product-list')]//div[contains(@class, 'productDesc')]/a")
+                                .Take(6)
+                                .Select(x => x.Attributes["href"].Value)
+                                .Select(x => new Uri(this.Source.Domain, x)));
+                    }
+                    
                 }  
             }));
 
