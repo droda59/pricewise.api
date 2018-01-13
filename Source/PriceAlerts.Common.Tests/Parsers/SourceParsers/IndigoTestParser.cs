@@ -34,16 +34,19 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             await Task.WhenAll(pagesToBrowse.Select(async pageUrl => 
             {
                 var page = await this._documentLoader.LoadDocument(pageUrl, this.Source.CustomHeaders);
-                if (page.DocumentNode.SelectSingleNode(".//ul[contains(@class, 'product-grid')]") != null)
+                if (page.DocumentNode.SelectSingleNode(".//div[contains(@class, 'product-list-widget__GridView')]") != null)
                 {
                     lock(lockObject)
                     {
-                        productUrls.AddRange(
-                            page.DocumentNode
-                                .SelectSingleNode(".//ul[contains(@class, 'product-grid')]")
-                                .SelectNodes(".//li[contains(@class, 'product')]//ul[contains(@class, 'product-details')]//li[contains(@class, 'product-title')]//a")
-                                .Take(3)
-                                .Select(x => new Uri(this.Source.Domain, x.Attributes["href"].Value)));
+                        var productList = page.DocumentNode
+                            .SelectSingleNode(".//div[contains(@class, 'product-list-widget__GridView')]");
+                        var productImageLinks = productList
+                            .SelectNodes("//div[contains(@class, 'product-list__product-image-container--grid')]//a");
+                        var selectedLinks = productImageLinks
+                            .Take(3)
+                            .Select(x => new Uri(this.Source.Domain, x.Attributes["href"].Value));
+
+                        productUrls.AddRange(selectedLinks);
                     }  
                 }
             }));
