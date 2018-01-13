@@ -24,13 +24,15 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var productUrls = new List<Uri>();
 
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
-            
-            var pagesToBrowse = new List<Uri>();
-            pagesToBrowse.AddRange(
-                document.GetElementbyId("home-one")
-                    .SelectNodes(".//a[contains(@id, 'link-') and contains(@href, '/search/')]")
-                    .Take(6)
-                    .Select(x => new Uri(this.Source.Domain, x.Attributes["href"].Value)));
+
+
+            var homeOne = document.DocumentNode.SelectSingleNode(".//div[contains(@class, 'home-one')]");
+            var links = homeOne.SelectNodes(".//a[contains(@id, 'link')]");
+            var itemLinks = links
+                .Where(x => x.OuterHtml.Contains("/search/"));
+            var pagesToBrowse = itemLinks
+                .Take(6)
+                .Select(x => new Uri(this.Source.Domain, x.Attributes["href"].Value));
 
             await Task.WhenAll(pagesToBrowse.Select(async pageUrl => 
             {
