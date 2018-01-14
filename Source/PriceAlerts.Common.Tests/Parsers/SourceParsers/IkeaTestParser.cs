@@ -31,11 +31,11 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
             
-            var urls = document.GetElementbyId("menu")
-                .SelectSingleNode(".//div[contains(@class, 'mainMenu')]")
-                .SelectSingleNode(".//div[contains(@class, 'tableContainer')]")
-                .SelectNodes(".//tr//td//a[contains(@href, 'catalog/categories')]")
-                .Select(x => x.Attributes["href"].Value);
+            var menu = document.GetElementbyId("menu");
+            var mainMenu =menu.SelectSingleNode(".//div[contains(@class, 'mainMenu')]");
+            var tableContainer = mainMenu.SelectSingleNode(".//div[contains(@class, 'tableContainer')]");
+            var categories = tableContainer.SelectNodes(".//ul//li//a[contains(@href, 'catalog/categories')]");
+            var urls = categories.Select(x => x.Attributes["href"].Value);
 
             foreach (var item in urls)
             {
