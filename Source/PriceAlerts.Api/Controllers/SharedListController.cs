@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using PriceAlerts.Api.Factories;
 using PriceAlerts.Api.Models;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Infrastructure;
+using PriceAlerts.Common.Models;
 
 namespace PriceAlerts.Api.Controllers
 {
@@ -13,18 +15,21 @@ namespace PriceAlerts.Api.Controllers
     {
         private readonly IListRepository _listRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IUserAlertFactory _userAlertFactory;
         private readonly IAlertListFactory _alertListFactory;
 
         public SharedListController(
             IListRepository listRepository,
             IUserRepository userRepository,
+            IProductRepository productRepository,
             IUserAlertFactory userAlertFactory,
             IAlertListFactory alertListFactory,
             IProductFactory productFactory)
         {
             this._listRepository = listRepository;
             this._userRepository = userRepository;
+            this._productRepository = productRepository;
             this._userAlertFactory = userAlertFactory;
             this._alertListFactory = alertListFactory;
         }
@@ -69,7 +74,7 @@ namespace PriceAlerts.Api.Controllers
             
             var alert = repoList.Alerts.SingleOrDefault(x => x.Id == alertId);
             
-            if (alert == null || !alert.IsDeleted)
+            if (alert == null || alert.IsDeleted)
             {
                 return this.NotFound();
             }
@@ -101,7 +106,7 @@ namespace PriceAlerts.Api.Controllers
             
             var alert = repoList.Alerts.SingleOrDefault(x => x.Id == alertId);
             
-            if (alert == null || !alert.IsDeleted)
+            if (alert == null || alert.IsDeleted)
             {
                 return this.NotFound();
             }
@@ -114,6 +119,56 @@ namespace PriceAlerts.Api.Controllers
             var details = await this._userAlertFactory.CreateUserAlert(alert);
 
             return this.Ok(details);
+        }
+
+        [HttpGet("{listId}/{alertId}/history")]
+        [LoggingDescription("*** REQUEST to get shared list alert history ***")]
+        public virtual async Task<IActionResult> GetSharedUserListAlertHistory(string listId, string alertId)
+        {
+            var repoList = await this._listRepository.GetAsync(listId);
+            if (repoList == null)
+            {
+                return this.NotFound();
+            }
+            
+            if (!repoList.IsPublic)
+            {
+                return this.Unauthorized();
+            }
+            
+            var alert = repoList.Alerts.SingleOrDefault(x => x.Id == alertId);
+            
+            if (alert == null || alert.IsDeleted)
+            {
+                return this.NotFound();
+            }
+            
+            if (!alert.IsActive)
+            {
+                return this.Unauthorized();
+            }
+            
+            var lockObject = new object();
+            var alertProducts = new List<MonitoredProduct>();
+            await Task.WhenAll(alert.Entries.Where(x => !x.IsDeleted).Select(async entry => 
+            {
+                var existingProduct = await this._productRepository.GetAsync(entry.MonitoredProductId);
+
+                lock (lockObject) 
+                {
+                    alertProducts.Add(existingProduct);
+                }
+            }));
+
+            var deals = alertProducts
+                .Select(x => new ProductHistory
+                {
+                    Title = x.Title,
+                    Url = x.Uri,
+                    PriceHistory = x.PriceHistory.GroupBy(y => y.ModifiedAt.Date).Select(y => y.Min())
+                });
+
+            return this.Ok(deals);
         }
     }
 }
