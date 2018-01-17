@@ -9,8 +9,8 @@ namespace PriceAlerts.Common.Database
     {
         [LoggingDescription("Get all users from database")]
         Task<IEnumerable<User>> GetAllAsync();
-        
-        [LoggingDescription("Get user from database")]
+
+        [LoggingDescription("Get user from database by id")]
         Task<User> GetAsync(string userId);
 
         [LoggingDescription("Update user in database")]
@@ -18,5 +18,8 @@ namespace PriceAlerts.Common.Database
 
         [LoggingDescription("Create new user in database")]
         Task<User> InsertAsync(User data);
+
+        [LoggingDescription("Get user from database by email")]
+        Task<User> GetByEmailAsync(string email);
     }
 }
