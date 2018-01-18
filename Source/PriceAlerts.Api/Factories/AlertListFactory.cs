@@ -33,6 +33,7 @@ namespace PriceAlerts.Api.Factories
             {
                 Id = repoList.Id,
                 Name = repoList.Name,
+                IsPublic = repoList.IsPublic,
                 Alerts = summaries
             };
             
