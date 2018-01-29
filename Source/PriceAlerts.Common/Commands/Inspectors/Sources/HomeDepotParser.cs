@@ -36,20 +36,20 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             
             var sku = this.GetProductSku(document);
             var productInfo = this.GetProductInfo(sku);
-            var priceInfo = this.GetProductPrice(sku);
+//            var priceInfo = this.GetProductPrice(sku);
             
             var title = productInfo.Name;
-            var imageUrl = productInfo.Images.First().Url;
+            var imageUrl = $"https://s7d2.scene7.com/is/image/homedepotcanada/p_{sku}.jpg";
 
             var price = 0m;
-            if (priceInfo.OptimizedPrice.DisplayPrice != null)
-            {
-                price = priceInfo.OptimizedPrice.DisplayPrice.Value;
-            }
-            else
-            {
+//            if (priceInfo.OptimizedPrice.DisplayPrice != null)
+//            {
+//                price = priceInfo.OptimizedPrice.DisplayPrice.Value;
+//            }
+//            else
+//            {
                 price = productInfo.Price.Value;
-            }
+//            }
 
             return new SitePriceInfo
             {
@@ -63,11 +63,14 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         private HomeDepotProductInfo GetProductInfo(string sku)
         {
-            var priceUrl = new Uri(this._source.Domain, $"/homedepotcacommercewebservices/v2/homedepotca/products/{sku}/");
-            var getInfoTask = this._requestClient.ReadHtmlAsync(priceUrl);
-            getInfoTask.Wait();
+            var productInfoUrl = new Uri(this._source.Domain, $"/homedepotcacommercewebservices/v2/homedepotca/products/{sku}/");
+            
+            var infoResult = Task.Run(async() => await this._requestClient.ReadHtmlAsync(productInfoUrl)).Result;
 
-            var infoResult = getInfoTask.Result;
+//            var getInfoTask = Task.Factory.StartNew(() => this._requestClient.ReadHtmlAsync(productInfoUrl));
+//            getInfoTask.Wait();
+            
+//            var infoResult = getInfoTask.Result;
 
             return JsonConvert.DeserializeObject<HomeDepotProductInfo>(infoResult);
         }
@@ -75,10 +78,13 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         private HomeDepotProductPriceInfo GetProductPrice(string sku)
         {
             var priceUrl = new Uri(this._source.Domain, $"/homedepotcacommercewebservices/v2/homedepotca/products/{sku}/localized/7159/");
-            var getInfoTask = this._requestClient.ReadHtmlAsync(priceUrl);
-            getInfoTask.Wait();
-
-            var infoResult = getInfoTask.Result;
+            
+            var infoResult = Task.Run(async() => await this._requestClient.ReadHtmlAsync(priceUrl)).Result;
+//            
+//            var getInfoTask = this._requestClient.ReadHtmlAsync(priceUrl);
+//            getInfoTask.Wait();
+//            
+//            var infoResult = getInfoTask.Result;
 
             return JsonConvert.DeserializeObject<HomeDepotProductPriceInfo>(infoResult);
         }
