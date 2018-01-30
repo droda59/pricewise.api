@@ -50,7 +50,7 @@ namespace PriceAlerts.Api.Controllers
             }
 
             var user = await this._userRepository.GetAsync(repoList.UserId);
-            var sharedList = await this._alertListFactory.CreateAlertList<SharedListDto>(repoList, alert => alert.IsActive);
+            var sharedList = await this._alertListFactory.CreateAlertList<SharedListDto>(repoList, alert => alert.IsActive && !alert.IsDeleted);
 
             sharedList.UserName = $"{user.FirstName}";
 
