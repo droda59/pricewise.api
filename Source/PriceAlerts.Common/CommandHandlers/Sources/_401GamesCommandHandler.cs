@@ -10,8 +10,8 @@ namespace PriceAlerts.Common.CommandHandlers.Sources
     {
         public _401GamesCommandHandler(
             _401GamesSource source,
-            _401GamesParser parser,
-            _401GamesCleaner cleaner) : base(source)
+            ShopifyParser parser,
+            ShopifyCleaner cleaner) : base(source)
         {
             this.Commands.Add(parser);
             this.Commands.Add(cleaner);

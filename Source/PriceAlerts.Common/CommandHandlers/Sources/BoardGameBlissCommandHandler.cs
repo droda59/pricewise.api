@@ -10,8 +10,8 @@ namespace PriceAlerts.Common.CommandHandlers.Sources
     {
         public BoardGameBlissCommandHandler(
             BoardGameBlissSource source,
-            BoardGameBlissParser parser,
-            BoardGameBlissCleaner cleaner) : base(source)
+            ShopifyParser parser,
+            ShopifyCleaner cleaner) : base(source)
         {
             this.Commands.Add(parser);
             this.Commands.Add(cleaner);

@@ -4,11 +4,11 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Cleaners.Sources
 {
-    public class BoardGameBlissCleaner : BaseCleaner, ICleaner
+    public class ShopifyCleaner : BaseCleaner, ICleaner
     {
-        private readonly BoardGameBlissSource _source;
+        private readonly ShopifySource _source;
 
-        public BoardGameBlissCleaner(BoardGameBlissSource source)
+        public ShopifyCleaner(ShopifySource source)
         {
             this._source = source;
         }
@@ -17,7 +17,7 @@ namespace PriceAlerts.Common.Commands.Cleaners.Sources
         {
             var urlWithoutQueryString = new UriBuilder(originalUrl) { Query = string.Empty }.Uri;
             
-            var newUrl = this._source.ProductExpression.Match(urlWithoutQueryString.ToString()).Value;
+            var newUrl = this._source.ProductPageExpression.Match(urlWithoutQueryString.ToString()).Value;
             
             return new Uri(this._source.Domain, newUrl);
         }
