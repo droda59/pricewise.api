@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace PriceAlerts.Common.Sources
 {
-    public class _401GamesSource : ShopifySource
+    public class _401GamesSource : ISource
     {
         public _401GamesSource()
-            : base("https://store.401games.ca")
         {
+            this.Domain = new Uri("https://store.401games.ca/");
+            this.CustomHeaders = Enumerable.Empty<KeyValuePair<string, string>>();
         }
+
+        public Uri Domain { get; }
+
+        public IEnumerable<KeyValuePair<string, string>> CustomHeaders { get; }
     }
 }

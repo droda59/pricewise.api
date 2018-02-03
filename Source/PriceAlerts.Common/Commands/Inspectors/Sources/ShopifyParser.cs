@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Nager.AmazonProductAdvertising.Model;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
@@ -17,33 +18,36 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
     public class ShopifyParser : IInspector
     {
         private readonly IRequestClient _requestClient;
-        private readonly ShopifySource _shopifySource;
+        private readonly KeyValuePair<string, string>[] _customHeaders;
 
-        public ShopifyParser(IRequestClient requestClient, ShopifySource shopifySource)
+        public ShopifyParser(IRequestClient requestClient)
         {
             this._requestClient = requestClient;
-            this._shopifySource = shopifySource;
+            this._customHeaders = new[] 
+            {
+                new KeyValuePair<string, string>("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36")
+            };
         }
 
         [LoggingDescription("Parsing product page")]
         public async Task<SitePriceInfo> GetSiteInfo(Uri url)
         {
-            var result = await this._requestClient.ReadHtmlAsync(new Uri(url, "products.json"), this._shopifySource.CustomHeaders.ToArray());
-            
-            var product = JsonConvert.DeserializeObject<Product>(result);
+            var result = await this._requestClient.ReadHtmlAsync(new Uri(url, "products.json"), this._customHeaders);
 
-            if (product == null)
+            var resultToken = JToken.Parse(result);
+            
+            if (resultToken == null)
             {
                 throw new ParseException("Error parsing the document", url);
             }
             
             var sitePriceInfo =  new SitePriceInfo()
             {
-                ProductIdentifier = product?.Id,
+                ProductIdentifier = resultToken.SelectToken("product.id").Value<string>(),
                 Uri = url.AbsoluteUri,
-                ImageUrl = product?.Image?.Src,
-                Price = product?.Variants?.FirstOrDefault()?.Price?.ExtractDecimal() ?? 0,
-                Title = product?.Title
+                ImageUrl = resultToken.SelectToken("product.image.src").Value<string>(),
+                Price = resultToken.SelectToken("product.variants[0].price").Value<string>()?.ExtractDecimal() ?? 0,
+                Title = resultToken.SelectToken("product.title").Value<string>()
             };
 
             if (sitePriceInfo.Price == 0)
@@ -53,30 +57,5 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
             return sitePriceInfo;
         }
-
-        #region Deserialization
-
-        private class Product
-        {
-            public string Id { get; set; }
-
-            public string Title { get; set; }
-
-            public IEnumerable<Variant> Variants { get; set; }
-
-            public Image Image { get; set; }
-        }
-        
-        private class Variant
-        {
-            public string Price { get; set; }
-        }
-        
-        private class Image
-        {
-            public string Src { get; set; }
-        }
-
-        #endregion
     }
 }
