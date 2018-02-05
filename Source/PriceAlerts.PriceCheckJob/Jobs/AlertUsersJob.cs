@@ -87,14 +87,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                 var commandHandler = this._handlerFactory.CreateHandler(productUrl);
                                 var cleanUrl = commandHandler.HandleCleanUrl(productUrl);
                                 var manipulatedUrl = commandHandler.HandleManipulateUrl(cleanUrl);
-
-                                var subject = alert.Title ?? (user.Settings.CorrespondenceLanguage == "en"
-                                    ? "one of your products"
-                                    : "l'un de vos produits");
-                                if (subject.Length > 30)
-                                {
-                                    subject = subject.Trim().Substring(0, 30) + "...";
-                                }
+                                var subject = GetProductTitle(user, alert);
 
                                 var parameters = new Dictionary<string, string>
                                 {
@@ -167,14 +160,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                     var cleanUrl = commandHandler.HandleCleanUrl(productUrl);
                                     var manipulatedUrl = commandHandler.HandleManipulateUrl(cleanUrl);
                                     var listUser = await this._userRepository.GetAsync(watchedList.UserId);
-    
-                                    var subject = alert.Title ?? (user.Settings.CorrespondenceLanguage == "en"
-                                        ? "a product"
-                                        : "un produit");
-                                    if (subject.Length > 30)
-                                    {
-                                        subject = subject.Trim().Substring(0, 30) + "...";
-                                    }
+                                    var subject = GetProductTitle(user, alert);
 
                                     var parameters = new Dictionary<string, string>
                                     {
@@ -223,6 +209,18 @@ namespace PriceAlerts.PriceCheckJob.Jobs
             {
                 Console.WriteLine("Found error on user " + user.UserId + ": " + e.Message);
             }
+        }
+
+        private static string GetProductTitle(User user, UserAlert alert)
+        {
+            var subject = alert.Title ?? (user.Settings.CorrespondenceLanguage == "en"
+                              ? "a product"
+                              : "un produit");
+            if (subject.Length > 30)
+            {
+                subject = subject.Trim().Substring(0, 30) + "...";
+            }
+            return subject;
         }
 
         public void Dispose()

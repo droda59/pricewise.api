@@ -49,10 +49,14 @@ namespace PriceAlerts.Api.Controllers
                 return this.Unauthorized();
             }
 
-            var user = await this._userRepository.GetAsync(repoList.UserId);
-            var sharedList = await this._alertListFactory.CreateAlertList<SharedListDto>(repoList, alert => alert.IsActive && !alert.IsDeleted);
+            var userTask = this._userRepository.GetAsync(repoList.UserId);
+            var createListTask = this._alertListFactory.CreateAlertList<SharedListDto>(repoList, alert => alert.IsActive && !alert.IsDeleted);
 
-            sharedList.UserName = $"{user.FirstName}";
+            Task.WaitAll(userTask, createListTask);
+
+            var sharedList = createListTask.Result;
+
+            sharedList.UserName = $"{userTask.Result.FirstName}";
 
             return this.Ok(sharedList);
         }

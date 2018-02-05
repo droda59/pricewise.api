@@ -242,7 +242,7 @@ namespace PriceAlerts.Api.Controllers
             // A user cannot follow a list he is already following
             if (repoList.Watchers.Contains(userId))
             {
-                return this.BadRequest();
+                return this.Ok();
             }
             
             repoList.Watchers.Add(userId);
@@ -276,7 +276,7 @@ namespace PriceAlerts.Api.Controllers
             // A user cannot unfollow a list he is not already following
             if (!repoList.Watchers.Contains(userId))
             {
-                return this.BadRequest();
+                return this.Ok();
             }
             
             repoList.Watchers.Remove(userId);
