@@ -1,7 +1,5 @@
 using Autofac;
 using Autofac.Extras.DynamicProxy;
-using Microsoft.Extensions.Logging;
-using PriceAlerts.Api.Factories;
 using PriceAlerts.Common.Infrastructure;
 
 namespace PriceAlerts.Api
@@ -10,14 +8,9 @@ namespace PriceAlerts.Api
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<UserAlertFactory>()
-                .As<IUserAlertFactory>()
-                .SingleInstance()
-                .EnableInterfaceInterceptors()
-                .InterceptedBy(typeof(LoggerInterceptor));
-            
-            builder.RegisterType<ProductFactory>()
-                .As<IProductFactory>()
+            builder.RegisterAssemblyTypes(this.ThisAssembly)
+                .Where(x => x.Name.EndsWith("Factory"))
+                .AsImplementedInterfaces()
                 .SingleInstance()
                 .EnableInterfaceInterceptors()
                 .InterceptedBy(typeof(LoggerInterceptor));
