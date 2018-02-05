@@ -1,6 +1,5 @@
 using Autofac;
 using Autofac.Extras.DynamicProxy;
-using PriceAlerts.Api.Factories;
 using PriceAlerts.Common.Infrastructure;
 
 namespace PriceAlerts.Api
@@ -15,24 +14,6 @@ namespace PriceAlerts.Api
                 .SingleInstance()
                 .EnableInterfaceInterceptors()
                 .InterceptedBy(typeof(LoggerInterceptor));
-
-//            builder.RegisterType<UserAlertFactory>()
-//                .As<IUserAlertFactory>()
-//                .SingleInstance()
-//                .EnableInterfaceInterceptors()
-//                .InterceptedBy(typeof(LoggerInterceptor));
-//            
-//            builder.RegisterType<AlertListFactory>()
-//                .As<IAlertListFactory>()
-//                .SingleInstance()
-//                .EnableInterfaceInterceptors()
-//                .InterceptedBy(typeof(LoggerInterceptor));
-//            
-//            builder.RegisterType<ProductFactory>()
-//                .As<IProductFactory>()
-//                .SingleInstance()
-//                .EnableInterfaceInterceptors()
-//                .InterceptedBy(typeof(LoggerInterceptor));
         }
     }
 }

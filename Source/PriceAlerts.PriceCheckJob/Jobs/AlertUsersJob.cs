@@ -47,22 +47,22 @@ namespace PriceAlerts.PriceCheckJob.Jobs
             await Task.WhenAll(userTask, productTask);
 
             var allUsers = userTask.Result;
-            var allProducts = productTask.Result.ToDictionary(x => x.Id);
+            var productsById = productTask.Result.ToDictionary(x => x.Id);
 
             foreach (var user in allUsers)
             {
-                await this.CheckUserAlerts(user, allProducts);
+                await this.CheckUserAlerts(user, productsById);
             }
         }
 
-        private async Task CheckUserAlerts(User user, IDictionary<string, MonitoredProduct> allProducts)
+        private async Task CheckUserAlerts(User user, IDictionary<string, MonitoredProduct> productsById)
         {
             try
             {   
                 var alertsInUse = user.Alerts.Where(x => !x.IsDeleted && x.IsActive).ToList();
                 foreach (var alert in alertsInUse)
                 {
-                    var alertProducts = alert.Entries.Where(x => !x.IsDeleted).Select(x => allProducts[x.MonitoredProductId]).ToList();
+                    var alertProducts = alert.Entries.Where(x => !x.IsDeleted).Select(x => productsById[x.MonitoredProductId]).ToList();
 
                     var newBestDeal = alertProducts
                         .Select(p => Tuple.Create(p, p.PriceHistory.LastOf(y => y.ModifiedAt)))
@@ -141,7 +141,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                 {
                     foreach (var alert in watchedList.Alerts.Where(x => !x.IsDeleted && x.IsActive))
                     {
-                        var alertProducts = alert.Entries.Where(x => !x.IsDeleted).Select(x => allProducts[x.MonitoredProductId]).ToList();
+                        var alertProducts = alert.Entries.Where(x => !x.IsDeleted).Select(x => productsById[x.MonitoredProductId]).ToList();
     
                         var newBestDeal = alertProducts
                             .Select(p => Tuple.Create(p, p.PriceHistory.LastOf(y => y.ModifiedAt)))

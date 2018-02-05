@@ -70,11 +70,6 @@ namespace PriceAlerts.Common.Infrastructure
                             typeName = $"{objectValueCount} {returnValue.GetType().GetGenericArguments()[0]?.Name}[]";
                             returnValue = string.Empty;
                         }
-//                        else if (returnValue is ObjectResult objectResult)
-//                        {
-//                            typeName = objectResult.Value.GetType().Name;
-//                            returnValue = objectResult.Value;
-//                        }
                         else
                         {
                             returnValue = $"<{returnValue}>";

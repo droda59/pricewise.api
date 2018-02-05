@@ -72,8 +72,7 @@ namespace PriceAlerts.Api.Controllers
                 return this.Unauthorized();
             }
             
-            var alert = repoList.Alerts.SingleOrDefault(x => x.Id == alertId);
-            
+            var alert = repoList.Alerts.FirstOrDefault(x => x.Id == alertId);
             if (alert == null || alert.IsDeleted)
             {
                 return this.NotFound();
@@ -104,8 +103,7 @@ namespace PriceAlerts.Api.Controllers
                 return this.Unauthorized();
             }
             
-            var alert = repoList.Alerts.SingleOrDefault(x => x.Id == alertId);
-            
+            var alert = repoList.Alerts.FirstOrDefault(x => x.Id == alertId);
             if (alert == null || alert.IsDeleted)
             {
                 return this.NotFound();
@@ -136,8 +134,7 @@ namespace PriceAlerts.Api.Controllers
                 return this.Unauthorized();
             }
             
-            var alert = repoList.Alerts.SingleOrDefault(x => x.Id == alertId);
-            
+            var alert = repoList.Alerts.FirstOrDefault(x => x.Id == alertId);
             if (alert == null || alert.IsDeleted)
             {
                 return this.NotFound();
