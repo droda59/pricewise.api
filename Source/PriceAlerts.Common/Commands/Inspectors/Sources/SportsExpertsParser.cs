@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -40,14 +42,12 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var priceNode = doc.DocumentNode
-                .SelectSingleNode(".//div[@class='product-detail']")
-                .SelectSingleNode(".//div[@class='price-box']")
-                .SelectNodes(".//span[@class='price']")
-                .First(x => x.Id.Contains("product-price"));
+            var productDetail = doc.DocumentNode.SelectSingleNode(".//div[@class='product-detail']");
+            var regex = new Regex("(?<=listprice\":\")(\\$?\\d+[\\.,\\,]\\d+)");
+            var captures = regex.Match(productDetail.OuterHtml).Captures;
+            var price = captures.First();
 
-            var nodeValue = priceNode.InnerText;
-            var decimalValue = nodeValue.ExtractDecimal();
+            var decimalValue = price.Value.ExtractDecimal();
 
             return decimalValue;
         }
