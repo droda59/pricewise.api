@@ -97,8 +97,9 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                 {
                                     { "subject", user.Settings.CorrespondenceLanguage == "en"
                                         ? $"Price alert from PriceWise: The price of {subject} changed!"
-                                        : $"Alerte de prix de PriceWise: Le prix de {subject} a changÃ©!"
+                                        : $"Alerte de prix de PriceWise: Le prix de {subject} a changé!"
                                     },
+                                    { "merge_email" , user.Email },
                                     { "merge_firstname" , user.FirstName ?? string.Empty },
                                     { "merge_productName" , alert.Title ?? string.Empty },
                                     { "merge_previousPrice" , alert.BestCurrentDeal.Price.ToString(CultureInfo.InvariantCulture) },
