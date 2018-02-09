@@ -31,6 +31,11 @@ namespace PriceAlerts.Common.Models
             return this.Id == ((UserAlert)obj).Id;
         }
 
+        public override int GetHashCode()
+        {
+            return this.Id.GetHashCode();
+        }
+
         public override string ToString()
         {
             var id = this.Id;
