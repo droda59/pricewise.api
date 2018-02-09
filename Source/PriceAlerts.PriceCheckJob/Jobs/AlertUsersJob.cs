@@ -83,47 +83,30 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                             if (alert.BestCurrentDeal.Price < newBestDeal.Item2.Price && user.Settings.AlertOnPriceRaise
                             || alert.BestCurrentDeal.Price > newBestDeal.Item2.Price && user.Settings.AlertOnPriceDrop)
                             {
-                                var productUrl = new Uri(newBestDeal.Item1.Uri);
-                                var commandHandler = this._handlerFactory.CreateHandler(productUrl);
-                                var cleanUrl = commandHandler.HandleCleanUrl(productUrl);
-                                var manipulatedUrl = commandHandler.HandleManipulateUrl(cleanUrl);
-                                var subject = GetProductTitle(user, alert);
+                                var emailInformation = this.BuildPriceChangeEmail(user, alert, newBestDeal.Item1, newBestDeal.Item2.Price);
 
-                                var parameters = new Dictionary<string, string>
-                                {
-                                    { "subject", user.Settings.CorrespondenceLanguage == "en"
-                                        ? $"Price alert from PriceWise: The price of {subject} changed!"
-                                        : $"Alerte de prix de PriceWise: Le prix de {subject} a changé!"
-                                    },
-                                    { "merge_firstname" , user.FirstName ?? string.Empty },
-                                    { "merge_productName" , alert.Title ?? string.Empty },
-                                    { "merge_previousPrice" , alert.BestCurrentDeal.Price.ToString(CultureInfo.InvariantCulture) },
-                                    { "merge_newPrice" , newBestDeal.Item2.Price.ToString(CultureInfo.InvariantCulture) },
-                                    { "merge_alertId", alert.Id },
-                                    { "merge_productUrl" , manipulatedUrl.AbsoluteUri },
-                                    { "merge_productDomain", productUrl.Authority },
-                                    { "merge_imageUrl", alert.ImageUrl.IsBase64Url() ? string.Empty : alert.ImageUrl }
-                                };
+                                Console.WriteLine($"Sending email {emailInformation.TemplateName} to user {user.Id} for alert {alert.Id}");
 
-                                var templateName = "Drop";
-                                if(alert.BestCurrentDeal.Price < newBestDeal.Item2.Price)
-                                {
-                                    templateName = "Raise";
-                                }
-                                var emailTemplate = $"Price{templateName}_Unsubscribe_{user.Settings.CorrespondenceLanguage}";
-
-                                Console.WriteLine($"Sending email {emailTemplate} to user {user.Id} for alert {alert.Id}");
-
-                                var sendEmailTask = this._emailSender.SendEmail(user.Email, parameters, emailTemplate);
+                                var sendEmailTask = this._emailSender.SendEmail(emailInformation);
                                 tasksToRun.Add(sendEmailTask);
                             }
                         }
 
-                        alert.BestCurrentDeal = new Deal { ProductId = newBestDeal.Item1.Id, Price = newBestDeal.Item2.Price, ModifiedAt = newBestDeal.Item2.ModifiedAt };
+                        if (alert.BestCurrentDeal.ProductId != newBestDeal.Item1.Id
+                            || alert.BestCurrentDeal.Price != newBestDeal.Item2.Price
+                            || alert.BestCurrentDeal.ModifiedAt != newBestDeal.Item2.ModifiedAt)
+                        {
+                            alert.BestCurrentDeal = new Deal
+                            {
+                                ProductId = newBestDeal.Item1.Id,
+                                Price = newBestDeal.Item2.Price,
+                                ModifiedAt = newBestDeal.Item2.ModifiedAt
+                            };
 
-                        // This makes one more database call since in the Update method we Get the user from the DB
-                        var updateTask = this._alertRepository.UpdateAsync(user.UserId, alert);
-                        tasksToRun.Add(updateTask);
+                            // This makes one more database call since in the Update method we Get the user from the DB
+                            var updateTask = this._alertRepository.UpdateAsync(user.UserId, alert);
+                            tasksToRun.Add(updateTask);
+                        }
 
                         Task.WaitAll(tasksToRun.ToArray());
                     }
@@ -155,50 +138,30 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                 if (alert.BestCurrentDeal.Price < newBestDeal.Item2.Price && user.Settings.AlertOnPriceRaise
                                 || alert.BestCurrentDeal.Price > newBestDeal.Item2.Price && user.Settings.AlertOnPriceDrop)
                                 {
-                                    var productUrl = new Uri(newBestDeal.Item1.Uri);
-                                    var commandHandler = this._handlerFactory.CreateHandler(productUrl);
-                                    var cleanUrl = commandHandler.HandleCleanUrl(productUrl);
-                                    var manipulatedUrl = commandHandler.HandleManipulateUrl(cleanUrl);
-                                    var listUser = await this._userRepository.GetAsync(watchedList.UserId);
-                                    var subject = GetProductTitle(user, alert);
+                                    var emailInformation = await this.BuildWatchedListProductEmail(user, watchedList, alert, newBestDeal.Item1, newBestDeal.Item2.Price);
 
-                                    var parameters = new Dictionary<string, string>
-                                    {
-                                        { "subject", user.Settings.CorrespondenceLanguage == "en"
-                                            ? $"Price alert from PriceWise: The price of {subject} in a list you are watching changed!"
-                                            : $"Alerte de prix de PriceWise: Le prix de {subject} dans une liste que vous surveillez a changé!"
-                                        },
-                                        { "merge_listUserName" , listUser.FirstName}, 
-                                        { "merge_firstname" , user.FirstName ?? string.Empty },
-                                        { "merge_productName" , alert.Title ?? string.Empty },
-                                        { "merge_previousPrice" , alert.BestCurrentDeal.Price.ToString(CultureInfo.InvariantCulture) },
-                                        { "merge_newPrice" , newBestDeal.Item2.Price.ToString(CultureInfo.InvariantCulture) },
-                                        { "merge_alertId", alert.Id },
-                                        { "merge_listId", watchedList.Id },
-                                        { "merge_productUrl" , manipulatedUrl.AbsoluteUri },
-                                        { "merge_productDomain", productUrl.Authority },
-                                        { "merge_imageUrl", alert.ImageUrl.IsBase64Url() ? string.Empty : alert.ImageUrl }
-                                    };
-    
-                                    var templateName = "Drop";
-                                    if(alert.BestCurrentDeal.Price < newBestDeal.Item2.Price)
-                                    {
-                                        templateName = "Raise";
-                                    }
-                                    var emailTemplate = $"WatchedListPrice{templateName}_{user.Settings.CorrespondenceLanguage}";
-    
-                                    Console.WriteLine($"Sending email {emailTemplate} to user {user.Id} for alert {alert.Id}");
+                                    Console.WriteLine($"Sending email {emailInformation.TemplateName} to user {user.Id} for alert {alert.Id}");
                                     
-                                    var sendEmailTask = this._emailSender.SendEmail(user.Email, parameters, emailTemplate);
+                                    var sendEmailTask = this._emailSender.SendEmail(emailInformation);
                                     tasksToRun.Add(sendEmailTask);
                                 }
                             }
     
-                            alert.BestCurrentDeal = new Deal { ProductId = newBestDeal.Item1.Id, Price = newBestDeal.Item2.Price, ModifiedAt = newBestDeal.Item2.ModifiedAt };
-    
-                            // This makes one more database call since in the Update method we Get the user from the DB
-                            var updateTask = this._alertRepository.UpdateAsync(user.UserId, alert);
-                            tasksToRun.Add(updateTask);
+                            if (alert.BestCurrentDeal.ProductId != newBestDeal.Item1.Id
+                                || alert.BestCurrentDeal.Price != newBestDeal.Item2.Price
+                                || alert.BestCurrentDeal.ModifiedAt != newBestDeal.Item2.ModifiedAt)
+                            {
+                                alert.BestCurrentDeal = new Deal
+                                {
+                                    ProductId = newBestDeal.Item1.Id,
+                                    Price = newBestDeal.Item2.Price,
+                                    ModifiedAt = newBestDeal.Item2.ModifiedAt
+                                };
+
+                                // This makes one more database call since in the Update method we Get the user from the DB
+                                var updateTask = this._alertRepository.UpdateAsync(user.UserId, alert);
+                                tasksToRun.Add(updateTask);
+                            }
     
                             Task.WaitAll(tasksToRun.ToArray());
                         }
@@ -211,15 +174,103 @@ namespace PriceAlerts.PriceCheckJob.Jobs
             }
         }
 
+        internal async Task<EmailInformation> BuildWatchedListProductEmail(User user, List watchedList, UserAlert alert, MonitoredProduct newBestDealProduct, decimal newBestDealPrice)
+        {
+            var emailInformation = new EmailInformation();
+            emailInformation.RecipientAddress = user.Email;
+            
+            var productUrl = new Uri(newBestDealProduct.Uri);
+            var manipulatedUrl = this.GetManipulatedUrl(productUrl);
+            var listUser = await this._userRepository.GetAsync(watchedList.UserId);
+            var subject = GetProductTitle(user, alert);
+
+            emailInformation.Parameters = new Dictionary<string, string>
+            {
+                {
+                    "subject", user.Settings.CorrespondenceLanguage == "en"
+                        ? $"Price alert from PriceWise: The price of {subject} in a list you are watching changed!"
+                        : $"Alerte de prix de PriceWise: Le prix de {subject} dans une liste que vous surveillez a changé!"
+                },
+                {"merge_email", user.Email},
+                {"merge_listUserName", listUser.FirstName},
+                {"merge_firstname", user.FirstName ?? string.Empty},
+                {"merge_productName", alert.Title ?? string.Empty},
+                {"merge_previousPrice", alert.BestCurrentDeal.Price.ToString(CultureInfo.InvariantCulture)},
+                {"merge_newPrice", newBestDealPrice.ToString(CultureInfo.InvariantCulture)},
+                {"merge_alertId", alert.Id},
+                {"merge_listId", watchedList.Id},
+                {"merge_productUrl", manipulatedUrl.AbsoluteUri},
+                {"merge_productDomain", productUrl.Authority},
+                {"merge_imageUrl", alert.ImageUrl.IsBase64Url() ? string.Empty : alert.ImageUrl}
+            };
+
+            var changeQualifier = "Drop";
+            if (alert.BestCurrentDeal.Price < newBestDealPrice)
+            {
+                changeQualifier = "Raise";
+            }
+            emailInformation.TemplateName = $"WatchedListPrice{changeQualifier}_Unsubscribe_{user.Settings.CorrespondenceLanguage}";
+
+            return emailInformation;
+        }
+
+        internal EmailInformation BuildPriceChangeEmail(User user, UserAlert alert, MonitoredProduct newBestDealProduct, decimal newBestDealPrice)
+        {
+            var emailInformation = new EmailInformation();
+            emailInformation.RecipientAddress = user.Email;
+            
+            var productUrl = new Uri(newBestDealProduct.Uri);
+            var manipulatedUrl = this.GetManipulatedUrl(productUrl);
+            var productTitle = GetProductTitle(user, alert);
+
+            emailInformation.Parameters = new Dictionary<string, string>
+            {
+                {
+                    "subject", user.Settings.CorrespondenceLanguage == "en"
+                        ? $"Price alert from PriceWise: The price of {productTitle} changed!"
+                        : $"Alerte de prix de PriceWise: Le prix de {productTitle} a changé!"
+                },
+                {"merge_email", user.Email},
+                {"merge_firstname", user.FirstName ?? string.Empty},
+                {"merge_productName", alert.Title ?? string.Empty},
+                {"merge_previousPrice", alert.BestCurrentDeal.Price.ToString(CultureInfo.InvariantCulture)},
+                {"merge_newPrice", newBestDealPrice.ToString(CultureInfo.InvariantCulture)},
+                {"merge_alertId", alert.Id},
+                {"merge_productUrl", manipulatedUrl.AbsoluteUri},
+                {"merge_productDomain", productUrl.Authority},
+                {"merge_imageUrl", alert.ImageUrl.IsBase64Url() ? string.Empty : alert.ImageUrl}
+            };
+
+            var changeQualifier = "Drop";
+            if (alert.BestCurrentDeal.Price < newBestDealPrice)
+            {
+                changeQualifier = "Raise";
+            }
+            emailInformation.TemplateName = $"Price{changeQualifier}_Unsubscribe_{user.Settings.CorrespondenceLanguage}";
+
+            return emailInformation;
+        }
+
+        private Uri GetManipulatedUrl(Uri productUrl)
+        {
+            var commandHandler = this._handlerFactory.CreateHandler(productUrl);
+            var cleanUrl = commandHandler.HandleCleanUrl(productUrl);
+            var manipulatedUrl = commandHandler.HandleManipulateUrl(cleanUrl);
+            
+            return manipulatedUrl;
+        }
+
         private static string GetProductTitle(User user, UserAlert alert)
         {
             var subject = alert.Title ?? (user.Settings.CorrespondenceLanguage == "en"
-                              ? "a product"
-                              : "un produit");
+                  ? "a product"
+                  : "un produit");
+            
             if (subject.Length > 30)
             {
                 subject = subject.Trim().Substring(0, 30) + "...";
             }
+            
             return subject;
         }
 
