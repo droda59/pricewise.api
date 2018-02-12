@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -7,14 +8,19 @@ using System.Threading.Tasks;
 
 using HtmlAgilityPack;
 
+using Microsoft.Extensions.Logging;
+
 namespace PriceAlerts.Common.Infrastructure
 {
     internal class DocumentLoader : IDocumentLoader, IDisposable
     {
         private readonly IRequestClient _requestClient;
+        private readonly ILogger _logger;
 
-        public DocumentLoader(IRequestClient requestClient)
+        public DocumentLoader(IRequestClient requestClient, ILoggerFactory loggerFactory)
         {
+            this._logger = loggerFactory.CreateLogger("DocumentLoader");
+            
             this._requestClient = requestClient;
             if (this._requestClient != null)
             {
@@ -45,9 +51,12 @@ namespace PriceAlerts.Common.Infrastructure
                         location = new Uri(domain, data.Headers.Location);
                     }
 
-//                    Console.WriteLine("Redirect: " + location.AbsoluteUri);
-
                     return await this.LoadDocument(location, customHeaders);
+                }
+
+                if (data.StatusCode == HttpStatusCode.Forbidden)
+                {
+                    this._logger.LogError("Received a forbidden while trying to retrieve the page. The request is most likely missing a user-agent in it's header.", new HttpRequestException());
                 }
             }
             else

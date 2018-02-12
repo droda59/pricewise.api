@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -28,17 +27,18 @@ namespace PriceAlerts.PriceCheckJob.Emails
             this._httpClient = null;
         }
         
-        public async Task<ApiTypes.EmailSend> SendEmail(string emailAddress, IDictionary<string, string> parameters, string templateName)
+        public async Task<ApiTypes.EmailSend> SendEmail(EmailInformation emailInformation)
         {
-            parameters.Add("apiKey", ApiKey);
-            parameters.Add("to", emailAddress);
-            parameters.Add("isTransactional", true.ToString());
-            parameters.Add("template", templateName);
+            emailInformation.Parameters.Add("from", "max@pricewi.se");
+            emailInformation.Parameters.Add("apiKey", ApiKey);
+            emailInformation.Parameters.Add("to", emailInformation.RecipientAddress);
+            emailInformation.Parameters.Add("isTransactional", true.ToString());
+            emailInformation.Parameters.Add("template", emailInformation.TemplateName);
 
-            var uriWithQuery = QueryHelpers.AddQueryString("email/send", parameters);
+            var uriWithQuery = QueryHelpers.AddQueryString("email/send", emailInformation.Parameters);
             var uri = new Uri(uriWithQuery, UriKind.Relative);
 
-            var response = await this._httpClient.PostAsync(uri, new StringContent(string.Empty));
+            var response = await this._httpClient.GetAsync(uri);
             response.EnsureSuccessStatusCode();
 
             var stringResponse = await response.Content.ReadAsStringAsync();
