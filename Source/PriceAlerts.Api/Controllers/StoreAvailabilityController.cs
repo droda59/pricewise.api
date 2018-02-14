@@ -18,6 +18,7 @@ namespace PriceAlerts.Api.Controllers
         }
         
         [HttpGet]
+        [ResponseCache(Duration = 60 * 60)]
         [LoggingDescription("*** REQUEST to get store availabilities ***")]
         public virtual async Task<IActionResult> GetSharedAlertList()
         {
