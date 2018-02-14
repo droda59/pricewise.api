@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PriceAlerts.Common.CommandHandlers;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Factories;
@@ -30,11 +31,20 @@ namespace PriceAlerts.PriceCheckJob.Jobs
 
             foreach (var product in allProducts)
             {
+                ICommandHandler handler;
                 var productUri = new Uri(product.Uri);
-                var handler = this._handlerFactory.CreateHandler(productUri);
-                if (!statistics.ContainsKey(handler.Domain))
+                try
                 {
-                    statistics.Add(handler.Domain, new PriceCheckRunDomainStatistics { Domain = handler.Domain.ToString() });
+                    handler = this._handlerFactory.CreateHandler(productUri);
+                
+                    if (!statistics.ContainsKey(handler.Domain))
+                    {
+                        statistics.Add(handler.Domain, new PriceCheckRunDomainStatistics { Domain = handler.Domain.ToString() });
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
                 }
 
                 try
