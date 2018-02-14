@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace PriceAlerts.Common.Models
@@ -15,6 +16,11 @@ namespace PriceAlerts.Common.Models
         public DateTime RunAt { get; set; }
 
         public IEnumerable<PriceCheckRunDomainStatistics> Results { get; set; }
+
+        public override string ToString()
+        {
+            return $"{this.RunAt.ToString(CultureInfo.CurrentCulture)}";
+        }
     }
 
     public class PriceCheckRunDomainStatistics
