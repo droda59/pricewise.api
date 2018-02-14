@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+<<<<<<< HEAD
+=======
+using System.Globalization;
+>>>>>>> master
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace PriceAlerts.Common.Models
@@ -15,6 +19,14 @@ namespace PriceAlerts.Common.Models
         public DateTime RunAt { get; set; }
 
         public IEnumerable<PriceCheckRunDomainStatistics> Results { get; set; }
+<<<<<<< HEAD
+=======
+
+        public override string ToString()
+        {
+            return $"{this.RunAt.ToString(CultureInfo.CurrentCulture)}";
+        }
+>>>>>>> master
     }
 
     public class PriceCheckRunDomainStatistics

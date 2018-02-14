@@ -26,19 +26,19 @@ namespace PriceAlerts.PriceCheckJob.Jobs
         {
             var allProducts = await this._productRepository.GetAllAsync();
 
-            var statistics = new Dictionary<string, PriceCheckRunDomainStatistics>();
+            var statistics = new Dictionary<Uri, PriceCheckRunDomainStatistics>();
 
             foreach (var product in allProducts)
             {
                 var productUri = new Uri(product.Uri);
-                if (!statistics.ContainsKey(productUri.Authority))
+                var handler = this._handlerFactory.CreateHandler(productUri);
+                if (!statistics.ContainsKey(handler.Domain))
                 {
-                    statistics.Add(productUri.Authority, new PriceCheckRunDomainStatistics { Domain = productUri.Authority });
+                    statistics.Add(handler.Domain, new PriceCheckRunDomainStatistics { Domain = handler.Domain.ToString() });
                 }
 
                 try
                 {
-                    var handler = this._handlerFactory.CreateHandler(productUri);
                     var siteInfo = await handler.HandleGetInfo(productUri);
                     if (siteInfo != null)
                     {
@@ -52,7 +52,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                         
                         if (newPrice == lastPrice && currentDate == lastDate)
                         {
-                            statistics[productUri.Authority].Unhandled++;
+                            statistics[handler.Domain].Unhandled++;
                         }
                         else
                         {
@@ -65,14 +65,14 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                          
                             await this._productRepository.UpdateAsync(product.Id, product);   
 
-                            statistics[productUri.Authority].Successes++;
+                            statistics[handler.Domain].Successes++;
                         }
 
                     }
                 }
                 catch (Exception)
                 {
-                    statistics[productUri.Authority].Errors++;
+                    statistics[handler.Domain].Errors++;
                 }
             }
             
