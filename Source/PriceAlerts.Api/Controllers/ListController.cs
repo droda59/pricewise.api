@@ -18,19 +18,15 @@ namespace PriceAlerts.Api.Controllers
     {
         private readonly IAlertRepository _alertRepository;
         private readonly IListRepository _listRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IAlertListFactory _alertListFactory;
 
         public ListController(
             IAlertRepository alertRepository,
             IListRepository listRepository,
-            IUserRepository userRepository,
-            IAlertListFactory alertListFactory, 
-            IProductFactory productFactory)
+            IAlertListFactory alertListFactory)
         {
             this._alertRepository = alertRepository;
             this._listRepository = listRepository;
-            this._userRepository = userRepository;
             this._alertListFactory = alertListFactory;
         }
 

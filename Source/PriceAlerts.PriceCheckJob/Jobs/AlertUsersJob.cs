@@ -138,7 +138,8 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                                 if (alert.BestCurrentDeal.Price < newBestDeal.Item2.Price && user.Settings.AlertOnPriceRaise
                                 || alert.BestCurrentDeal.Price > newBestDeal.Item2.Price && user.Settings.AlertOnPriceDrop)
                                 {
-                                    var emailInformation = await this.BuildWatchedListProductEmail(user, watchedList, alert, newBestDeal.Item1, newBestDeal.Item2.Price);
+                                    var listUser = await this._userRepository.GetAsync(watchedList.UserId);
+                                    var emailInformation = this.BuildWatchedListProductEmail(user, watchedList, listUser, alert, newBestDeal.Item1, newBestDeal.Item2.Price);
 
                                     Console.WriteLine($"Sending email {emailInformation.TemplateName} to user {user.Id} for alert {alert.Id}");
                                     
@@ -174,14 +175,13 @@ namespace PriceAlerts.PriceCheckJob.Jobs
             }
         }
 
-        internal async Task<EmailInformation> BuildWatchedListProductEmail(User user, List watchedList, UserAlert alert, MonitoredProduct newBestDealProduct, decimal newBestDealPrice)
+        internal EmailInformation BuildWatchedListProductEmail(User user, List watchedList, User listUser, UserAlert alert, MonitoredProduct newBestDealProduct, decimal newBestDealPrice)
         {
             var emailInformation = new EmailInformation();
             emailInformation.RecipientAddress = user.Email;
             
             var productUrl = new Uri(newBestDealProduct.Uri);
             var manipulatedUrl = this.GetManipulatedUrl(productUrl);
-            var listUser = await this._userRepository.GetAsync(watchedList.UserId);
             var subject = GetProductTitle(user, alert);
 
             emailInformation.Parameters = new Dictionary<string, string>
