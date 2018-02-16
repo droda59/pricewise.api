@@ -13,6 +13,8 @@ namespace PriceAlerts.Api.Models
         
         public string Name { get; set; }
 
+        public bool IsPublic { get; set; }
+
         public IEnumerable<UserAlertSummaryDto> Alerts { get; set; }
 
         public override string ToString()

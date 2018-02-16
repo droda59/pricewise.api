@@ -100,8 +100,8 @@ namespace PriceAlerts.Common.Database
         
         private async Task UpdateListsWithAlert(string userId, UserAlert repoUserAlert)
         {
-            var userLists = await this._listRepository.GetUserListsAsync(userId);
-            var listsWithCurrentAlert = userLists.Where(x => x.Alerts.Contains(repoUserAlert)).ToList();
+            var alertLists = await this._listRepository.GetUserAlertListsAsync(userId);
+            var listsWithCurrentAlert = alertLists.Where(x => x.Alerts.Contains(repoUserAlert)).ToList();
             foreach (var list in listsWithCurrentAlert)
             {
                 var alertIndex = ((List<UserAlert>) list.Alerts).IndexOf(repoUserAlert);
@@ -112,8 +112,8 @@ namespace PriceAlerts.Common.Database
 
         private async Task UpdateListsWithDeletedAlert(string userId, UserAlert repoUserAlert)
         {
-            var userLists = await this._listRepository.GetUserListsAsync(userId);
-            var listsWithCurrentAlert = userLists.Where(x => x.Alerts.Contains(repoUserAlert)).ToList();
+            var alertLists = await this._listRepository.GetUserAlertListsAsync(userId);
+            var listsWithCurrentAlert = alertLists.Where(x => x.Alerts.Contains(repoUserAlert)).ToList();
             foreach (var list in listsWithCurrentAlert)
             {
                 var alertIndex = ((List<UserAlert>) list.Alerts).IndexOf(repoUserAlert);

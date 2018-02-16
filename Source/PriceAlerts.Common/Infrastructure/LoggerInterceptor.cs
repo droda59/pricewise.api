@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
 using Microsoft.Extensions.Logging;
