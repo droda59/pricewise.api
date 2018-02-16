@@ -106,7 +106,7 @@ namespace PriceAlerts.Api.Controllers
             var alertLists = new List<ListDto>();
             await Task.WhenAll(repoLists.Select(async repoList =>
             {
-                var alertList = await this._alertListFactory.CreateAlertList(repoList);
+                var alertList = await this._alertListFactory.CreateAlertList<ListDto>(repoList, alert => alert.IsActive && !alert.IsDeleted);
                 lock (lockObject)
                 {
                     alertLists.Add(alertList);
