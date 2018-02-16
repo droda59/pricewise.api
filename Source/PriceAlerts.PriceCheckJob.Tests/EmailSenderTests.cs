@@ -66,10 +66,10 @@ namespace PriceAlerts.PriceCheckJob.Tests
         }
         
         [Theory]
-//        [InlineData("en", 30, 20)]
-//        [InlineData("en", 20, 30)]
+        [InlineData("en", 30, 20)]
+        [InlineData("en", 20, 30)]
         [InlineData("fr", 30, 20)]
-//        [InlineData("fr", 20, 30)]
+        [InlineData("fr", 20, 30)]
         public async Task SendWatchedListProductEmail(string correspondenceLanguage, decimal oldPrice, decimal newPrice)
         {
             var user = new User
