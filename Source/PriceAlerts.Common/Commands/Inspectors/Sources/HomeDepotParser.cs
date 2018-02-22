@@ -48,8 +48,11 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 var title = productInfo.Name;
                 var imageUrl = $"https://s7d2.scene7.com/is/image/homedepotcanada/p_{sku}.jpg";
                 var price = priceInfo.OptimizedPrice.DisplayPrice?.Value ?? productInfo.Price.Value;
+
+                ServicePointManager.ServerCertificateValidationCallback = null;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
                 
-                return new SitePriceInfo
+                var sitePriceInfo = new SitePriceInfo
                 {
                     ProductIdentifier = string.Empty, 
                     Uri = url.AbsoluteUri,
@@ -57,6 +60,8 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                     ImageUrl = imageUrl,
                     Price = price
                 };
+                
+                return sitePriceInfo;
             }
         }
 
