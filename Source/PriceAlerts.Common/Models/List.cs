@@ -21,7 +21,6 @@ namespace PriceAlerts.Common.Models
 
         public DateTime LastModifiedAt { get; set; }
 
-        // TODO Voir si je peux mettre internal
         public bool IsDeleted { get; set; }
 
         public bool IsPublic { get; set; }

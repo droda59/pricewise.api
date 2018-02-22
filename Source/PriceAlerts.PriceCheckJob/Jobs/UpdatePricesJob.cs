@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PriceAlerts.Common.CommandHandlers;
 using PriceAlerts.Common.Database;
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Factories;
@@ -12,11 +13,13 @@ namespace PriceAlerts.PriceCheckJob.Jobs
     internal class UpdatePricesJob
     {
         private readonly IProductRepository _productRepository;
+        private readonly IPriceCheckRunStatisticsRepository _statisticsRepository;
         private readonly IHandlerFactory _handlerFactory;
 
-        public UpdatePricesJob(IProductRepository productRepository, IHandlerFactory handlerFactory)
+        public UpdatePricesJob(IProductRepository productRepository, IPriceCheckRunStatisticsRepository statisticsRepository, IHandlerFactory handlerFactory)
         {
             this._productRepository = productRepository;
+            this._statisticsRepository = statisticsRepository;
             this._handlerFactory = handlerFactory;
         }
         
@@ -24,19 +27,28 @@ namespace PriceAlerts.PriceCheckJob.Jobs
         {
             var allProducts = await this._productRepository.GetAllAsync();
 
-            var errorDick = new Dictionary<string, ParseInfo>();
+            var statistics = new Dictionary<Uri, PriceCheckRunDomainStatistics>();
 
             foreach (var product in allProducts)
             {
+                ICommandHandler handler;
                 var productUri = new Uri(product.Uri);
-                if (!errorDick.ContainsKey(productUri.Authority))
+                try
                 {
-                    errorDick.Add(productUri.Authority, new ParseInfo());
+                    handler = this._handlerFactory.CreateHandler(productUri);
+                
+                    if (!statistics.ContainsKey(handler.Domain))
+                    {
+                        statistics.Add(handler.Domain, new PriceCheckRunDomainStatistics { Domain = handler.Domain.ToString() });
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
                 }
 
                 try
                 {
-                    var handler = this._handlerFactory.CreateHandler(productUri);
                     var siteInfo = await handler.HandleGetInfo(productUri);
                     if (siteInfo != null)
                     {
@@ -50,7 +62,7 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                         
                         if (newPrice == lastPrice && currentDate == lastDate)
                         {
-                            errorDick[productUri.Authority].Unhandled++;
+                            statistics[handler.Domain].Unhandled++;
                         }
                         else
                         {
@@ -63,32 +75,28 @@ namespace PriceAlerts.PriceCheckJob.Jobs
                          
                             await this._productRepository.UpdateAsync(product.Id, product);   
 
-                            errorDick[productUri.Authority].Success++;
+                            statistics[handler.Domain].Successes++;
                         }
 
                     }
                 }
                 catch (Exception)
                 {
-                    errorDick[productUri.Authority].Errors++;
+                    statistics[handler.Domain].Errors++;
                 }
             }
             
-            Console.WriteLine($"Found {errorDick.Values.Select(x => x.Success).Sum()} successes.");
-            Console.WriteLine($"Found {errorDick.Values.Select(x => x.Errors).Sum()} errors.");
-            Console.WriteLine($"Found {errorDick.Values.Select(x => x.Unhandled).Sum()} unhandled.");
+            Console.WriteLine($"Found {statistics.Values.Select(x => x.Successes).Sum()} successes.");
+            Console.WriteLine($"Found {statistics.Values.Select(x => x.Errors).Sum()} errors.");
+            Console.WriteLine($"Found {statistics.Values.Select(x => x.Unhandled).Sum()} unhandled.");
 
-            foreach (var domain in errorDick)
-            {
-                Console.WriteLine($"Found {domain.Value.Success} success, {domain.Value.Errors} errors and {domain.Value.Unhandled} unhandled on {domain.Key}");
-            }
-        }
+            var priceCheckRunStatistics = await this._statisticsRepository.InsertAsync(statistics.Values);
+            Console.WriteLine($"Saved run as {priceCheckRunStatistics.Id}.");
 
-        private class ParseInfo
-        {
-            public int Errors { get; set; }
-            public int Success { get; set; }
-            public int Unhandled { get; set; }
+//            foreach (var domain in statistics)
+//            {
+//                Console.WriteLine($"Found {domain.Value.Successes} success, {domain.Value.Errors} errors and {domain.Value.Unhandled} unhandled on {domain.Key}");
+//            }
         }
     }
 }

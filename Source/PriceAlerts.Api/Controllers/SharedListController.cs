@@ -49,10 +49,14 @@ namespace PriceAlerts.Api.Controllers
                 return this.Unauthorized();
             }
 
-            var user = await this._userRepository.GetAsync(repoList.UserId);
-            var sharedList = await this._alertListFactory.CreateAlertList<SharedListDto>(repoList, alert => alert.IsActive);
+            var userTask = this._userRepository.GetAsync(repoList.UserId);
+            var createListTask = this._alertListFactory.CreateAlertList<SharedListDto>(repoList, alert => alert.IsActive && !alert.IsDeleted);
 
-            sharedList.UserName = $"{user.FirstName}";
+            Task.WaitAll(userTask, createListTask);
+
+            var sharedList = createListTask.Result;
+
+            sharedList.UserName = $"{userTask.Result.FirstName}";
 
             return this.Ok(sharedList);
         }
@@ -72,8 +76,7 @@ namespace PriceAlerts.Api.Controllers
                 return this.Unauthorized();
             }
             
-            var alert = repoList.Alerts.SingleOrDefault(x => x.Id == alertId);
-            
+            var alert = repoList.Alerts.FirstOrDefault(x => x.Id == alertId);
             if (alert == null || alert.IsDeleted)
             {
                 return this.NotFound();
@@ -104,8 +107,7 @@ namespace PriceAlerts.Api.Controllers
                 return this.Unauthorized();
             }
             
-            var alert = repoList.Alerts.SingleOrDefault(x => x.Id == alertId);
-            
+            var alert = repoList.Alerts.FirstOrDefault(x => x.Id == alertId);
             if (alert == null || alert.IsDeleted)
             {
                 return this.NotFound();
@@ -136,8 +138,7 @@ namespace PriceAlerts.Api.Controllers
                 return this.Unauthorized();
             }
             
-            var alert = repoList.Alerts.SingleOrDefault(x => x.Id == alertId);
-            
+            var alert = repoList.Alerts.FirstOrDefault(x => x.Id == alertId);
             if (alert == null || alert.IsDeleted)
             {
                 return this.NotFound();

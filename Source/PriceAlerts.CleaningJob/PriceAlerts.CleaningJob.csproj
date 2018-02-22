@@ -7,10 +7,10 @@
     <ProjectReference Include="..\PriceAlerts.Common\PriceAlerts.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="4.5.0" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="run.cmd" CopyToOutputDirectory="Always" />
     <None Include="run.cmd" CopyToPublishDirectory="Always" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.6.2" />
   </ItemGroup>
 </Project>
