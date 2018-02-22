@@ -64,7 +64,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
             var prices = new List<Price>();
 
-            if (item.Offers.Offer.Any())
+            if (item.Offers.Offer != null && item.Offers.Offer.Any())
             {
                 foreach (var offer in item.Offers.Offer)
                 {
@@ -95,7 +95,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 ProductIdentifier = item.ASIN,
                 Uri = url.AbsoluteUri,
                 Title = item.ItemAttributes.Title,
-                ImageUrl = item.MediumImage.URL,
+                ImageUrl = item.MediumImage?.URL ?? item.ImageSets.FirstOrDefault()?.MediumImage.URL,
                 Price = minPrice
             };
         }
