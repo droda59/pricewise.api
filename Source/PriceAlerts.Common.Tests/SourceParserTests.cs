@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Autofac;
-
+using Microsoft.Extensions.Logging;
 using PriceAlerts.Common.Tests.Parsers;
 using PriceAlerts.Common.Tests.Parsers.SourceParsers;
 
@@ -20,6 +20,7 @@ namespace PriceAlerts.Common.Tests
         {
 			var builder = new ContainerBuilder();
             builder.RegisterModule(new AutofacModule());
+            builder.Register<ILoggerFactory>(c => new LoggerFactory());
 
             this._container = builder.Build();
         }
