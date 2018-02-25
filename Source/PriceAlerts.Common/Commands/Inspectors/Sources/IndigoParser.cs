@@ -39,33 +39,31 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var itemPriceNode = doc.DocumentNode.SelectSingleNode(".//div[@class='item-price']");
+            var itemPriceNode = doc.DocumentNode.SelectSingleNode(".//div[contains(@class, 'item-price')]");
 
             string nodeValue;
-            var priceContainer = itemPriceNode.SelectSingleNode(".//div[@class='item-price__container']");
+            var priceContainer = itemPriceNode.SelectSingleNode(".//div[contains(@class, 'item-price__container')]");
             if (priceContainer != null)
             {
-                IEnumerable<HtmlNode> priceNodes;
-                priceContainer = priceContainer.SelectSingleNode(".//span[@class='item-price__price-amount']");
+                var priceNodes = new List<HtmlNode>();
+                priceContainer = priceContainer.SelectSingleNode(".//span[contains(@class, 'item-price__price-amount')]");
 
                 if (priceContainer.SelectNodes("./span") != null)
                 {
-                    priceNodes = priceContainer
+                    priceNodes.AddRange(priceContainer
                         .SelectNodes("./span")
                         .SelectMany(x => x.ChildNodes)
-                        .Where(x => x.NodeType == HtmlNodeType.Text);
+                        .Where(x => x.NodeType == HtmlNodeType.Text));
                 }
-                else
-                {
-                    priceNodes = priceContainer.ChildNodes
-                        .Where(x => x.NodeType == HtmlNodeType.Text);
-                }
+                
+                priceNodes.AddRange(priceContainer.ChildNodes
+                    .Where(x => x.NodeType == HtmlNodeType.Text));
 
                 nodeValue = string.Join(" ", priceNodes.Select(x => x.InnerText));
             }
             else 
             {
-                priceContainer = itemPriceNode.SelectSingleNode(".//p[@class='item-price__normal']");
+                priceContainer = itemPriceNode.SelectSingleNode(".//p[contains(@class, 'item-price__normal')]");
                 nodeValue = priceContainer.InnerText;
             }
 
@@ -76,10 +74,10 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override string GetProductIdentifier(HtmlDocument doc)
         {
-            var isbnRootNode = doc.DocumentNode.SelectSingleNode(".//div[@class='item-page__isbn-items']");
+            var isbnRootNode = doc.DocumentNode.SelectSingleNode(".//div[contains(@class, 'item-page__isbn-items')]");
             if (isbnRootNode != null)
             {
-                var isbnNodes = isbnRootNode.SelectNodes(".//span[@class='item-page__spec-value']");
+                var isbnNodes = isbnRootNode.SelectNodes(".//span[contains(@class, 'item-page__spec-value')]");
                 foreach (var isbnNode in isbnNodes)
                 {
                     if (ISBNHelper.ISBN13Expression.IsMatch(isbnNode.InnerText))
@@ -97,7 +95,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 }
             }
 
-            var upcNodes = doc.DocumentNode.SelectNodes(".//span[@class='item-page__spec-label']");
+            var upcNodes = doc.DocumentNode.SelectNodes(".//span[contains(@class, 'item-page__spec-label')]");
             foreach (var upcNode in upcNodes)
             {
                 if (upcNode.InnerText.Contains("UPC"))
