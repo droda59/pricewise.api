@@ -18,10 +18,10 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         
         protected override string GetTitle(HtmlDocument doc)
         {
-            var title = doc.DocumentNode
-                .SelectSingleNode(".//div[@class='product-detail']")
-                .SelectSingleNode(".//span[@class='product-detail-name']")
-                .InnerText;
+            var documentNode = doc.DocumentNode;
+            var productDetail = documentNode.SelectSingleNode(".//div[@class='product-detail']");
+            var productDetailName = productDetail.SelectSingleNode(".//span[@class='product-detail-name']");
+            var title = productDetailName.InnerText;
             
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 
@@ -30,10 +30,10 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override string GetImageUrl(HtmlDocument doc)
         {
-            var imageNode = doc.DocumentNode
-                .SelectSingleNode(".//div[@class='product-detail']")
-                .SelectSingleNode(".//div[@class='product-details-media']")
-                .SelectSingleNode(".//img[@class='img-fluid']");
+            var documentNode = doc.DocumentNode;
+            var productDetail = documentNode.SelectSingleNode(".//div[@class='product-detail']");
+            var producDetailsMedia = productDetail.SelectSingleNode(".//div[@class='product-details-media']");
+            var imageNode = producDetailsMedia.SelectSingleNode(".//img[@class='img-fluid']");
                 
             var extractedValue = imageNode.Attributes["src"].Value;
 

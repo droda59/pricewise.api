@@ -25,10 +25,10 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var urls = new[]
             {
                 new Uri(this.Source.Domain, "https://www.sportsexperts.ca/en-CA/p-reflect-medium-adult-shoe-spikes/774852/774852-1"),
-                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-appalaches-ii-w-raquettes-a-neige-pour-femme/55392/55392-4"),
                 new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-ionic-montre-intelligente-pour-adulte/277436/277436-2"),
                 new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-famous-6xpress-11-w-skis-alpins-de-piste-pour-femme/188047/188047-3"),
-                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-aurora-blouson-en-laine-polaire-pour-femme/374270/374270-82"),
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-sw-squad-leader-jr-t-shirt-dentrainement-pour-garcon/125103/125103-1"),
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-buck-jr-lunettes-de-soleil-pour-junior/106042/106042-1"),
             };
 
             return urls;
