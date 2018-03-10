@@ -38,7 +38,6 @@ namespace PriceAlerts.Common.Tests
         [InlineData(typeof(LegoTestParser))]
         [InlineData(typeof(LeonTestParser))]
         [InlineData(typeof(MonoPriceTestParser))]
-        [InlineData(typeof(NcixTestParser))]
         [InlineData(typeof(RenaudBrayTestParser))]
         [InlineData(typeof(SAQTestParser))]
         [InlineData(typeof(StaplesTestParser))]
