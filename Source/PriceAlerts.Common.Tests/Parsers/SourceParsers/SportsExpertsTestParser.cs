@@ -29,6 +29,12 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                 new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-famous-6xpress-11-w-skis-alpins-de-piste-pour-femme/188047/188047-3"),
                 new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-sw-squad-leader-jr-t-shirt-dentrainement-pour-garcon/125103/125103-1"),
                 new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-buck-jr-lunettes-de-soleil-pour-junior/106042/106042-1"),
+
+                // Products found through the Atmosphere QC website 
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/en-CA/p-thermoball-button-upwomens-winter-boots/6934/6934-22"),
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/en-CA/p-performer-10-6-supboard/112215/112215-1"),
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/en-CA/p-112069-trekking-pole-tipprotector/334985/334985-1"),
+
             };
 
             return urls;

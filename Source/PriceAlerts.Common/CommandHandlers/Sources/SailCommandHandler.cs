@@ -6,12 +6,9 @@ namespace PriceAlerts.Common.CommandHandlers.Sources
 {
     internal class SailCommandHandler : CommandHandler
     {
-        public SailCommandHandler(SailSource source, 
-            SailCleaner cleaner, 
-            SailParser parser)
+        public SailCommandHandler(SailSource source, SailParser parser)
             : base(source)
         {
-            this.Commands.Add(cleaner);
             this.Commands.Add(parser);
         }
     }

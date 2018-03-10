@@ -6,12 +6,9 @@ namespace PriceAlerts.Common.CommandHandlers.Sources
 {
     internal class SportsExpertsCommandHandler : CommandHandler
     {
-        public SportsExpertsCommandHandler(SportsExpertsSource source, 
-            SportsExpertsCleaner cleaner, 
-            SportsExpertsParser parser)
+        public SportsExpertsCommandHandler(SportsExpertsSource source, SportsExpertsParser parser)
             : base(source)
         {
-            this.Commands.Add(cleaner);
             this.Commands.Add(parser);
         }
     }
