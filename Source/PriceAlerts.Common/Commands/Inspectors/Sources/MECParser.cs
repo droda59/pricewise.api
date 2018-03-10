@@ -30,11 +30,11 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override string GetImageUrl(HtmlDocument doc)
         {
-            var imageNode = doc.DocumentNode
-                .SelectSingleNode(".//div[contains(@class, 'product-layout')]")
-                .SelectSingleNode(".//div[contains(@class, 'carousel')]")
-                .SelectNodes(".//img[contains(@class, 'fluid-image__content')]")
-                .First();
+            var documentNode = doc.DocumentNode;
+            var productLayout = documentNode.SelectSingleNode(".//div[contains(@class, 'product-layout')]");
+            var carousel = productLayout.SelectSingleNode(".//div[contains(@class, 'carousel')]");
+            var images = carousel.SelectNodes(".//img[contains(@class, 'fluid-image__content')]");
+            var imageNode = images == null ? carousel.SelectSingleNode(".//img") : images.First();
                 
             var extractedValue = imageNode.Attributes["src"].Value;
 
@@ -43,13 +43,13 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var priceNode = doc.DocumentNode
-                .SelectSingleNode(".//div[contains(@class, 'product-layout')]")
-                .SelectSingleNode(".//ul[@class='price-group']")
-                .SelectSingleNode(".//li[@class='price']");
+            var documentNode = doc.DocumentNode;
+            var productLayout = documentNode.SelectSingleNode(".//div[contains(@class, 'product-layout')]");
+            var priceGroup = productLayout.SelectSingleNode(".//ul[@class='price-group']");
+            var priceNode = priceGroup.SelectSingleNode(".//li[@class='price']");
 
             var lowprice = priceNode.SelectSingleNode(".//span[@itemprop='lowPrice']");
-            var price = lowprice != null ? lowprice.InnerText : priceNode.SelectSingleNode(".//span[@itemprop='price']").InnerText;
+            var price = lowprice != null ? lowprice.InnerText : priceNode.LastChild.InnerText;
 
             var decimalValue = price.ExtractDecimal();
 
