@@ -49,9 +49,22 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var lowprice = priceNode.SelectSingleNode(".//span[@itemprop='lowPrice']");
             var price = lowprice != null ? lowprice.InnerText : priceNode.LastChild.InnerText;
 
-            var decimalValue = price.ExtractDecimal();
+            try
+            {
+                var decimalValue = price.ExtractDecimal();
+                return decimalValue;
 
-            return decimalValue;
+            }
+            catch (Exception)
+            {
+                // MEC sometimes displays different a range of prices for a single product. We sadly have to way of determining the correct price for the product.
+                if (price != null && price.Contains("-"))
+                {
+                    throw new NotSupportedException("PriceWise was unable to determine the correct price for the selected product.");
+                }
+
+                throw;
+            }
         }
     }
 }
