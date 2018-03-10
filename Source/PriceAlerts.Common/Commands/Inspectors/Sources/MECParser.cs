@@ -16,12 +16,10 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         
         protected override string GetTitle(HtmlDocument doc)
         {
-            //.//span[contains(@class, 'a-button')]
-            var title = doc.DocumentNode
-                .SelectSingleNode(".//div[contains(@class, 'product-layout')]")
-                .SelectNodes(".//h1[@class='product__name']")
-                .First()
-                .InnerText;
+            var documentNode = doc.DocumentNode;
+            var productLayout = documentNode.SelectSingleNode(".//div[contains(@class, 'product-layout')]");
+            var productNames = productLayout.SelectNodes(".//h1[@class='product__name']");
+            var title = productNames.First().InnerText;
 
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 

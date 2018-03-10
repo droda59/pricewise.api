@@ -1,6 +1,4 @@
 using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
@@ -19,8 +17,8 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
             var documentNode = doc.DocumentNode;
             var productDetail = documentNode.SelectSingleNode(".//div[@class='product-detail']");
-            var productDetailName = productDetail.SelectSingleNode(".//h1[@class='global-page-header__title']");
-            var title = productDetailName.InnerText;
+            var pageHeaderTitle = productDetail.SelectSingleNode(".//h1[@class='global-page-header__title']");
+            var title = pageHeaderTitle.InnerText;
             
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 
