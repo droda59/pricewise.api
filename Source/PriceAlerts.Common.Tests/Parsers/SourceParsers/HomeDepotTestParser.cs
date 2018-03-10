@@ -13,8 +13,8 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
         private readonly IDocumentLoader _documentLoader;
         private readonly HomeDepotSource _source;
 
-        public HomeDepotTestParser(IRequestClient requestClient, IDocumentLoader documentLoader, HomeDepotSource source)
-            : base(requestClient, documentLoader, source)
+        public HomeDepotTestParser(IDocumentLoader documentLoader, HomeDepotSource source)
+            : base(documentLoader, source)
         {
             this._documentLoader = documentLoader;
             this._source = source;
@@ -44,8 +44,10 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                             .SelectSingleNode(".//div[contains(@class,'products-grid')]")
                             .SelectNodes(".//div[contains(@class,'item')]//article[contains(@class,'product-card')]")
                             .Take(6)
-                            .Select(x => x.SelectSingleNode(".//a[contains(@class, 'js-detail-link')]"))
-                            .Select(x => new Uri(domain, x.Attributes["href"].Value)));
+                            .Select(x => x.SelectSingleNode(".//a"))
+                            .Select(x => x.Attributes["href"].Value)
+                            .Distinct()
+                            .Select(x => new Uri(domain, x)));
                 }  
             }));
 

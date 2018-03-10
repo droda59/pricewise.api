@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -12,7 +11,7 @@ namespace PriceAlerts.Common.Infrastructure
 
         public void Initialize()
         {
-            var handler = new HttpClientHandler() 
+            var handler = new HttpClientHandler
             {
                 AllowAutoRedirect = false
             };
@@ -47,10 +46,8 @@ namespace PriceAlerts.Common.Infrastructure
             {
                 message.Headers.Add(customHeader.Key, customHeader.Value);
             }
-
-            var data = await this._httpClient.SendAsync(message);
             
-            return data;
+            return await this._httpClient.SendAsync(message);
         }
     }
 }

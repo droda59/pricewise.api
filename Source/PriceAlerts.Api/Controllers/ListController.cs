@@ -18,19 +18,15 @@ namespace PriceAlerts.Api.Controllers
     {
         private readonly IAlertRepository _alertRepository;
         private readonly IListRepository _listRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IAlertListFactory _alertListFactory;
 
         public ListController(
             IAlertRepository alertRepository,
             IListRepository listRepository,
-            IUserRepository userRepository,
-            IAlertListFactory alertListFactory, 
-            IProductFactory productFactory)
+            IAlertListFactory alertListFactory)
         {
             this._alertRepository = alertRepository;
             this._listRepository = listRepository;
-            this._userRepository = userRepository;
             this._alertListFactory = alertListFactory;
         }
 
@@ -106,7 +102,7 @@ namespace PriceAlerts.Api.Controllers
             var alertLists = new List<ListDto>();
             await Task.WhenAll(repoLists.Select(async repoList =>
             {
-                var alertList = await this._alertListFactory.CreateAlertList(repoList);
+                var alertList = await this._alertListFactory.CreateAlertList<ListDto>(repoList, alert => alert.IsActive && !alert.IsDeleted);
                 lock (lockObject)
                 {
                     alertLists.Add(alertList);
