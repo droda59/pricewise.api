@@ -36,6 +36,7 @@ namespace PriceAlerts.Common.Tests
         [InlineData(typeof(HomeDepotTestParser))]
         [InlineData(typeof(IkeaTestParser))]
         [InlineData(typeof(IndigoTestParser))]
+        [InlineData(typeof(LaCordeeTestParser))]
         [InlineData(typeof(LegoTestParser))]
         [InlineData(typeof(LeonTestParser))]
         [InlineData(typeof(MECTestParser))]
