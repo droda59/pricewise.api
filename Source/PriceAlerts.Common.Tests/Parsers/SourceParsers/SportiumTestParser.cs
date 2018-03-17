@@ -33,7 +33,9 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                 x => !x.AbsoluteUri
                         .Contains("https://www.sportium.ca/en/ccm-epaulieres-6052-jr-251119-3661200002") && 
                      !x.AbsoluteUri
-                        .Contains("https://www.sportium.ca/en/under-armour-chandail-hg-compression-pour-homme-129636"));
+                        .Contains("https://www.sportium.ca/en/under-armour-chandail-hg-compression-pour-homme-129636") &&
+                     !x.AbsoluteUri
+                        .Contains("https://www.sportium.ca/en/new-balance-chaussures-de-baseball-4040v4-pour-femme-638667"));
         }
     }
 }
