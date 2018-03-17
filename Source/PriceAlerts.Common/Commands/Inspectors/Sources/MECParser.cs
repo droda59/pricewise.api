@@ -29,12 +29,8 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         protected override string GetImageUrl(HtmlDocument doc)
         {
             var documentNode = doc.DocumentNode;
-            var productLayout = documentNode.SelectSingleNode(".//div[contains(@class, 'product-layout')]");
-            var carousel = productLayout.SelectSingleNode(".//div[contains(@class, 'carousel')]");
-            var images = carousel.SelectNodes(".//img[contains(@class, 'fluid-image__content')]");
-            var imageNode = images == null ? carousel.SelectSingleNode(".//img") : images.First();
-                
-            var extractedValue = imageNode.Attributes["src"].Value;
+            var imageMetaNode = documentNode.SelectSingleNode(".//meta[contains(@property, 'og:image')]");
+            var extractedValue = imageMetaNode.Attributes["content"].Value;
 
             return extractedValue;
         }
