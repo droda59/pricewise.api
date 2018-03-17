@@ -16,10 +16,10 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         
         protected override string GetTitle(HtmlDocument doc)
         {
-            var title = doc.DocumentNode
-                .SelectSingleNode(".//div[@class='product-essential']")
-                .SelectSingleNode(".//div[@class='product-name']")
-                .SelectSingleNode(".//h1").InnerText;
+            var documentNode = doc.DocumentNode;
+            var productEssential = documentNode.SelectSingleNode(".//div[@class='product-essential']");
+            var productName = productEssential.SelectSingleNode(".//div[@class='product-name']");
+            var title = productName.SelectSingleNode(".//h1").InnerText;
             
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 
@@ -40,13 +40,18 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var priceNode = doc.DocumentNode
-                .SelectSingleNode(".//div[@class='product-essential']")
-                .SelectSingleNode(".//div[@class='price-box']")
-                .SelectNodes(".//span[@class='price']")
-                .First(x => x.Id.Contains("product-price"));
+            var documentNode = doc.DocumentNode;
+            var productEssential = documentNode.SelectSingleNode(".//div[@class='product-essential']");
+            var priceBox = productEssential.SelectSingleNode(".//div[@class='price-box']");
+            var prices = priceBox.SelectNodes(".//span[@class='price']");
+            var productPrice = prices.FirstOrDefault(x => x.Id.Contains("product-price"));
 
-            var nodeValue = priceNode.InnerText;
+            if (productPrice == null && prices.Count == 1)
+            {
+                productPrice = prices.First();
+            }
+
+            var nodeValue = productPrice?.InnerText;
             var decimalValue = nodeValue.ExtractDecimal();
 
             return decimalValue;
