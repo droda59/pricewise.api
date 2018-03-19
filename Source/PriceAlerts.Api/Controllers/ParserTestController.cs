@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -36,9 +37,19 @@ namespace PriceAlerts.Api.Controllers
                 return new NotFoundResult();
             }
 
-            var parsedContent = await commandHandler.HandleGetInfo(uri);
+            try
+            {
+                var parsedContent = await commandHandler.HandleGetInfo(uri);
+                
+                return new ObjectResult(parsedContent);
+            }
+            catch (ParseException e)
+            {
+                return e.InnerException is NotSupportedException 
+                    ? this.StatusCode((int) HttpStatusCode.NotImplemented, e.Message) 
+                    : this.BadRequest(e.Message);
+            }
 
-            return new ObjectResult(parsedContent);
         }
     }
 }

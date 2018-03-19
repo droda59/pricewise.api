@@ -23,21 +23,18 @@ namespace PriceAlerts.Api.Controllers
     {
         private readonly IProductRepository _productRepository;
         private readonly IAlertRepository _alertRepository;
-        private readonly IListRepository _listRepository;
         private readonly IUserAlertFactory _userAlertFactory;
         private readonly IProductFactory _productFactory;
 
         public UserAlertsController(
             IProductRepository productRepository, 
-            IAlertRepository alertRepository, 
-            IListRepository listRepository,
+            IAlertRepository alertRepository,
             IUserAlertFactory userAlertFactory, 
             IProductFactory productFactory, 
             IHandlerFactory handlerFactory)
         {
             this._productRepository = productRepository;
             this._alertRepository = alertRepository;
-            this._listRepository = listRepository;
             this._userAlertFactory = userAlertFactory;
             this._productFactory = productFactory;
         }
@@ -231,11 +228,9 @@ namespace PriceAlerts.Api.Controllers
             }
             catch (ParseException e)
             {
-                return this.BadRequest(e.Message);
-            }
-            catch (NotSupportedException e)
-            {
-                return this.StatusCode((int) HttpStatusCode.NotImplemented, e.Message);
+                return e.InnerException is NotSupportedException 
+                    ? this.StatusCode((int) HttpStatusCode.NotImplemented, e.Message) 
+                    : this.BadRequest(e.Message);
             }
         }
 
@@ -315,11 +310,9 @@ namespace PriceAlerts.Api.Controllers
             }
             catch (ParseException e)
             {
-                return this.BadRequest(e.Message);
-            }
-            catch (NotSupportedException e)
-            {
-                return this.StatusCode((int) HttpStatusCode.NotImplemented, e.Message);
+                return e.InnerException is NotSupportedException 
+                    ? this.StatusCode((int) HttpStatusCode.NotImplemented, e.Message) 
+                    : this.BadRequest(e.Message);
             }
         }
 
