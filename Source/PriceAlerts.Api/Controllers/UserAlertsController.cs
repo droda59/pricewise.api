@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -226,11 +227,15 @@ namespace PriceAlerts.Api.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return this.NotFound("The specified source is not yet supported.");
+                return this.NotFound("The specified store is not yet supported.");
             }
             catch (ParseException e)
             {
                 return this.BadRequest(e.Message);
+            }
+            catch (NotSupportedException e)
+            {
+                return this.StatusCode((int) HttpStatusCode.NotImplemented, e.Message);
             }
         }
 
@@ -311,6 +316,10 @@ namespace PriceAlerts.Api.Controllers
             catch (ParseException e)
             {
                 return this.BadRequest(e.Message);
+            }
+            catch (NotSupportedException e)
+            {
+                return this.StatusCode((int) HttpStatusCode.NotImplemented, e.Message);
             }
         }
 
