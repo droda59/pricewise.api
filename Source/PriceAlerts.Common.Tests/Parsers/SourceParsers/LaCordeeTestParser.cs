@@ -28,6 +28,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
                 new Uri(this.Source.Domain, "https://www.lacordee.com/en/wintersports/skate-cross-country-skiing/rossignol-delta-skating-ifp-cross-country-skis"),
                 new Uri(this.Source.Domain, "https://www.lacordee.com/en/wintersports/skate-cross-country-skiing/louis-garneau-nordic-shield-ski-goggles"),
                 new Uri(this.Source.Domain, "https://www.lacordee.com/en/climbing/climbing-protection/fixe-10mm-3-8-bolt-hanger"),
+                new Uri(this.Source.Domain, "https://www.lacordee.com/fr/soldes/sports-d-hiver/fixations-de-planche-a-neige-divisible-spark-surge-femmes"),
             };
 
             return urls;
