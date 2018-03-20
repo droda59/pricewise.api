@@ -14,14 +14,14 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             : base(documentLoader, source)
         {
         }
-        
+
         protected override string GetTitle(HtmlDocument doc)
         {
             var documentNode = doc.DocumentNode;
             var itemDetails = documentNode.SelectSingleNode(".//div[@class='item-details block']");
             var textNode = itemDetails.SelectSingleNode(".//h1");
             var title = textNode.InnerText;
-            
+
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 
             return extractedValue;
@@ -32,7 +32,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var documentNode = doc.DocumentNode;
             var productImage = documentNode.SelectSingleNode(".//p[@class='product-image']");
             var imageNode = productImage.SelectSingleNode(".//img");
-                
+
             var extractedValue = imageNode.Attributes["src"].Value;
 
             return extractedValue;
@@ -43,13 +43,17 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var priceBox = doc.DocumentNode.SelectSingleNode(".//div[@class='price-box']");
             var specialPrice = priceBox.SelectSingleNode(".//p[@class='special-price']");
 
-            var priceNode = specialPrice == null ? 
-                priceBox.SelectSingleNode(".//span[@class='price']") : 
+            var priceNode = specialPrice == null ?
+                priceBox.SelectSingleNode(".//span[@class='price']") :
                 specialPrice.SelectSingleNode(".//span[@class='price']");
 
-            var decimalValue = priceNode.InnerText.ExtractDecimal();
+            // LaCordee sometimes displays a range of prices for a single product. We sadly have to way of determining the correct price for the product.
+            if (priceNode.InnerText != null && (priceNode.InnerText.Contains("à") || priceNode.InnerText.Contains("to")))
+            {
+                throw new NotSupportedException("PriceWise was unable to determine the correct price for the selected product.");
+            }
 
-            return decimalValue;
+            return priceNode.InnerText.ExtractDecimal();
         }
     }
 }

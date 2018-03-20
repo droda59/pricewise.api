@@ -51,7 +51,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             }
             catch (Exception)
             {
-                // MEC sometimes displays different a range of prices for a single product. We sadly have to way of determining the correct price for the product.
+                // MEC sometimes displays a range of prices for a single product. We sadly have to way of determining the correct price for the product.
                 if (price != null && price.Contains("–"))
                 {
                     throw new NotSupportedException("PriceWise was unable to determine the correct price for the selected product.");
