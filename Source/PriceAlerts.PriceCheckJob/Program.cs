@@ -48,7 +48,7 @@ namespace PriceAlerts.PriceCheckJob
                 Console.WriteLine("Took " + TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds).ToString(@"dd\.hh\:mm\:ss\.fff") + " to process alerts.");
                 Console.WriteLine();
 
-                Thread.Sleep(TimeSpan.FromHours(8));
+                Thread.Sleep(TimeSpan.FromHours(16));
             }
         }
     }
