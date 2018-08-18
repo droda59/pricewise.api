@@ -24,17 +24,15 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
 
             var urls = new[]
             {
-                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/en-CA/p-reflect-medium-adult-shoe-spikes/774852/774852-1"),
-                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-ionic-montre-intelligente-pour-adulte/277436/277436-2"),
-                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-famous-6xpress-11-w-skis-alpins-de-piste-pour-femme/188047/188047-3"),
-                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-sw-squad-leader-jr-t-shirt-dentrainement-pour-garcon/125103/125103-1"),
-                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-buck-jr-lunettes-de-soleil-pour-junior/106042/106042-1"),
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-flex-trainer-8-chaussures-dentrainement-pour-femme/275547/275547-8"),
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-air-zoom-pegasus-35-chaussures-de-course-a-pied-pour-homme/275531/275531-111"),
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-zne-parley-blouson-dentrainement-pour-femme/327962/327962-3"),
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-cuivre-socquettes-de-compression-pour-homme/304991/304991-2"),
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-free-trainer-v8-chaussures-dentrainement-pour-homme/275489/275489-53"),
 
-                // Products found through the Atmosphere QC website 
-                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/en-CA/p-thermoball-button-upwomens-winter-boots/6934/6934-22"),
-                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/en-CA/p-performer-10-6-supboard/112215/112215-1"),
-                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/en-CA/p-112069-trekking-pole-tipprotector/334985/334985-1"),
-
+                // Products found through the Atmosphere QC website just in case
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/fr-CA/p-malibu-pedal-kayak-recreatif/285474/285474-1"),
+                new Uri(this.Source.Domain, "https://www.sportsexperts.ca/en-CA/p-raven-20l-backpack/12546/12546-6"),
             };
 
             return urls;

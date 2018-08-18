@@ -23,9 +23,8 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         protected override string GetTitle(HtmlDocument doc)
         {
             var documentNode = doc.DocumentNode;
-            var productDetail = documentNode.SelectSingleNode(".//div[@class='product-detail']");
-            var productDetailName = productDetail.SelectSingleNode(".//span[@class='product-detail-name']");
-            var title = productDetailName.InnerText;
+            var titleMeta = documentNode.SelectSingleNode(".//meta[@name='og:title']");
+            var title = titleMeta.Attributes["content"].Value;
             
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 
@@ -35,21 +34,19 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         protected override string GetImageUrl(HtmlDocument doc)
         {
             var documentNode = doc.DocumentNode;
-            var productDetail = documentNode.SelectSingleNode(".//div[@class='product-detail']");
-            var producDetailsMedia = productDetail.SelectSingleNode(".//div[@class='product-details-media']");
-            var imageNode = producDetailsMedia.SelectSingleNode(".//img[@class='img-fluid']");
-                
-            var extractedValue = imageNode.Attributes["src"].Value;
+            var imgMeta = documentNode.SelectSingleNode(".//meta[@name='og:image']");
+            var imgUrl = imgMeta.Attributes["content"].Value;
 
-            return extractedValue;
+            return imgUrl;
         }
 
         protected override decimal GetPrice(HtmlDocument doc)
         {
-            var urlMetaNode = doc.DocumentNode.SelectSingleNode(".//meta[contains(@name, 'og:url')]");
-            var productIds = urlMetaNode.Attributes["content"].Value.Split('/').Reverse().Take(2).ToList();
-            var productId = productIds.First(x => !x.Contains("-"));
-            var variantId = productIds.First(x => x.Contains("-")) ?? productId;
+            var documentNode = doc.DocumentNode;
+            var urlMeta = documentNode.SelectSingleNode(".//meta[@name='og:url']");
+            var url = new Uri(urlMeta.Attributes["content"].Value, UriKind.Relative);
+            var variantId = url.ToString().Split("/").Last();
+            var productId = variantId.Contains("-") ? variantId.Substring(0, variantId.IndexOf("-", StringComparison.InvariantCulture)) : variantId;
 
             var task = this._apiClient.GetPrices(new ProductList(new[]{productId}));
             task.Wait();
