@@ -17,7 +17,7 @@ namespace PriceAlerts.Common.Factories
         public ICommandHandler CreateHandler(Uri uri)
         {
             var domain = uri.Authority;
-            if (!this._handlers.ContainsKey(domain))
+            if (!this._handlers.ContainsKey(domain) && !this._handlers.ContainsKey($"www.{domain}"))
             {
                 throw new KeyNotFoundException();
             }
