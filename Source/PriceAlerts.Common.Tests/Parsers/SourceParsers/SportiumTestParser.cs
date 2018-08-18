@@ -23,7 +23,7 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
             
             var documentNode = document.DocumentNode;
-            var banner = documentNode.SelectNodes(".//ul[@class='products-grid with-carousel']");
+            var banner = documentNode.SelectNodes(".//ul[@class='products-grid with-carousel carousel-productlist']");
             var links = banner.SelectMany(x => x.SelectNodes(".//a"));
             var hrefs = links.Select(x => x.Attributes["href"].Value);
             var urls = hrefs.Select(x => new Uri(this.Source.Domain, x));
