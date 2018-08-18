@@ -22,10 +22,10 @@ namespace PriceAlerts.Common.Tests.Parsers.SourceParsers
         {
             var document = await this._documentLoader.LoadDocument(this.Source.Domain, this.Source.CustomHeaders);
             
-            return document.DocumentNode
-                    .SelectNodes(".//div[contains(@class, 'products-carousel')]//div[contains(@class, 'carousel__item-description')]//a")
-                    .Select(x => x.Attributes["href"].Value)
-                    .Distinct()
+            var documentNode =  document.DocumentNode;
+            var itemDescriptions = documentNode.SelectNodes(".//div[contains(@class, 'carousel__item-title-wrap')]//a");
+            var links = itemDescriptions.Select(x => x.Attributes["href"].Value);
+            return links.Distinct()
                     .Take(24)
                     .Select(x => new Uri(this.Source.Domain, x));
         }
