@@ -92,3 +92,6 @@ crashlytics-build.properties
 project.lock.json
 .vscode/launch.json
 .vscode/tasks.json
+
+#SQLite
+/Source/.vs/PriceAlerts.Api/v15/Server/sqlite3
