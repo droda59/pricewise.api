@@ -44,24 +44,26 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             return null;
         }
         
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var nodeValue = doc.GetElementbyId("productTitle").InnerText;
+            var nodeValue = this.Context.Document.GetElementbyId("productTitle").InnerText;
             var extractedValue = nodeValue.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var nodeValue = doc.GetElementbyId("main-image-container").SelectNodes(".//img").First();
+            var nodeValue = this.Context.Document.GetElementbyId("main-image-container").SelectNodes(".//img").First();
             var extractedValue = nodeValue.Attributes["src"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
+            var doc = this.Context.Document;
+
             var priceNode = doc.GetElementbyId("priceblock_ourprice");
             if (priceNode == null)
             {
@@ -86,7 +88,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
                     var smallestPrice = priceNodes.Select(x => x.InnerHtml.ExtractDecimal()).Min();
 
-                    return smallestPrice;
+                    this.Context.SitePriceInfo.Price = smallestPrice;
                 }
             }
             
@@ -110,22 +112,23 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var nodeValue = priceNode.InnerText;
             var decimalValue = nodeValue.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price =decimalValue;
         }
 
-        protected override string GetProductIdentifier(HtmlDocument doc)
+        protected override void ParseProductIdentifier()
         {
+            var doc = this.Context.Document;
             var titleNode = doc.DocumentNode.SelectSingleNode("//meta[@name='title']");
             var titleValue = titleNode.Attributes["content"].Value;
 
             if (ISBNHelper.ISBN13Expression.IsMatch(titleValue))
             {
-                return ISBNHelper.ISBN13Expression.Match(titleValue).Value;
+                this.Context.SitePriceInfo.ProductIdentifier = ISBNHelper.ISBN13Expression.Match(titleValue).Value;
             }
 
             if (ISBNHelper.ISBN10Expression.IsMatch(titleValue))
             {
-                return ISBNHelper.ISBN10Expression.Match(titleValue).Value;
+                this.Context.SitePriceInfo.ProductIdentifier = ISBNHelper.ISBN10Expression.Match(titleValue).Value;
             }
 
             var detailsListNode = doc.GetElementbyId("detail_bullets_id");
@@ -142,7 +145,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                             var detailValue = detailTitleNode.ParentNode.InnerText;
                             if (ISBNHelper.ISBN13CompleteExpression.IsMatch(detailValue))
                             {
-                                return ISBNHelper.ISBN13CompleteExpression.Match(detailValue).Value.Replace("-", "");
+                                this.Context.SitePriceInfo.ProductIdentifier = ISBNHelper.ISBN13CompleteExpression.Match(detailValue).Value.Replace("-", "");
                             }
                         }
                     }
@@ -154,19 +157,12 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                             var detailValue = detailTitleNode.ParentNode.InnerText;
                             if (ISBNHelper.ISBN10Expression.IsMatch(detailValue))
                             {
-                                return ISBNHelper.ISBN10Expression.Match(detailValue).Value;
+                                this.Context.SitePriceInfo.ProductIdentifier = ISBNHelper.ISBN10Expression.Match(detailValue).Value;
                             }
                         }
                     }
                 }
             }
-
-            return string.Empty;
-
-            // var keywordsNode = doc.DocumentNode.SelectSingleNode("//meta[@name='keywords']");
-            // var keywordsValue = keywordsNode.Attributes["content"].Value;
-
-            // return keywordsValue.Split(',').Last();
         }
     }
 }

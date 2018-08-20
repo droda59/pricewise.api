@@ -1,5 +1,5 @@
 using System;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -13,30 +13,30 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
 
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNode = doc.GetElementbyId("contentWrapper")
+            var titleNode = this.Context.Document.GetElementbyId("contentWrapper")
                 .SelectSingleNode(".//div[contains(@class, 'productMainInfoContainer')]")
                 .SelectSingleNode(".//div[contains(@class, 'namePartPriceContainer')]")
                 .SelectSingleNode(".//h1");
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var imageNode = doc.GetElementbyId("productMainImage");
+            var imageNode = this.Context.Document.GetElementbyId("productMainImage");
                 
             var extractedValue = new Uri(this.Source.Domain, imageNode.Attributes["src"].Value);
 
-            return extractedValue.AbsoluteUri;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue.AbsoluteUri;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var wrapper = doc.GetElementbyId("contentWrapper");
+            var wrapper = this.Context.Document.GetElementbyId("contentWrapper");
             var container = wrapper.SelectSingleNode(".//div[contains(@class, 'productMainInfoContainer')]");
             var partPrice = container.SelectSingleNode(".//div[contains(@class, 'namePartPriceContainer')]");
             var priceNode = partPrice.SelectSingleNode(".//span[contains(@class, 'price')]");
@@ -47,7 +47,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var decimalDollarsValue = dollarsValue.InnerText.ExtractDecimal();
             var decimalCentsValue = centsValue.InnerText.ExtractDecimal();
 
-            return decimalDollarsValue + (decimalCentsValue / 100);
+            this.Context.SitePriceInfo.Price = decimalDollarsValue + (decimalCentsValue / 100);
         }
     }
 }

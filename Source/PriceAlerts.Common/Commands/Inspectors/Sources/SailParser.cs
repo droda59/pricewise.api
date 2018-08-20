@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -14,9 +14,9 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
         
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var title = doc.DocumentNode.SelectSingleNode(".//div[@class='product-essential']")
+            var title = this.Context.Document.DocumentNode.SelectSingleNode(".//div[@class='product-essential']")
                                 .SelectSingleNode(".//div[@class='product-shop']")
                                 .SelectSingleNode(".//div[@class='product-name']")
                                 .SelectSingleNode(".//span")
@@ -24,24 +24,24 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var nodeValue = doc.DocumentNode
+            var nodeValue = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//div[@class='product-essential']")
                 .SelectSingleNode(".//div[@class='product-image-gallery']")
                 .SelectSingleNode(".//img[@class='gallery-image visible']");
                 
             var extractedValue = nodeValue.Attributes["src"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var documentNode = doc.DocumentNode;
+            var documentNode = this.Context.Document.DocumentNode;
             var productEssential = documentNode.SelectSingleNode(".//div[@class='product-essential']");
             var priceBox = productEssential.SelectSingleNode(".//div[@class='price-box']");
             var prices = priceBox.SelectNodes(".//span[@class='price']");
@@ -54,7 +54,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var nodeValue = priceNode.InnerText;
             var decimalValue = nodeValue.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
     }
 }

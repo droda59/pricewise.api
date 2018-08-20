@@ -11,14 +11,14 @@ namespace PriceAlerts.Common.CommandHandlers.Sources
         public AmazonCommandHandler(AmazonSource source, 
             AmazonLinkManipulator manipulator,
             AmazonCleaner cleaner,
-            AmazonApiInspector apiInspector, 
+            AmazonApiParser apiParser, 
             AmazonHtmlParser htmlParser, 
             AmazonApiSearcher searcher)
             : base(source)
         {
             this.Commands.Add(manipulator);
             this.Commands.Add(cleaner);
-            this.Commands.Add(apiInspector);
+            this.Commands.Add(apiParser);
             this.Commands.Add(htmlParser);
             this.Commands.Add(searcher);
         }

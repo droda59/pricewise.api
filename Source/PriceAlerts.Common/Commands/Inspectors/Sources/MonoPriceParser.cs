@@ -1,5 +1,5 @@
 using System;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -13,38 +13,38 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
 
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNode = doc.DocumentNode.SelectSingleNode("//div[@class='product-name']");
+            var titleNode = this.Context.Document.DocumentNode.SelectSingleNode("//div[@class='product-name']");
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var nodeValue = doc.GetElementbyId("mono4");
+            var nodeValue = this.Context.Document.GetElementbyId("mono4");
             var extractedValue = nodeValue.Attributes["src"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var priceNode = doc.DocumentNode.SelectSingleNode("//span[@class='sale-price']");
+            var priceNode = this.Context.Document.DocumentNode.SelectSingleNode("//span[@class='sale-price']");
 
             var decimalValue = priceNode.InnerText.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
 
-        protected override string GetProductIdentifier(HtmlDocument doc)
+        protected override void ParseProductIdentifier()
         {
-            var productIdNode = doc.DocumentNode.SelectSingleNode("//div[@class='product-code']");
+            var productIdNode = this.Context.Document.DocumentNode.SelectSingleNode("//div[@class='product-code']");
             var text = productIdNode.InnerText;
 
-            return text.Split('#')[1].Trim();
+            this.Context.SitePriceInfo.ProductIdentifier = text.Split('#')[1].Trim();
         }
     }
 }

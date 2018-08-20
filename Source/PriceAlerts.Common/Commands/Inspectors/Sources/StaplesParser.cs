@@ -13,38 +13,38 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
         
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNode = doc.DocumentNode
+            var titleNode = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//div[@class='product-microformat']")
                 .SelectSingleNode(".//span[@itemprop='name']");
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var imageNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
+            var imageNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
                 
             var extractedValue = imageNode.Attributes["content"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var priceContent = doc.DocumentNode
+            var priceContent = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//*[@class='SEOFinalPrice']")
                 .InnerText;
 
             var decimalValue = priceContent.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
 
-        // protected override string GetProductIdentifier(HtmlDocument doc)
+        // protected override void ParseProductIdentifier()
         // {
         //     var modelNumberNode = doc.DocumentNode
         //         .SelectSingleNode("//div[contains(@class,'product-title-section')]")

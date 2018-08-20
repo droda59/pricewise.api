@@ -1,5 +1,5 @@
 ﻿using System;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -13,27 +13,27 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
 
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:title']");
+            var titleNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@property='og:title']");
 
             var extractedValue = titleNode.Attributes["content"].Value.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var imageNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
+            var imageNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
                 
             var extractedValue = imageNode.Attributes["content"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var priceContentNode = doc.DocumentNode
+            var priceContentNode = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//div[contains(@class, 'productDetails')]")
                 .SelectSingleNode(".//span[contains(@class, 'price-box__price')]")
                 .SelectSingleNode(".//span[contains(@class, 'price-box__price__amount')]");
@@ -44,7 +44,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var decimalDollarsValue = dollarsValue?.InnerText.Replace(",", string.Empty).ExtractDecimal() ?? 0m;
             var decimalCentsValue = centsValue?.InnerText.ExtractDecimal() ?? 0m;
 
-            return decimalDollarsValue + (decimalCentsValue / 100);
+            this.Context.SitePriceInfo.Price = decimalDollarsValue + (decimalCentsValue / 100);
         }
     }
 }

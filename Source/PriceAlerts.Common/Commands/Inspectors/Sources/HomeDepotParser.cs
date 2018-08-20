@@ -12,7 +12,7 @@ using HttpClient = System.Net.Http.HttpClient;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    public class HomeDepotParser : IInspector
+    public class HomeDepotParser : IParser
     {
         private readonly IDocumentLoader _documentLoader;
         private readonly HomeDepotSource _source;
@@ -25,7 +25,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         }
 
         [LoggingDescription("Parsing HTML")]
-        public async Task<SitePriceInfo> GetSiteInfo(Uri url)
+        public async Task<SitePriceInfo> Parse(Uri url)
         {
             var document = await this._documentLoader.LoadDocument(url, this._source.CustomHeaders);
             if (document == null)

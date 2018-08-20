@@ -1,5 +1,5 @@
 using System;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -13,31 +13,31 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
 
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNode = doc.DocumentNode.SelectSingleNode("//meta[@name='title']");
+            var titleNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@name='title']");
 
             var extractedValue = titleNode.Attributes["content"].Value.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var imageNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
+            var imageNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
                 
             var extractedValue = imageNode.Attributes["content"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var priceNode = doc.DocumentNode.SelectSingleNode("//meta[@name='price']");
+            var priceNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@name='price']");
 
             var decimalValue = priceNode.Attributes["content"].Value.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
     }
 }

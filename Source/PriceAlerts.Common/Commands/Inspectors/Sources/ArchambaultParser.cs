@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
-using System.Text;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -15,8 +14,9 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
 
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
+            var doc = this.Context.Document;
             var titleNode = doc.DocumentNode.SelectSingleNode(".//h1[contains(@class, 'product-description__title') and contains(@class, 'title')]");
             if (titleNode == null)
             {
@@ -27,21 +27,21 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var imageNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
+            var imageNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
                 
             var extractedValue = imageNode.Attributes["content"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var priceNodes = doc.DocumentNode
+            var priceNodes = this.Context.Document.DocumentNode
                 .SelectNodes(".//div[contains(@class, 'product-price__total')]")
                 .Where(x => !string.IsNullOrEmpty(x.InnerText))
                 .ToList();
@@ -51,15 +51,15 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 var content = priceNodes.First().InnerText;
                 var decimalValue = content.ExtractDecimal();
 
-                return decimalValue;
+                this.Context.SitePriceInfo.Price = decimalValue;
             }
 
-            return 0;
+            this.Context.SitePriceInfo.Price =  0;
         }
 
-        protected override string GetProductIdentifier(HtmlDocument doc)
+        protected override void ParseProductIdentifier()
         {
-            var propertiesNode = doc.GetElementbyId("outerDivProperties");
+            var propertiesNode = this.Context.Document.GetElementbyId("outerDivProperties");
             var properties = propertiesNode.SelectNodes(".//div[@class='block-description__row']");
             foreach (var property in properties)
             {
@@ -67,11 +67,9 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 var value = property.SelectSingleNode(".//div[@class='block-description__row-value']");
                 if (category.InnerText == "ISBN" && ISBNHelper.ISBN13Expression.IsMatch(value.InnerText))
                 {
-                    return ISBNHelper.ISBN13Expression.Match(value.InnerText).Value;
+                    this.Context.SitePriceInfo.ProductIdentifier = ISBNHelper.ISBN13Expression.Match(value.InnerText).Value;
                 }
             }
-
-            return string.Empty;
         }
     }
 }

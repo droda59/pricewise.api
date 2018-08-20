@@ -1,5 +1,5 @@
 using System;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -13,38 +13,38 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
         
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var documentNode = doc.DocumentNode;
+            var documentNode = this.Context.Document.DocumentNode;
             var productDetail = documentNode.SelectSingleNode(".//div[@class='product-detail']");
             var pageHeaderTitle = productDetail.SelectSingleNode(".//h1[@class='global-page-header__title']");
             var title = pageHeaderTitle.InnerText;
             
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var documentNode = doc.DocumentNode;
+            var documentNode = this.Context.Document.DocumentNode;
             var productDetail = documentNode.SelectSingleNode(".//div[@class='product-detail']");
             var imageNode = productDetail.SelectSingleNode(".//img[@class='product-detail__product-img']");
 
             var extractedValue = imageNode.Attributes["src"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var productDetail = doc.DocumentNode.SelectSingleNode(".//div[@class='product-detail']");
+            var productDetail = this.Context.Document.DocumentNode.SelectSingleNode(".//div[@class='product-detail']");
             var priceText = productDetail.SelectSingleNode(".//span[@class='product-detail__price-text']");
             var price = priceText.InnerText;
 
             var decimalValue = price.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
     }
 }

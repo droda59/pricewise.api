@@ -1,7 +1,5 @@
 using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -15,32 +13,32 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
 
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var documentNode = doc.DocumentNode;
+            var documentNode = this.Context.Document.DocumentNode;
             var itemDetails = documentNode.SelectSingleNode(".//div[@class='item-details block']");
             var textNode = itemDetails.SelectSingleNode(".//h1");
             var title = textNode.InnerText;
 
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title =  extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var documentNode = doc.DocumentNode;
+            var documentNode = this.Context.Document.DocumentNode;
             var productImage = documentNode.SelectSingleNode(".//p[@class='product-image']");
             var imageNode = productImage.SelectSingleNode(".//img");
 
             var extractedValue = imageNode.Attributes["src"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var priceBox = doc.DocumentNode.SelectSingleNode(".//div[@class='price-box']");
+            var priceBox = this.Context.Document.DocumentNode.SelectSingleNode(".//div[@class='price-box']");
             var specialPrice = priceBox.SelectSingleNode(".//p[@class='special-price']");
 
             var priceNode = specialPrice == null ?
@@ -53,7 +51,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 throw new NotSupportedException("PriceWise was unable to determine the correct price for the selected product.");
             }
 
-            return priceNode.InnerText.ExtractDecimal();
+            this.Context.SitePriceInfo.Price = priceNode.InnerText.ExtractDecimal();
         }
     }
 }

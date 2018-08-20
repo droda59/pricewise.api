@@ -43,10 +43,10 @@ namespace PriceAlerts.Common.CommandHandlers
             var cleanUrl = this.HandleCleanUrl(url);
 
             var currentIndex = 0;
-            var parsers = this.Commands.OfType<IInspector>().ToList();
+            var parsers = this.Commands.OfType<IParser>().ToList();
             while (siteInfo == null && currentIndex < parsers.Count)
             {
-                siteInfo = await parsers[currentIndex].GetSiteInfo(cleanUrl);
+                siteInfo = await parsers[currentIndex].Parse(cleanUrl);
                 currentIndex++;
             }
 

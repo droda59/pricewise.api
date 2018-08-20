@@ -14,38 +14,38 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
 
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNode = doc.DocumentNode.SelectSingleNode("//h1[@class='product-description-title']");
+            var titleNode = this.Context.Document.DocumentNode.SelectSingleNode("//h1[@class='product-description-title']");
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var containerNode = doc.DocumentNode.SelectSingleNode("//div[@class='product-description-image']");
+            var containerNode = this.Context.Document.DocumentNode.SelectSingleNode("//div[@class='product-description-image']");
             var sourceRegex = new Regex("src\\s*=\\s*\"(.+?)\"");
             var match = sourceRegex.Match(containerNode.OuterHtml);
             var extractedValue = match.Value.Substring(7, match.Value.Length -  8);
 
-            return "http://" + extractedValue;
+            this.Context.SitePriceInfo.ImageUrl =  "http://" + extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var priceNode = doc.DocumentNode.SelectSingleNode("//p[@class='price']");
+            var priceNode = this.Context.Document.DocumentNode.SelectSingleNode("//p[@class='price']");
 
             if(priceNode == null){
-                priceNode = doc.DocumentNode.SelectSingleNode("//p[@class='price price-rebate']");
+                priceNode = this.Context.Document.DocumentNode.SelectSingleNode("//p[@class='price price-rebate']");
             }
 
             var decimalValue = priceNode.InnerText.Split(':')[1].Replace("*", string.Empty).ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
 //
-//        protected override string GetProductIdentifier(HtmlDocument doc)
+//        protected override void ParseProductIdentifier()
 //        {
 //            var productIdNode = doc.DocumentNode.SelectSingleNode("//div[@class='product-description-row2']");
 //            var text = productIdNode.InnerText.Split(':')[2].Replace("\r\n", String.Empty).Trim();

@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Castle.Core.Internal;
-using HtmlAgilityPack;
 using Newtonsoft.Json;
+
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
 
@@ -19,8 +20,9 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             this._requestClient = requestClient;
         }
 
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
+            var doc = this.Context.Document;
             var titleNode = doc.DocumentNode
                 .SelectSingleNode(".//div[@class='pdp-header__main']")
                 .SelectSingleNode(".//h1");
@@ -34,24 +36,24 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var imageNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
+            var imageNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
                 
             var extractedValue = imageNode.Attributes["content"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
             var price = 0m;
 
             var productInfoJson = Enumerable.Empty<dynamic>();
-            var skuSelector = doc.DocumentNode.SelectSingleNode(".//form[@class='sku-selectors']");
+            var skuSelector = this.Context.Document.DocumentNode.SelectSingleNode(".//form[@class='sku-selectors']");
             if (skuSelector != null)
             {
                 var indexOfCode = skuSelector.OuterHtml.IndexOf("pCode", StringComparison.InvariantCultureIgnoreCase);
@@ -70,7 +72,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 }
             }
 
-            return price;
+            this.Context.SitePriceInfo.Price = price;
         }
 
         private IEnumerable<dynamic> GetProductInfo(string sku = null, string productId = null)

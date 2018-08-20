@@ -15,9 +15,9 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
 
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNode = doc.DocumentNode
+            var titleNode = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//div[@class='product_description-container']")
                 .SelectSingleNode(".//h1[contains(@class, 'item-page__main-title')]");
 
@@ -25,21 +25,21 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
             var extractedValue = titleAttribute.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var nodeValue = doc.DocumentNode
+            var nodeValue = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//div[@class='product-image-container']")
                 .SelectSingleNode(".//img[contains(@class, 'product-image__image')]");
 
-            return nodeValue.Attributes["src"].Value;
+            this.Context.SitePriceInfo.ImageUrl = nodeValue.Attributes["src"].Value;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var itemPriceNode = doc.DocumentNode.SelectSingleNode(".//div[contains(@class, 'item-price')]");
+            var itemPriceNode = this.Context.Document.DocumentNode.SelectSingleNode(".//div[contains(@class, 'item-price')]");
 
             string nodeValue;
             var priceContainer = itemPriceNode.SelectSingleNode(".//div[contains(@class, 'item-price__container')]");
@@ -69,12 +69,12 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
             var decimalValue = nodeValue.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
 
-        protected override string GetProductIdentifier(HtmlDocument doc)
+        protected override void ParseProductIdentifier()
         {
-            var isbnRootNode = doc.DocumentNode.SelectSingleNode(".//div[contains(@class, 'item-page__isbn-items')]");
+            var isbnRootNode = this.Context.Document.DocumentNode.SelectSingleNode(".//div[contains(@class, 'item-page__isbn-items')]");
             if (isbnRootNode != null)
             {
                 var isbnNodes = isbnRootNode.SelectNodes(".//span[contains(@class, 'item-page__spec-value')]");
@@ -82,7 +82,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 {
                     if (ISBNHelper.ISBN13Expression.IsMatch(isbnNode.InnerText))
                     {
-                        return ISBNHelper.ISBN13Expression.Match(isbnNode.InnerText).Value;
+                        this.Context.SitePriceInfo.ProductIdentifier = ISBNHelper.ISBN13Expression.Match(isbnNode.InnerText).Value;
                     }
                 }
                 
@@ -90,21 +90,19 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 {
                     if (ISBNHelper.ISBN10Expression.IsMatch(isbnNode.InnerText))
                     {
-                        return ISBNHelper.ISBN10Expression.Match(isbnNode.InnerText).Value;
+                        this.Context.SitePriceInfo.ProductIdentifier = ISBNHelper.ISBN10Expression.Match(isbnNode.InnerText).Value;
                     }
                 }
             }
 
-            var upcNodes = doc.DocumentNode.SelectNodes(".//span[contains(@class, 'item-page__spec-label')]");
+            var upcNodes = this.Context.Document.DocumentNode.SelectNodes(".//span[contains(@class, 'item-page__spec-label')]");
             foreach (var upcNode in upcNodes)
             {
                 if (upcNode.InnerText.Contains("UPC"))
                 {
-                    return upcNode.NextSibling.InnerText;
+                    this.Context.SitePriceInfo.ProductIdentifier = upcNode.NextSibling.InnerText;
                 }
             }
-
-            return string.Empty;
         }
     }
 }

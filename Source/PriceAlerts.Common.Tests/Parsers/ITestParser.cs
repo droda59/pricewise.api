@@ -5,7 +5,7 @@ using PriceAlerts.Common.Commands.Inspectors;
 
 namespace PriceAlerts.Common.Tests.Parsers
 {
-    internal interface ITestParser : IInspector
+    internal interface ITestParser : IParser
     {
         Task<IEnumerable<Uri>> GetTestProductsUrls();
     }

@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -14,30 +14,30 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
         
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var documentNode = doc.DocumentNode;
+            var documentNode = this.Context.Document.DocumentNode;
             var productLayout = documentNode.SelectSingleNode(".//div[contains(@class, 'product-layout')]");
             var productNames = productLayout.SelectNodes(".//h1[@class='product__name']");
             var title = productNames.First().InnerText;
 
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var documentNode = doc.DocumentNode;
+            var documentNode = this.Context.Document.DocumentNode;
             var imageMetaNode = documentNode.SelectSingleNode(".//meta[contains(@property, 'og:image')]");
             var extractedValue = imageMetaNode.Attributes["content"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var documentNode = doc.DocumentNode;
+            var documentNode = this.Context.Document.DocumentNode;
             var productLayout = documentNode.SelectSingleNode(".//div[contains(@class, 'product-layout')]");
             var priceGroup = productLayout.SelectSingleNode(".//ul[@class='price-group']");
             var priceNode = priceGroup.SelectSingleNode(".//li[@class='price']");
@@ -47,7 +47,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
             try
             {
-                return price.ExtractDecimal();
+                this.Context.SitePriceInfo.Price = price.ExtractDecimal();
             }
             catch (Exception)
             {

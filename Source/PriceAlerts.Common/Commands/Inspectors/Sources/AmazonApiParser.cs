@@ -11,7 +11,7 @@ using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.Commands.Inspectors.Sources
 {
-    public class AmazonApiInspector : IInspector
+    public class AmazonApiParser : IParser
     {
         private const string AccessKey = "AKIAI2USA5KCUXZQ32CQ";
         private const string SecretKey = "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";
@@ -19,7 +19,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         private readonly AmazonWrapper _apiWwrapper;
         private readonly AmazonSource _source;
 
-        public AmazonApiInspector(AmazonSource source)
+        public AmazonApiParser(AmazonSource source)
         {
             this._source = source;
             
@@ -33,7 +33,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         }
 
         [LoggingDescription("Parsing API")]
-        public async Task<SitePriceInfo> GetSiteInfo(Uri url)
+        public async Task<SitePriceInfo> Parse(Uri url)
         {
             Item item;
             var asin = this._source.AsinExpression.Match(url.AbsoluteUri).Value;

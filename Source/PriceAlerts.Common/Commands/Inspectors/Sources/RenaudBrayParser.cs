@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -14,48 +14,48 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
 
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNode = doc.DocumentNode.SelectSingleNode("//h1[@class='lblTitle']");
+            var titleNode = this.Context.Document.DocumentNode.SelectSingleNode("//h1[@class='lblTitle']");
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var imageNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
+            var imageNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
                 
             var extractedValue = imageNode.Attributes["content"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var priceNode = doc.DocumentNode
+            var priceNode = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//*[contains(@class, 'lblPrice_adv2')]");
 
             var nodeValue = priceNode.InnerText;
             var decimalValue = nodeValue.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
 
-        protected override string GetProductIdentifier(HtmlDocument doc)
+        protected override void ParseProductIdentifier()
         {
-            var isbnMetaNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:isbn']");
+            var isbnMetaNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@property='og:isbn']");
             if (isbnMetaNode != null)
             {
                 var isbnMetaValue = isbnMetaNode.Attributes["content"].Value;
                 if (ISBNHelper.ISBN13Expression.IsMatch(isbnMetaValue))
                 {
-                    return ISBNHelper.ISBN13Expression.Match(isbnMetaValue).Value;
+                    this.Context.SitePriceInfo.ProductIdentifier = ISBNHelper.ISBN13Expression.Match(isbnMetaValue).Value;
                 }
             }
 
-            var isbnSectionNode = doc.DocumentNode
+            var isbnSectionNode = this.Context.Document.DocumentNode
                 .SelectSingleNode("//table[@class='tblDetails_adv2']")
                 .SelectSingleNode(".//tr[contains(@id, 'ISBN')]");
 
@@ -65,23 +65,15 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                 var isbn13Value = isbnNode.InnerText.Split(' ').First();
                 if (ISBNHelper.ISBN13Expression.IsMatch(isbn13Value))
                 {
-                    return ISBNHelper.ISBN13Expression.Match(isbn13Value).Value;
+                    this.Context.SitePriceInfo.ProductIdentifier = ISBNHelper.ISBN13Expression.Match(isbn13Value).Value;
                 }
 
                 var isbn10Value = isbnNode.InnerText.Split(' ').Last().Replace("(", string.Empty).Replace(")", string.Empty);
                 if (ISBNHelper.ISBN10Expression.IsMatch(isbn10Value))
                 {
-                    return ISBNHelper.ISBN10Expression.Match(isbn10Value).Value;
+                    this.Context.SitePriceInfo.ProductIdentifier = ISBNHelper.ISBN10Expression.Match(isbn10Value).Value;
                 }
             }
-
-            // var upcMetaNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:upc']");
-            // if (upcMetaNode != null)
-            // {
-            //     return isbnMetaNode.Attributes["content"].Value;
-            // }
-
-            return string.Empty;
         }
     }
 }

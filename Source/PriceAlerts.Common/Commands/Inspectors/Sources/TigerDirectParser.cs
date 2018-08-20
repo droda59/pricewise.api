@@ -1,5 +1,5 @@
 using System;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -13,39 +13,39 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
         
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNode = doc.DocumentNode
+            var titleNode = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//div[@class='prodName']")
                 .SelectSingleNode(".//h1");
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var nodeValue = doc.DocumentNode
+            var nodeValue = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//div[@class='prdImg']")
                 .SelectSingleNode(".//td[@class='previewImgHolder']")
                 .SelectSingleNode(".//img");
                 
             var extractedValue = nodeValue.Attributes["src"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var priceContent = doc.DocumentNode
+            var priceContent = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//div[@itemprop='offers']")
                 .SelectSingleNode(".//meta[@itemprop='price']")
                 .Attributes["content"].Value;
 
             var decimalValue = priceContent.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
     }
 }

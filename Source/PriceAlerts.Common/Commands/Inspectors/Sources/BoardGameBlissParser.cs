@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 
-using HtmlAgilityPack;
-
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -16,30 +14,30 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
 
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:title']");
+            var titleNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@property='og:title']");
             
             var extractedValue = titleNode.Attributes["content"].Value.Replace(Environment.NewLine, string.Empty).Trim();
-            
-            return extractedValue;
+
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var imageNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
+            var imageNode = this.Context.Document.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
                 
             var extractedValue = imageNode.Attributes["content"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
             // This site is doing some Hacky McHack stuff in javascript to modify the dom.
             // This seems to prevent us from fetching directly the price-preview node with its id on some pages.
             // Also, you might not see this node by inspecting some pages because the javascript might tamper with it.
-            var priceNode = doc
+            var priceNode = this.Context.Document
                 .GetElementbyId("product")
                 .SelectSingleNode(".//div[@class='purchase']")
                 .SelectSingleNode(".//h2[@id='price-preview']");
@@ -50,7 +48,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             // we can safely assume the discounted price appears last.
             var decimalValue = nodeValue.Split("$").Last().ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
     }
 }

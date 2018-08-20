@@ -1,8 +1,5 @@
 using System;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using HtmlAgilityPack;
 using PriceAlerts.Common.Commands.Clients;
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
@@ -20,33 +17,33 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             this._apiClient = new SportsExpertsClient();
         }
         
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var documentNode = doc.DocumentNode;
+            var documentNode = this.Context.Document.DocumentNode;
             var productDetail = documentNode.SelectSingleNode(".//div[@class='product-detail']");
             var productDetailName = productDetail.SelectSingleNode(".//span[@class='product-detail-name']");
             var title = productDetailName.InnerText;
             
             var extractedValue = title.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var documentNode = doc.DocumentNode;
+            var documentNode = this.Context.Document.DocumentNode;
             var productDetail = documentNode.SelectSingleNode(".//div[@class='product-detail']");
             var producDetailsMedia = productDetail.SelectSingleNode(".//div[@class='product-details-media']");
             var imageNode = producDetailsMedia.SelectSingleNode(".//img[@class='img-fluid']");
                 
             var extractedValue = imageNode.Attributes["src"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var urlMetaNode = doc.DocumentNode.SelectSingleNode(".//meta[contains(@name, 'og:url')]");
+            var urlMetaNode = this.Context.Document.DocumentNode.SelectSingleNode(".//meta[contains(@name, 'og:url')]");
             var productIds = urlMetaNode.Attributes["content"].Value.Split('/').Reverse().Take(2).ToList();
             var productId = productIds.First(x => !x.Contains("-"));
             var variantId = productIds.First(x => x.Contains("-")) ?? productId;
@@ -60,7 +57,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var price = (string)variantPrices.First(x => ((string) x["VariantId"]) == variantId)["ListPrice"];
             var decimalValue = price.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
     }
 }

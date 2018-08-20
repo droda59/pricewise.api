@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -14,9 +14,9 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
         
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNodes = doc.DocumentNode
+            var titleNodes = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//h1[@class='product-title']")
                 .SelectNodes(".//span");
 
@@ -24,23 +24,23 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
 
             var extractedValue = concatedTitle.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var nodeValue = doc.DocumentNode
+            var nodeValue = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//div[@class='gallery-image-container']")
                 .SelectSingleNode(".//img");
                 
             var extractedValue = nodeValue.Attributes["src"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var priceNode = doc.DocumentNode
+            var priceNode = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//div[contains(@class, 'price-wrapper')]")
                 .SelectSingleNode(".//div[contains(@class, 'prodprice')]")
                 .SelectSingleNode(".//span[@class='amount']");
@@ -48,7 +48,7 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
             var nodeValue = priceNode.InnerText;
             var decimalValue = nodeValue.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
     }
 }

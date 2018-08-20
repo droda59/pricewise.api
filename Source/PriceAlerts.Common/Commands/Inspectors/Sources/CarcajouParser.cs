@@ -1,5 +1,5 @@
 using System;
-using HtmlAgilityPack;
+
 using PriceAlerts.Common.Extensions;
 using PriceAlerts.Common.Infrastructure;
 using PriceAlerts.Common.Sources;
@@ -13,40 +13,40 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
         {
         }
         
-        protected override string GetTitle(HtmlDocument doc)
+        protected override void ParseTitle()
         {
-            var titleNode = doc.GetElementbyId("desc_title");
+            var titleNode = this.Context.Document.GetElementbyId("desc_title");
 
             var extractedValue = titleNode.InnerText.Replace(Environment.NewLine, string.Empty).Trim();
 
-            return extractedValue;
+            this.Context.SitePriceInfo.Title = extractedValue;
         }
 
-        protected override string GetImageUrl(HtmlDocument doc)
+        protected override void ParseImageUrl()
         {
-            var nodeValue = doc.GetElementbyId("image_produit")
+            var nodeValue = this.Context.Document.GetElementbyId("image_produit")
                 .SelectSingleNode(".//img");
                 
             var extractedValue = nodeValue.Attributes["src"].Value;
 
-            return extractedValue;
+            this.Context.SitePriceInfo.ImageUrl = extractedValue;
         }
 
-        protected override decimal GetPrice(HtmlDocument doc)
+        protected override void ParsePrice()
         {
-            var priceNode = doc.DocumentNode
+            var priceNode = this.Context.Document.DocumentNode
                 .SelectSingleNode(".//span[contains(@class, 'desc_price')]")
                 .SelectSingleNode(".//span[contains(@class, 'price')]");
 
             var nodeValue = priceNode.InnerText;
             var decimalValue = nodeValue.ExtractDecimal();
 
-            return decimalValue;
+            this.Context.SitePriceInfo.Price = decimalValue;
         }
 
-        protected override string GetProductIdentifier(HtmlDocument doc)
+        protected override void ParseProductIdentifier()
         {
-            var descriptionNodes = doc.GetElementbyId("desc_top").SelectNodes(".//span[@class='desc_debut']");
+            var descriptionNodes = this.Context.Document.GetElementbyId("desc_top").SelectNodes(".//span[@class='desc_debut']");
             foreach (var descriptionNode in descriptionNodes)
             {
                 if (descriptionNode.InnerText.Contains("ISBN"))
@@ -54,12 +54,10 @@ namespace PriceAlerts.Common.Commands.Inspectors.Sources
                     var isbnNodeValue = descriptionNode.NextSibling.InnerText;
                     if (ISBNHelper.ISBN13Expression.IsMatch(isbnNodeValue))
                     {
-                        return ISBNHelper.ISBN13Expression.Match(isbnNodeValue).Value;
+                        this.Context.SitePriceInfo.ProductIdentifier = ISBNHelper.ISBN13Expression.Match(isbnNodeValue).Value;
                     }
                 }
             }
-
-            return string.Empty;
         }
     }
 }
