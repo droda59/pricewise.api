@@ -10,8 +10,8 @@ namespace PriceAlerts.Common.Commands.Searchers.Sources
 {
     public class AmazonApiSearcher : ISearcher
     {
-        private const string AccessKey = "AKIAIBE5OUZPPCBIESVA";
-        private const string SecretKey = "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";
+        private const string AccessKey = "AKIAI2USA5KCUXZQ32CQ";
+        private const string SecretKey = "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";
         
         private readonly AmazonWrapper _apiWwrapper;
 
@@ -27,7 +27,7 @@ namespace PriceAlerts.Common.Commands.Searchers.Sources
         }
 
         [LoggingDescription("Searching API for URLs")]
-        public virtual async Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm, int maxResultCount = 5)
+        public virtual async Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm, int maxResultCount = 3)
         {
             var result = await this._apiWwrapper.SearchAsync(searchTerm, AmazonSearchIndex.All, AmazonResponseGroup.ItemAttributes);
 
@@ -38,7 +38,16 @@ namespace PriceAlerts.Common.Commands.Searchers.Sources
             
             var item = result.Items.Item.Take(maxResultCount);
             
-            return item.Select(x => new Uri(x.DetailPageURL));
+            return item.Select(x => 
+            {
+                var detailPageURL = x.DetailPageURL;
+                if (!detailPageURL.EndsWith('/'))
+                {
+                    detailPageURL = detailPageURL += "/";
+                }
+
+                return new Uri(detailPageURL);
+            });
         }
     }
 }
