@@ -26,6 +26,7 @@ namespace PriceAlerts.Api.Factories
             var userAlert = new UserAlertDto
             {
                 Id = repoAlert.Id,
+                Title = repoAlert.Title,
                 ModifiedAt = repoAlert.BestCurrentDeal.ModifiedAt,
             };
 

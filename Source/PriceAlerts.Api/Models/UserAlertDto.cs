@@ -12,6 +12,8 @@ namespace PriceAlerts.Api.Models
 
         public string Id { get; set; }
 
+        public string Title { get; set; }
+
         public DateTime ModifiedAt { get; set; }
 
         public IList<UserAlertEntryDto> Entries { get; set; }

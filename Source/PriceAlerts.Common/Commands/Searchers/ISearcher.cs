@@ -6,6 +6,6 @@ namespace PriceAlerts.Common.Commands.Searchers
 {
     public interface ISearcher : ICommand
     {
-        Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm, int maxResultCount = 5);
+        Task<IEnumerable<Uri>> GetProductsUrls(string searchTerm, int maxResultCount = 3);
     }
 }

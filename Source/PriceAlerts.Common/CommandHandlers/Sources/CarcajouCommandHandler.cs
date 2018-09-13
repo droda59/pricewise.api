@@ -1,6 +1,5 @@
 using PriceAlerts.Common.Commands.Cleaners.Sources;
 using PriceAlerts.Common.Commands.Inspectors.Sources;
-using PriceAlerts.Common.Commands.Searchers.Sources;
 using PriceAlerts.Common.Sources;
 
 namespace PriceAlerts.Common.CommandHandlers.Sources
@@ -9,13 +8,11 @@ namespace PriceAlerts.Common.CommandHandlers.Sources
     {
         public CarcajouCommandHandler(CarcajouSource source, 
             CarcajouCleaner cleaner, 
-            CarcajouParser parser, 
-            CarcajouSearcher searcher)
+            CarcajouParser parser)
             : base(source)
         {
             this.Commands.Add(cleaner);
             this.Commands.Add(parser);
-            this.Commands.Add(searcher);
         }
     }
 }

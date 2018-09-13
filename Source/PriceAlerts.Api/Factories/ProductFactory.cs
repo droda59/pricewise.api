@@ -56,7 +56,6 @@ namespace PriceAlerts.Api.Factories
             var cleanUrl = handler.HandleCleanUrl(url);
             
             var siteInfo = await handler.HandleGetInfo(cleanUrl);
-
             if (siteInfo == null)
             {
                 throw new ParseException("PriceWise was unable to get the product information.", cleanUrl);

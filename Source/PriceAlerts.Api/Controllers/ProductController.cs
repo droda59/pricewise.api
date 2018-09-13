@@ -33,11 +33,10 @@ namespace PriceAlerts.Api.Controllers
         }
 
         [HttpPost]
-        [LoggingDescription("*** REQUEST to find products ***")]
-        public virtual async Task<IActionResult> FindProductsByIdentifier([FromBody] string[] productIdentifiers)
+        [LoggingDescription("*** REQUEST to search products ***")]
+        public virtual async Task<IActionResult> SearchProducts([FromBody] string searchTerm)
         {
-            // Do not search for an empty identifier
-            if (!productIdentifiers.Any())
+            if (string.IsNullOrWhiteSpace(searchTerm))
             {
                 return this.NoContent();
             }
@@ -46,41 +45,29 @@ namespace PriceAlerts.Api.Controllers
 
             try
             {
-                var knownProducts = new List<MonitoredProduct>();
                 var newProducts = new List<MonitoredProduct>();
-                foreach (var productIdentifier in productIdentifiers)
-                {
-                    // Get all products with the product identifier from the database
-                    var productIdentifierProducts = (await this._productRepository.GetAllByProductIdentifierAsync(productIdentifier)).ToList();
-                    var knownProductsSources = productIdentifierProducts.Select(x => new Uri(x.Uri).Authority).ToList();
-                    
-                    knownProducts.AddRange(productIdentifierProducts);
 
-                    await Task.WhenAll(this._handlers.Select(async handler =>
+                await Task.WhenAll(this._handlers.Select(async handler =>
+                {
+                    var newProductsUrls = await handler.HandleSearch(searchTerm);
+                    foreach (var url in newProductsUrls)
                     {
-                        if (!knownProductsSources.Contains(handler.Domain.Authority))
+                        try
                         {
-                            var newProductsUrls = await handler.HandleSearch(productIdentifier);
-                            foreach (var url in newProductsUrls)
+                            var newProduct = await this._productFactory.CreateUpdatedProduct(url);
+                            lock (lockObject)
                             {
-                                try
-                                {
-                                    var newProduct = await this._productFactory.CreateUpdatedProduct(url);
-                                    lock (lockObject)
-                                    {
-                                        newProducts.Add(newProduct);
-                                    }
-                                }
-                                catch (Exception)
-                                {
-                                    // ignored
-                                }
+                                newProducts.Add(newProduct);
                             }
                         }
-                    }));
-                }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
+                    }
+                }));
 
-                var allProducts = knownProducts.Concat(newProducts).DistinctBy(x => x.Uri).Select(this.CreateProductInfo);
+                var allProducts = newProducts.DistinctBy(x => x.Uri).Select(this.CreateProductInfo).ToList();
 
                 return this.Ok(allProducts);
             }
@@ -89,6 +76,64 @@ namespace PriceAlerts.Api.Controllers
                 return this.BadRequest(e.Message);
             }
         }
+
+        // [HttpPost]
+        // [LoggingDescription("*** REQUEST to find products ***")]
+        // public virtual async Task<IActionResult> FindProductsByIdentifier([FromBody] string[] productIdentifiers)
+        // {
+        //     // Do not search for an empty identifier
+        //     if (!productIdentifiers.Any())
+        //     {
+        //         return this.NoContent();
+        //     }
+            
+        //     var lockObject = new object();
+
+        //     try
+        //     {
+        //         var knownProducts = new List<MonitoredProduct>();
+        //         var newProducts = new List<MonitoredProduct>();
+        //         foreach (var productIdentifier in productIdentifiers)
+        //         {
+        //             // Get all products with the product identifier from the database
+        //             var productIdentifierProducts = (await this._productRepository.GetAllByProductIdentifierAsync(productIdentifier)).ToList();
+        //             var knownProductsSources = productIdentifierProducts.Select(x => new Uri(x.Uri).Authority).ToList();
+                    
+        //             knownProducts.AddRange(productIdentifierProducts);
+
+        //             await Task.WhenAll(this._handlers.Select(async handler =>
+        //             {
+        //                 if (!knownProductsSources.Contains(handler.Domain.Authority))
+        //                 {
+        //                     var newProductsUrls = await handler.HandleSearch(productIdentifier);
+        //                     foreach (var url in newProductsUrls)
+        //                     {
+        //                         try
+        //                         {
+        //                             var newProduct = await this._productFactory.CreateUpdatedProduct(url);
+        //                             lock (lockObject)
+        //                             {
+        //                                 newProducts.Add(newProduct);
+        //                             }
+        //                         }
+        //                         catch (Exception)
+        //                         {
+        //                             // ignored
+        //                         }
+        //                     }
+        //                 }
+        //             }));
+        //         }
+
+        //         var allProducts = knownProducts.Concat(newProducts).DistinctBy(x => x.Uri).Select(this.CreateProductInfo);
+
+        //         return this.Ok(allProducts);
+        //     }
+        //     catch (ParseException e)
+        //     {
+        //         return this.BadRequest(e.Message);
+        //     }
+        // }
 
         private ProductInfo CreateProductInfo(MonitoredProduct product)
         {
