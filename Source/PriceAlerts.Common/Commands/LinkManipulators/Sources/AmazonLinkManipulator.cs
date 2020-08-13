@@ -5,7 +5,7 @@ namespace PriceAlerts.Common.Commands.LinkManipulators.Sources
 {
     public class AmazonLinkManipulator : ILinkManipulator
     {
-        private const string StoreId = "pricewise0b0b-20";
+        private const string StoreId = "";
 
         [LoggingDescription("Manipulating URL")]
         public Uri ManipulateLink(Uri originalUrl)
