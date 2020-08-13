@@ -6,7 +6,7 @@ namespace PriceAlerts.Common.Database
     {
         protected EntityRepository()
         {
-            var client = new MongoClient("mongodb://admin:admin@ds159050.mlab.com:59050/pricealerts");
+            var client = new MongoClient("");
             var database = client.GetDatabase("pricealerts");
 
             this.Collection = database.GetCollection<TDocument>(typeof(TDocument).Name.ToLower());
